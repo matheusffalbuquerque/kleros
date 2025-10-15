@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controllers - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (mesmo das outras páginas) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link active">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🎛️ Controllers</h1>
+                <p class="page-subtitle">
+                    Lógica de aplicação, fluxos de dados e implementação dos Controllers no sistema Kleros.
+                </p>
+            </div>
+
+            <!-- Estrutura de Controllers -->
+            <section class="card" id="structure">
+                <div class="card-header">
+                    <h2 class="card-title">📁 Estrutura de Controllers</h2>
+                    <p class="card-description">Organização e hierarquia dos controllers</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+app/Http/Controllers/
+├── Controller.php                  # Base controller
+├── Admin/
+│   └── AdminController.php         # Painel administrativo
+├── Auth/
+│   └── ForgotPasswordController.php # Reset de senha
+├── HomeController.php              # Dashboard principal
+├── CongregacaoController.php       # Gestão de congregações
+├── MembroController.php            # Gestão de membros
+├── CultoController.php             # Gestão de cultos
+├── MinisterioController.php        # Gestão de ministérios
+├── FinanceiroController.php        # Gestão financeira
+├── RelatorioController.php         # Relatórios
+├── ArquivoController.php           # Upload de arquivos
+├── LocalizacaoController.php       # APIs de localização
+└── ExtensoesController.php         # Gestão de módulos
+
+modules/
+├── Celulas/Http/Controllers/       # Controllers do módulo Células
+├── Cursos/Http/Controllers/        # Controllers do módulo Cursos
+├── Drive/Http/Controllers/         # Controllers do módulo Drive
+└── Projetos/Http/Controllers/      # Controllers do módulo Projetos
+</pre>
+                </div>
+            </section>
+
+            <!-- Base Controller -->
+            <section class="card" id="base-controller">
+                <div class="card-header">
+                    <h2 class="card-title">🏗️ Base Controller</h2>
+                    <p class="card-description">Controller base com funcionalidades comuns</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+<?php
+
+namespace App\Http\Controllers;
+
+abstract class Controller
+{
+    // Laravel 11 usa controller base minimalista
+    // Funcionalidades comuns são implementadas via Traits ou Helpers
+}
+
+// Traits úteis para controllers
+trait HasFileUpload
+{
+    protected function uploadFile($file, $path = 'uploads')
+    {
+        return $file->store($path, 'public');
+    }
+}
+
+trait HasJsonResponses
+{
+    protected function jsonSuccess($data = [], $message = 'Sucesso')
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data
+        ]);
+    }
+    
+    protected function jsonError($message = 'Erro', $code = 400)
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message
+        ], $code);
+    }
+}
+</pre>
+                </div>
+            </section>
+
+            <!-- Controllers Principais -->
+            <section class="card" id="main-controllers">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Controllers Principais</h2>
+                    <p class="card-description">Funcionalidades core do sistema</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <!-- AdminController -->
+                    <div>
+                        <h4>👑 AdminController</h4>
+                        <p>Painel administrativo multi-denominacional</p>
+                        <div class="code-block">
+                            <pre>
+class AdminController extends Controller
+{
+    // Login administrativo
+    public function login() {
+        return view('admin.login');
+    }
+    
+    // Autenticação com roles
+    public function authenticate(Request $request) {
+        // Valida credenciais
+        // Verifica role (admin/kleros)
+        // Redireciona para painel correto
+    }
+    
+    // Dashboard Kleros (super admin)
+    public function dashboard() {
+        // Apenas role 'kleros'
+        // Dados globais do sistema
+    }
+    
+    // Painel denominacional 
+    public function manage() {
+        // Role 'admin' ou 'kleros'
+        // Filtra dados por denominação
+        // Interface de gestão
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- HomeController -->
+                    <div>
+                        <h4>🏠 HomeController</h4>
+                        <p>Dashboard e autenticação da congregação</p>
+                        <div class="code-block">
+                            <pre>
+class HomeController extends Controller
+{
+    // Dashboard principal
+    public function index() {
+        $congregacao = app('congregacao');
+        
+        // Estatísticas da congregação
+        $membros = Membro::count();
+        $celulas = Celula::count();
+        $eventosProximos = Evento::proximos();
+        
+        return view('dashboard', compact(
+            'congregacao', 'membros', 
+            'celulas', 'eventosProximos'
+        ));
+    }
+    
+    // Login da congregação
+    public function login() {
+        return view('auth.login');
+    }
+    
+    // Autenticação
+    public function authenticate(Request $request) {
+        // Valida credenciais
+        // Verifica se membro pertence à congregação
+        // Aplica roles (gestor/membro)
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- MembroController -->
+                    <div>
+                        <h4>👥 MembroController</h4>
+                        <p>Gestão completa de membros</p>
+                        <div class="code-block">
+                            <pre>
+class MembroController extends Controller
+{
+    // Listar membros
+    public function index() {
+        $membros = Membro::with('celulas')
+            ->ativos()
+            ->paginate(50);
+            
+        return view('membros.index', compact('membros'));
+    }
+    
+    // Criar membro
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'primeiro_nome' => 'required|string|max:255',
+            'sobrenome' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:membros',
+            'data_nascimento' => 'nullable|date',
+        ]);
+        
+        $validated['congregacao_id'] = app('congregacao')->id;
+        
+        Membro::create($validated);
+        
+        return redirect()->route('membros.index')
+            ->with('success', 'Membro cadastrado!');
+    }
+    
+    // Busca dinâmica
+    public function search(Request $request) {
+        $query = $request->get('q');
+        
+        $membros = Membro::where('primeiro_nome', 'like', "%{$query}%")
+            ->orWhere('sobrenome', 'like', "%{$query}%")
+            ->limit(10)
+            ->get();
+            
+        return response()->json($membros);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- CongregacaoController -->
+                    <div>
+                        <h4>⛪ CongregacaoController</h4>
+                        <p>Gestão de congregações (admin)</p>
+                        <div class="code-block">
+                            <pre>
+class CongregacaoController extends Controller
+{
+    // Cadastro inicial
+    public function create() {
+        $denominacoes = Denominacao::ativas()->get();
+        $paises = Pais::all();
+        
+        return view('congregacoes.create', compact(
+            'denominacoes', 'paises'
+        ));
+    }
+    
+    // Criar congregação
+    public function store(Request $request) {
+        DB::transaction(function () use ($request) {
+            // 1. Criar congregação
+            $congregacao = Congregacao::create($validated);
+            
+            // 2. Criar domínio
+            Dominio::create([
+                'congregacao_id' => $congregacao->id,
+                'dominio' => $request->dominio,
+                'ativo' => true
+            ]);
+            
+            // 3. Criar usuário gestor
+            $user = User::create([
+                'name' => $request->gestor_nome,
+                'email' => $request->gestor_email,
+                'password' => $request->gestor_senha,
+                'congregacao_id' => $congregacao->id
+            ]);
+            
+            // 4. Atribuir role
+            $user->assignRole('gestor');
+            
+            // 5. Enviar email de boas-vindas
+            Mail::to($user)->send(new CongregacaoGestorBoasVindas($congregacao));
+        });
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Padrões de Controller -->
+            <section class="card" id="patterns">
+                <div class="card-header">
+                    <h2 class="card-title">🎨 Padrões de Implementação</h2>
+                    <p class="card-description">Boas práticas e padrões utilizados</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>CRUD Padrão</h4>
+                        <div class="code-block">
+                            <pre>
+class CultoController extends Controller
+{
+    // GET /cultos
+    public function index() {
+        $cultos = Culto::with('congregacao')
+            ->orderBy('data_hora', 'desc')
+            ->paginate(20);
+            
+        return view('cultos.index', compact('cultos'));
+    }
+    
+    // GET /cultos/create
+    public function create() {
+        return view('cultos.create');
+    }
+    
+    // POST /cultos
+    public function store(Request $request) {
+        $validated = $request->validate([...]);
+        $validated['congregacao_id'] = app('congregacao')->id;
+        
+        Culto::create($validated);
+        
+        return redirect()->route('cultos.index');
+    }
+    
+    // GET /cultos/{id}
+    public function show(Culto $culto) {
+        return view('cultos.show', compact('culto'));
+    }
+    
+    // GET /cultos/{id}/edit
+    public function edit(Culto $culto) {
+        return view('cultos.edit', compact('culto'));
+    }
+    
+    // PUT /cultos/{id}
+    public function update(Request $request, Culto $culto) {
+        $validated = $request->validate([...]);
+        $culto->update($validated);
+        
+        return redirect()->route('cultos.index');
+    }
+    
+    // DELETE /cultos/{id}
+    public function destroy(Culto $culto) {
+        $culto->delete();
+        
+        return redirect()->route('cultos.index');
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>API/JSON Responses</h4>
+                        <div class="code-block">
+                            <pre>
+class LocalizacaoController extends Controller
+{
+    // API para buscar estados
+    public function getEstados($pais_id) {
+        $estados = Estado::where('pais_id', $pais_id)->get();
+        
+        return response()->json($estados);
+    }
+    
+    // API para buscar cidades
+    public function getCidades($estado_id) {
+        $uf = Estado::findOrFail($estado_id)->uf;
+        $cidades = Cidade::where('uf', $uf)->get();
+        
+        return response()->json($cidades);
+    }
+}
+
+class MembroController extends Controller
+{
+    // Busca AJAX
+    public function search(Request $request) {
+        $query = $request->get('q', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+        
+        $membros = Membro::where('primeiro_nome', 'like', "%{$query}%")
+            ->orWhere('sobrenome', 'like', "%{$query}%")
+            ->select('id', 'primeiro_nome', 'sobrenome')
+            ->limit(10)
+            ->get()
+            ->map(function ($membro) {
+                return [
+                    'id' => $membro->id,
+                    'text' => $membro->primeiro_nome . ' ' . $membro->sobrenome
+                ];
+            });
+            
+        return response()->json($membros);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Injeção de Dependência -->
+            <section class="card" id="dependency-injection">
+                <div class="card-header">
+                    <h2 class="card-title">💉 Injeção de Dependência</h2>
+                    <p class="card-description">Como o sistema resolve dependências</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Service Container</h4>
+                        <div class="code-block">
+                            <pre>
+// AppServiceProvider.php
+public function boot()
+{
+    // Bind da congregação atual
+    $this->app->singleton('congregacao', function () {
+        $domain = request()->getHost();
+        $subdomain = explode('.', $domain)[0];
+        
+        return Dominio::where('dominio', $subdomain)
+            ->with('congregacao')
+            ->first()
+            ?->congregacao;
+    });
+}
+
+// Uso nos controllers
+class MembroController extends Controller
+{
+    public function index()
+    {
+        // Injeta automaticamente via service container
+        $congregacao = app('congregacao');
+        
+        $membros = $congregacao->membros()
+            ->ativos()
+            ->paginate(50);
+            
+        return view('membros.index', compact('membros'));
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Model Binding</h4>
+                        <div class="code-block">
+                            <pre>
+// Rota com model binding
+Route::get('/membros/{membro}', [MembroController::class, 'show']);
+
+// Controller recebe automaticamente o model
+class MembroController extends Controller
+{
+    public function show(Membro $membro)
+    {
+        // $membro já é instância do Eloquent
+        return view('membros.show', compact('membro'));
+    }
+    
+    public function update(Request $request, Membro $membro)
+    {
+        $validated = $request->validate([...]);
+        $membro->update($validated);
+        
+        return redirect()->route('membros.show', $membro);
+    }
+}
+
+// Model binding customizado
+public function boot()
+{
+    Route::bind('membro', function ($id) {
+        return Membro::where('id', $id)
+            ->where('congregacao_id', app('congregacao')->id)
+            ->firstOrFail();
+    });
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Validação -->
+            <section class="card" id="validation">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Validação</h2>
+                    <p class="card-description">Estratégias de validação de dados</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Validação Inline</h4>
+                        <div class="code-block">
+                            <pre>
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'primeiro_nome' => 'required|string|max:255',
+        'sobrenome' => 'required|string|max:255',
+        'email' => [
+            'nullable',
+            'email',
+            'unique:membros,email,NULL,id,congregacao_id,' . app('congregacao')->id
+        ],
+        'telefone' => 'nullable|string|max:20',
+        'data_nascimento' => 'nullable|date|before:today',
+        'sexo' => 'nullable|in:M,F',
+    ], [
+        'email.unique' => 'Este email já está em uso nesta congregação.',
+        'data_nascimento.before' => 'Data de nascimento deve ser anterior a hoje.',
+    ]);
+    
+    $validated['congregacao_id'] = app('congregacao')->id;
+    
+    Membro::create($validated);
+    
+    return redirect()->route('membros.index')
+        ->with('success', 'Membro cadastrado com sucesso!');
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Form Requests</h4>
+                        <div class="code-block">
+                            <pre>
+// app/Http/Requests/StoreMembro.php
+class StoreMembroRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return auth()->user()->hasRole(['gestor', 'admin']);
+    }
+    
+    public function rules()
+    {
+        $congregacaoId = app('congregacao')->id;
+        
+        return [
+            'primeiro_nome' => 'required|string|max:255',
+            'sobrenome' => 'required|string|max:255',
+            'email' => [
+                'nullable',
+                'email',
+                "unique:membros,email,NULL,id,congregacao_id,{$congregacaoId}"
+            ],
+            'data_nascimento' => 'nullable|date|before:today',
+        ];
+    }
+    
+    public function messages()
+    {
+        return [
+            'email.unique' => 'Este email já está em uso.',
+        ];
+    }
+    
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'congregacao_id' => app('congregacao')->id,
+        ]);
+    }
+}
+
+// Controller
+public function store(StoreMembroRequest $request)
+{
+    Membro::create($request->validated());
+    
+    return redirect()->route('membros.index');
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Upload -->
+            <section class="card" id="file-upload">
+                <div class="card-header">
+                    <h2 class="card-title">📁 Upload de Arquivos</h2>
+                    <p class="card-description">Gestão de uploads e armazenamento</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+class ArquivoController extends Controller
+{
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'arquivo' => 'required|file|max:10240', // 10MB
+            'tipo' => 'required|in:documento,imagem,video,audio',
+        ]);
+        
+        $file = $request->file('arquivo');
+        $congregacao = app('congregacao');
+        
+        // Gerar nome único
+        $filename = time() . '_' . Str::random(10) . '.' . $file->extension();
+        
+        // Armazenar no diretório da congregação
+        $path = $file->storeAs(
+            "congregacoes/{$congregacao->id}/arquivos",
+            $filename,
+            'public'
+        );
+        
+        // Salvar no banco
+        $arquivo = Arquivo::create([
+            'congregacao_id' => $congregacao->id,
+            'nome' => $file->getClientOriginalName(),
+            'caminho' => $path,
+            'tipo' => $request->tipo,
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'arquivo' => $arquivo,
+            'url' => Storage::url($path)
+        ]);
+    }
+    
+    public function download(Arquivo $arquivo)
+    {
+        // Verificar permissão
+        if ($arquivo->congregacao_id !== app('congregacao')->id) {
+            abort(403);
+        }
+        
+        return Storage::download($arquivo->caminho, $arquivo->nome);
+    }
+}
+</pre>
+                </div>
+            </section>
+
+            <!-- Middleware nos Controllers -->
+            <section class="card" id="controller-middleware">
+                <div class="card-header">
+                    <h2 class="card-title">🛡️ Middleware nos Controllers</h2>
+                    <p class="card-description">Aplicação de middleware específico</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+class MembroController extends Controller
+{
+    public function __construct()
+    {
+        // Middleware para todas as ações
+        $this->middleware('auth');
+        $this->middleware('dominio');
+        
+        // Middleware para ações específicas
+        $this->middleware('role:gestor')->only([
+            'create', 'store', 'edit', 'update', 'destroy'
+        ]);
+        
+        // Middleware exceto certas ações
+        $this->middleware('member.activity')->except(['api']);
+    }
+}
+
+// Middleware inline
+class RelatorioController extends Controller
+{
+    public function financeiro()
+    {
+        // Middleware aplicado inline
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()->hasRole(['gestor', 'admin'])) {
+                abort(403, 'Acesso negado aos relatórios financeiros.');
+            }
+            
+            return $next($request);
+        });
+        
+        // Lógica do relatório...
+    }
+}
+</pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

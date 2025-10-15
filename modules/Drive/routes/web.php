@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Drive\Http\Controllers\DriveController;
 
-Route::middleware(['web', 'dominio', 'auth', 'role:gestor'])
+Route::middleware(['web', 'dominio', 'auth', 'gestor'])
     ->prefix('drive')
     ->name('drive.')
     ->group(function () {

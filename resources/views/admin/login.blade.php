@@ -16,6 +16,12 @@
             <p class="text-sm text-white/60 mt-1">Acesso ao painel administrativo</p>
         </div>
 
+        @if(session('error'))
+            <div class="mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-200 text-sm p-3">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-200 text-sm p-3">
                 {{ $errors->first() }}

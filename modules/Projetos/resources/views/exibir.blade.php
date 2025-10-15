@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        @role('gestor')
+        @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
         <form action="{{ route('projetos.listas.store', $projeto) }}" method="post" class="projeto-lista-form">
             @csrf
             <label>
@@ -25,7 +25,7 @@
             <button class="btn" onclick="window.history.back();"><i class="bi bi-arrow-left"></i> Voltar</button>
             <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Criar lista</button>
         </form>
-        @endrole
+        @endif
     </div>
 
     <div class="projeto-quadros">
@@ -62,7 +62,7 @@
                     @endforelse
                 </div>
 
-                @role('gestor')
+                @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                     <div class="projeto-lista__footer">
                         <button type="button" class="btn btn-light btn-add-card" data-list="{{ $lista->id }}">
                             <i class="bi bi-plus-lg"></i> Adicionar card
@@ -77,7 +77,7 @@
                             <button type="button" class="btn btn-light btn-sm projeto-card-form__cancel" data-list="{{ $lista->id }}"><i class="bi bi-x-lg"></i> Cancelar</button>
                         </div>
                     </form>
-                @endrole
+                @endif
             </section>
         @empty
             <div class="projeto-empty">

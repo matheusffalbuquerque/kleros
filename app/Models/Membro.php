@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 class Membro extends Model
 {
 
-    protected $cast = [
+    protected $casts = [
         'data_nascimento' => 'date',
         'data_batismo' => 'date',
         'data_conversao' => 'date',
@@ -41,12 +41,19 @@ class Membro extends Model
     {
         return $this->belongsToMany(Celula::class, 'membro_celula', 'membro_id', 'celula_id');
     }
-
-    public function denominacao() {
-        return $this->belongsTo(Denominacao::class);
-    }
     public function congregacao() {
         return $this->belongsTo(Congregacao::class);
+    }
+     public function denominacao()
+    {
+        return $this->hasOneThrough(
+            Denominacao::class,   // related
+            Congregacao::class,   // through
+            'id',                 // firstKey on "through" (congregacoes.id)
+            'id',                 // secondKey on "related" (denominacoes.id)
+            'congregacao_id',     // local key on this model (membros.congregacao_id)
+            'denominacao_id'      // local key on through (congregacoes.denominacao_id)
+        );
     }
     public function setor() {
         return $this->belongsTo(Setor::class);

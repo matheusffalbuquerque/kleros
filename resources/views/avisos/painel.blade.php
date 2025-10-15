@@ -12,7 +12,7 @@
 
     <div class="avisos-pane nao-imprimir">
         <aside class="avisos-list" id="avisoList">
-            @role('gestor')
+            @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                 <div class="aviso-list-actions">
                     <button type="button" onclick="abrirJanelaModal('{{ route('avisos.form_criar') }}')">
                         <i class="bi bi-plus-circle"></i> Nova Mensagem
@@ -21,7 +21,7 @@
                         <i class="bi bi-arrow-return-left"></i> Voltar
                     </button>
                 </div>
-            @endrole
+            @endif
             @forelse ($avisos as $item)
                 @php
                     $enviadoPor = optional(optional($item->criador)->membro);

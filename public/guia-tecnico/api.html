@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIs - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link active">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🔌 APIs</h1>
+                <p class="page-subtitle">
+                    Sistema de APIs RESTful, integração com aplicativos móveis e serviços externos.
+                </p>
+            </div>
+
+            <!-- Visão Geral -->
+            <section class="card" id="overview">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Arquitetura das APIs</h2>
+                    <p class="card-description">Como as APIs estão estruturadas no Kleros</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Estrutura da API</h4>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">🏗️</span>
+                                <span><strong>REST:</strong> Arquitetura RESTful padrão</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔐</span>
+                                <span><strong>Autenticação:</strong> Laravel Sanctum com tokens</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📄</span>
+                                <span><strong>Formato:</strong> JSON request/response</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🎯</span>
+                                <span><strong>Versionamento:</strong> /api/v1 prefix</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🛡️</span>
+                                <span><strong>Rate Limiting:</strong> 60 requests/minuto</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📊</span>
+                                <span><strong>Paginação:</strong> Link headers + meta</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Base URLs</h4>
+                        <div class="code-block">
+                            <pre>
+# Produção
+https://{congregacao}.kleros.app/api/v1
+
+# Desenvolvimento
+http://{congregacao}.kleros.local/api/v1
+
+# Exemplos
+https://primeiraigreja.kleros.app/api/v1/membros
+http://testecongregacao.kleros.local/api/v1/cultos
+
+Headers padrão:
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {token}
+
+Resposta padrão:
+{
+    "data": [...],
+    "message": "Success",
+    "status": 200,
+    "meta": {
+        "total": 150,
+        "per_page": 20,
+        "current_page": 1,
+        "last_page": 8
+    },
+    "links": {
+        "first": "url",
+        "last": "url", 
+        "prev": null,
+        "next": "url"
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Controllers -->
+            <section class="card" id="controllers">
+                <div class="card-header">
+                    <h2 class="card-title">🎛️ API Controllers</h2>
+                    <p class="card-description">Estrutura dos controllers para APIs</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>BaseApiController</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+abstract class BaseApiController extends Controller
+{
+    /**
+     * Resposta de sucesso
+     */
+    protected function success($data = null, string $message = 'Success', int $status = 200): JsonResponse
+    {
+        $response = [
+            'status' => $status,
+            'message' => $message,
+        ];
+
+        if ($data !== null) {
+            if ($data instanceof ResourceCollection) {
+                return $data->additional($response)->response()->setStatusCode($status);
+            }
+            
+            if ($data instanceof JsonResource) {
+                return $data->additional($response)->response()->setStatusCode($status);
+            }
+            
+            $response['data'] = $data;
+        }
+
+        return response()->json($response, $status);
+    }
+
+    /**
+     * Resposta de erro
+     */
+    protected function error(string $message = 'Error', int $status = 400, $errors = null): JsonResponse
+    {
+        $response = [
+            'status' => $status,
+            'message' => $message,
+        ];
+
+        if ($errors !== null) {
+            $response['errors'] = $errors;
+        }
+
+        return response()->json($response, $status);
+    }
+
+    /**
+     * Resposta de validação
+     */
+    protected function validationError($validator): JsonResponse
+    {
+        return $this->error(
+            'Dados inválidos',
+            422,
+            $validator->errors()
+        );
+    }
+
+    /**
+     * Resposta não encontrado
+     */
+    protected function notFound(string $message = 'Recurso não encontrado'): JsonResponse
+    {
+        return $this->error($message, 404);
+    }
+
+    /**
+     * Resposta não autorizado
+     */
+    protected function unauthorized(string $message = 'Não autorizado'): JsonResponse
+    {
+        return $this->error($message, 401);
+    }
+
+    /**
+     * Resposta proibido
+     */
+    protected function forbidden(string $message = 'Acesso negado'): JsonResponse
+    {
+        return $this->error($message, 403);
+    }
+
+    /**
+     * Obter congregação atual
+     */
+    protected function getCongregacao()
+    {
+        return app('congregacao');
+    }
+
+    /**
+     * Obter usuário autenticado
+     */
+    protected function getUser()
+    {
+        return auth('sanctum')->user();
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>MembrosApiController</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Resources\MembroResource;
+use App\Http\Resources\MembroCollection;
+use App\Http\Requests\Api\MembroStoreRequest;
+use App\Http\Requests\Api\MembroUpdateRequest;
+use App\Models\Membro;
+use Illuminate\Http\Request;
+
+class MembrosApiController extends BaseApiController
+{
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+        $this->middleware('permission:membros.view')->only(['index', 'show']);
+        $this->middleware('permission:membros.create')->only(['store']);
+        $this->middleware('permission:membros.edit')->only(['update']);
+        $this->middleware('permission:membros.delete')->only(['destroy']);
+    }
+
+    /**
+     * Lista paginada de membros
+     */
+    public function index(Request $request)
+    {
+        $congregacao = $this->getCongregacao();
+        
+        $query = $congregacao->membros()
+            ->with(['situacao', 'estadoCivil', 'escolaridade']);
+
+        // Filtros
+        if ($request->filled('nome')) {
+            $query->where('nome', 'like', '%' . $request->nome . '%');
+        }
+
+        if ($request->filled('situacao_id')) {
+            $query->where('situacao_id', $request->situacao_id);
+        }
+
+        if ($request->filled('ativo')) {
+            $query->where('ativo', $request->boolean('ativo'));
+        }
+
+        // Ordenação
+        $sortField = $request->get('sort', 'nome');
+        $sortDirection = $request->get('direction', 'asc');
+        $query->orderBy($sortField, $sortDirection);
+
+        // Paginação
+        $perPage = min($request->get('per_page', 20), 100);
+        $membros = $query->paginate($perPage);
+
+        return new MembroCollection($membros);
+    }
+
+    /**
+     * Exibir membro específico
+     */
+    public function show(Membro $membro)
+    {
+        // Verificar se pertence à congregação
+        if ($membro->congregacao_id !== $this->getCongregacao()->id) {
+            return $this->notFound();
+        }
+
+        $membro->load([
+            'situacao',
+            'estadoCivil', 
+            'escolaridade',
+            'user',
+            'celulas'
+        ]);
+
+        return new MembroResource($membro);
+    }
+
+    /**
+     * Criar novo membro
+     */
+    public function store(MembroStoreRequest $request)
+    {
+        $data = $request->validated();
+        $data['congregacao_id'] = $this->getCongregacao()->id;
+
+        $membro = Membro::create($data);
+
+        return $this->success(
+            new MembroResource($membro),
+            'Membro criado com sucesso',
+            201
+        );
+    }
+
+    /**
+     * Atualizar membro
+     */
+    public function update(MembroUpdateRequest $request, Membro $membro)
+    {
+        // Verificar se pertence à congregação
+        if ($membro->congregacao_id !== $this->getCongregacao()->id) {
+            return $this->notFound();
+        }
+
+        $membro->update($request->validated());
+
+        return $this->success(
+            new MembroResource($membro->fresh()),
+            'Membro atualizado com sucesso'
+        );
+    }
+
+    /**
+     * Excluir membro
+     */
+    public function destroy(Membro $membro)
+    {
+        // Verificar se pertence à congregação
+        if ($membro->congregacao_id !== $this->getCongregacao()->id) {
+            return $this->notFound();
+        }
+
+        // Verificar se pode ser excluído
+        if ($membro->user) {
+            return $this->error(
+                'Não é possível excluir membro com usuário vinculado',
+                400
+            );
+        }
+
+        $membro->delete();
+
+        return $this->success(
+            null,
+            'Membro excluído com sucesso'
+        );
+    }
+
+    /**
+     * Buscar membros
+     */
+    public function search(Request $request)
+    {
+        $request->validate([
+            'q' => 'required|string|min:2'
+        ]);
+
+        $congregacao = $this->getCongregacao();
+        
+        $membros = $congregacao->membros()
+            ->where('nome', 'like', '%' . $request->q . '%')
+            ->where('ativo', true)
+            ->limit(10)
+            ->get(['id', 'nome', 'email', 'telefone']);
+
+        return $this->success($membros);
+    }
+
+    /**
+     * Estatísticas dos membros
+     */
+    public function stats()
+    {
+        $congregacao = $this->getCongregacao();
+
+        $stats = [
+            'total' => $congregacao->membros()->count(),
+            'ativos' => $congregacao->membros()->where('ativo', true)->count(),
+            'inativos' => $congregacao->membros()->where('ativo', false)->count(),
+            'por_situacao' => $congregacao->membros()
+                ->join('situacoes_membro', 'membros.situacao_id', '=', 'situacoes_membro.id')
+                ->groupBy('situacoes_membro.nome')
+                ->selectRaw('situacoes_membro.nome, count(*) as total')
+                ->pluck('total', 'nome'),
+            'por_sexo' => [
+                'masculino' => $congregacao->membros()->where('sexo', 'M')->count(),
+                'feminino' => $congregacao->membros()->where('sexo', 'F')->count(),
+            ]
+        ];
+
+        return $this->success($stats);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Resources -->
+            <section class="card" id="resources">
+                <div class="card-header">
+                    <h2 class="card-title">📄 API Resources</h2>
+                    <p class="card-description">Transformação de dados com Eloquent Resources</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>MembroResource</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class MembroResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'nome' => $this->nome,
+            'email' => $this->email,
+            'telefone' => $this->telefone,
+            'celular' => $this->celular,
+            'data_nascimento' => $this->data_nascimento?->format('Y-m-d'),
+            'idade' => $this->idade,
+            'sexo' => $this->sexo,
+            'sexo_label' => $this->sexo === 'M' ? 'Masculino' : 'Feminino',
+            'cpf' => $this->when($request->user()->can('membros.view_cpf'), $this->cpf),
+            'endereco' => [
+                'logradouro' => $this->endereco,
+                'numero' => $this->numero,
+                'complemento' => $this->complemento,
+                'bairro' => $this->bairro,
+                'cep' => $this->cep,
+                'cidade' => $this->cidade,
+                'uf' => $this->uf,
+            ],
+            'situacao' => new SituacaoMembroResource($this->whenLoaded('situacao')),
+            'estado_civil' => new EstadoCivilResource($this->whenLoaded('estadoCivil')),
+            'escolaridade' => new EscolaridadeResource($this->whenLoaded('escolaridade')),
+            'user' => new UserResource($this->whenLoaded('user')),
+            'celulas' => CelulaResource::collection($this->whenLoaded('celulas')),
+            'ativo' => $this->ativo,
+            'data_cadastro' => $this->created_at->format('Y-m-d H:i:s'),
+            'data_atualizacao' => $this->updated_at->format('Y-m-d H:i:s'),
+            
+            // Links relacionados
+            'links' => [
+                'self' => route('api.membros.show', $this->id),
+                'edit' => $this->when(
+                    $request->user()->can('membros.edit'),
+                    route('api.membros.update', $this->id)
+                ),
+                'delete' => $this->when(
+                    $request->user()->can('membros.delete'),
+                    route('api.membros.destroy', $this->id)
+                ),
+            ],
+        ];
+    }
+}
+
+// Collection personalizada
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+class MembroCollection extends ResourceCollection
+{
+    /**
+     * Transform the resource collection into an array.
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'data' => $this->collection,
+            'meta' => [
+                'total_membros' => $this->total(),
+                'membros_ativos' => $this->collection->where('ativo', true)->count(),
+                'filtros_aplicados' => $this->getFiltersApplied($request),
+            ],
+        ];
+    }
+
+    /**
+     * Get additional data that should be returned with the resource array.
+     */
+    public function with(Request $request): array
+    {
+        return [
+            'message' => 'Lista de membros obtida com sucesso',
+        ];
+    }
+
+    private function getFiltersApplied(Request $request): array
+    {
+        $filters = [];
+        
+        if ($request->filled('nome')) {
+            $filters['nome'] = $request->nome;
+        }
+        
+        if ($request->filled('situacao_id')) {
+            $filters['situacao_id'] = $request->situacao_id;
+        }
+        
+        if ($request->filled('ativo')) {
+            $filters['ativo'] = $request->boolean('ativo');
+        }
+        
+        return $filters;
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Outras Resources</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+// UserResource
+class UserResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'email_verified_at' => $this->email_verified_at?->format('Y-m-d H:i:s'),
+            'last_login_at' => $this->last_login_at?->format('Y-m-d H:i:s'),
+            'is_active' => $this->is_active,
+            'roles' => $this->getRoleNames(),
+            'permissions' => $this->getAllPermissions()->pluck('name'),
+        ];
+    }
+}
+
+// SituacaoMembroResource
+class SituacaoMembroResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'nome' => $this->nome,
+            'cor' => $this->cor,
+            'descricao' => $this->descricao,
+        ];
+    }
+}
+
+// CultoResource
+class CultoResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'data' => $this->data->format('Y-m-d'),
+            'horario' => $this->horario->format('H:i'),
+            'tema' => $this->tema,
+            'pregador' => $this->pregador,
+            'tipo_culto' => new TipoCultoResource($this->whenLoaded('tipoCulto')),
+            'presencas' => [
+                'total' => $this->presencas()->count(),
+                'membros' => $this->presencas()->where('tipo_pessoa', 'membro')->count(),
+                'visitantes' => $this->presencas()->where('tipo_pessoa', 'visitante')->count(),
+            ],
+            'ofertas' => [
+                'total' => $this->ofertas()->sum('valor'),
+                'moeda' => 'BRL',
+            ],
+            'observacoes' => $this->observacoes,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+
+// CelulaResource
+class CelulaResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'nome' => $this->nome,
+            'endereco' => $this->endereco,
+            'dia_semana' => $this->dia_semana,
+            'dia_semana_label' => $this->getDiaSemanaLabel(),
+            'horario' => $this->horario->format('H:i'),
+            'lider' => new MembroResource($this->whenLoaded('lider')),
+            'membros_count' => $this->when(
+                $this->relationLoaded('membros'),
+                $this->membros->count()
+            ),
+            'ativa' => $this->ativa,
+            'links' => [
+                'self' => route('api.celulas.show', $this->id),
+                'membros' => route('api.celulas.membros', $this->id),
+            ],
+        ];
+    }
+}
+
+// Uso em Controllers
+public function index()
+{
+    $membros = Membro::with(['situacao', 'estadoCivil'])
+                    ->paginate(20);
+    
+    return new MembroCollection($membros);
+}
+
+public function show(Membro $membro)
+{
+    $membro->load(['situacao', 'user', 'celulas']);
+    
+    return new MembroResource($membro);
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Request Validation -->
+            <section class="card" id="request-validation">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Validação de Requests</h2>
+                    <p class="card-description">Form Requests para validação de APIs</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>MembroStoreRequest</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Requests\Api;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+
+class MembroStoreRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can('membros.create');
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     */
+    public function rules(): array
+    {
+        return [
+            'nome' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:membros,email',
+            'telefone' => 'nullable|string|max:20',
+            'celular' => 'nullable|string|max:20',
+            'data_nascimento' => 'nullable|date|before:today',
+            'sexo' => 'required|in:M,F',
+            'cpf' => 'nullable|cpf|unique:membros,cpf',
+            'endereco' => 'nullable|string|max:255',
+            'numero' => 'nullable|string|max:10',
+            'complemento' => 'nullable|string|max:100',
+            'bairro' => 'nullable|string|max:100',
+            'cep' => 'nullable|formato_cep',
+            'cidade' => 'nullable|string|max:100',
+            'uf' => 'nullable|string|size:2',
+            'situacao_id' => 'required|exists:situacoes_membro,id',
+            'estado_civil_id' => 'nullable|exists:estados_civis,id',
+            'escolaridade_id' => 'nullable|exists:escolaridades,id',
+            'observacoes' => 'nullable|string',
+            'ativo' => 'boolean',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'nome.required' => 'O nome é obrigatório.',
+            'nome.max' => 'O nome não pode ter mais de 255 caracteres.',
+            'email.email' => 'O email deve ter um formato válido.',
+            'email.unique' => 'Este email já está sendo usado por outro membro.',
+            'data_nascimento.date' => 'A data de nascimento deve ser uma data válida.',
+            'data_nascimento.before' => 'A data de nascimento deve ser anterior à data atual.',
+            'sexo.required' => 'O sexo é obrigatório.',
+            'sexo.in' => 'O sexo deve ser M (masculino) ou F (feminino).',
+            'cpf.cpf' => 'O CPF deve ter um formato válido.',
+            'cpf.unique' => 'Este CPF já está sendo usado por outro membro.',
+            'cep.formato_cep' => 'O CEP deve ter o formato 99999-999.',
+            'uf.size' => 'A UF deve ter exatamente 2 caracteres.',
+            'situacao_id.required' => 'A situação do membro é obrigatória.',
+            'situacao_id.exists' => 'A situação selecionada não existe.',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'data_nascimento' => 'data de nascimento',
+            'estado_civil_id' => 'estado civil',
+            'escolaridade_id' => 'escolaridade',
+            'situacao_id' => 'situação',
+        ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 422,
+                'message' => 'Dados inválidos',
+                'errors' => $validator->errors()
+            ], 422)
+        );
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        // Limpar CPF e telefones
+        if ($this->cpf) {
+            $this->merge([
+                'cpf' => preg_replace('/[^0-9]/', '', $this->cpf)
+            ]);
+        }
+
+        if ($this->telefone) {
+            $this->merge([
+                'telefone' => preg_replace('/[^0-9]/', '', $this->telefone)
+            ]);
+        }
+
+        if ($this->celular) {
+            $this->merge([
+                'celular' => preg_replace('/[^0-9]/', '', $this->celular)
+            ]);
+        }
+
+        if ($this->cep) {
+            $this->merge([
+                'cep' => preg_replace('/[^0-9]/', '', $this->cep)
+            ]);
+        }
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>MembroUpdateRequest</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Requests\Api;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+
+class MembroUpdateRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can('membros.edit');
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     */
+    public function rules(): array
+    {
+        $membroId = $this->route('membro')->id ?? $this->membro;
+
+        return [
+            'nome' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|nullable|email|unique:membros,email,' . $membroId,
+            'telefone' => 'sometimes|nullable|string|max:20',
+            'celular' => 'sometimes|nullable|string|max:20',
+            'data_nascimento' => 'sometimes|nullable|date|before:today',
+            'sexo' => 'sometimes|required|in:M,F',
+            'cpf' => 'sometimes|nullable|cpf|unique:membros,cpf,' . $membroId,
+            'endereco' => 'sometimes|nullable|string|max:255',
+            'numero' => 'sometimes|nullable|string|max:10',
+            'complemento' => 'sometimes|nullable|string|max:100',
+            'bairro' => 'sometimes|nullable|string|max:100',
+            'cep' => 'sometimes|nullable|formato_cep',
+            'cidade' => 'sometimes|nullable|string|max:100',
+            'uf' => 'sometimes|nullable|string|size:2',
+            'situacao_id' => 'sometimes|required|exists:situacoes_membro,id',
+            'estado_civil_id' => 'sometimes|nullable|exists:estados_civis,id',
+            'escolaridade_id' => 'sometimes|nullable|exists:escolaridades,id',
+            'observacoes' => 'sometimes|nullable|string',
+            'ativo' => 'sometimes|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nome.required' => 'O nome é obrigatório.',
+            'email.email' => 'O email deve ter um formato válido.',
+            'email.unique' => 'Este email já está sendo usado por outro membro.',
+            'data_nascimento.before' => 'A data de nascimento deve ser anterior à data atual.',
+            'sexo.in' => 'O sexo deve ser M (masculino) ou F (feminino).',
+            'cpf.unique' => 'Este CPF já está sendo usado por outro membro.',
+        ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 422,
+                'message' => 'Dados inválidos',
+                'errors' => $validator->errors()
+            ], 422)
+        );
+    }
+}
+
+// Custom Validation Rules
+<?php
+
+namespace App\Rules;
+
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+
+class CpfValidation implements ValidationRule
+{
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        if (!$this->isValidCpf($value)) {
+            $fail('O :attribute deve ser um CPF válido.');
+        }
+    }
+
+    private function isValidCpf($cpf): bool
+    {
+        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+        if (strlen($cpf) != 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
+            return false;
+        }
+
+        for ($i = 9; $i < 11; $i++) {
+            $sum = 0;
+            for ($j = 0; $j < $i; $j++) {
+                $sum += intval($cpf[$j]) * (($i + 1) - $j);
+            }
+            $digit = ((10 * $sum) % 11) % 10;
+            if (intval($cpf[$i]) !== $digit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+// Registrar no AppServiceProvider
+use Illuminate\Support\Facades\Validator;
+
+public function boot()
+{
+    Validator::extend('cpf', function ($attribute, $value, $parameters, $validator) {
+        return (new CpfValidation())->passes($attribute, $value);
+    });
+
+    Validator::extend('formato_cep', function ($attribute, $value, $parameters, $validator) {
+        return preg_match('/^\d{5}-?\d{3}$/', $value);
+    });
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rotas da API -->
+            <section class="card" id="api-routes">
+                <div class="card-header">
+                    <h2 class="card-title">🛣️ Rotas da API</h2>
+                    <p class="card-description">Definição completa das rotas da API</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+<?php
+
+// routes/api.php
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MembrosApiController;
+use App\Http\Controllers\Api\CultosApiController;
+use App\Http\Controllers\Api\CelulasApiController;
+use App\Http\Controllers\Api\FinanceiroApiController;
+use App\Http\Controllers\Api\EscalasApiController;
+use App\Http\Controllers\Api\RelatoriosApiController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
+// Aplicar middleware de domínio para multi-tenancy
+Route::middleware(['dominio'])->group(function () {
+    
+    // Autenticação
+    Route::prefix('auth')->group(function () {
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('reset-password', [AuthController::class, 'resetPassword']);
+        
+        // Rotas autenticadas
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('user', [AuthController::class, 'user']);
+            Route::post('logout', [AuthController::class, 'logout']);
+            Route::post('logout-all', [AuthController::class, 'logoutAll']);
+            Route::put('update-profile', [AuthController::class, 'updateProfile']);
+            Route::put('change-password', [AuthController::class, 'changePassword']);
+        });
+    });
+
+    // Rotas protegidas da API v1
+    Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+        
+        // Membros
+        Route::apiResource('membros', MembrosApiController::class);
+        Route::get('membros/search', [MembrosApiController::class, 'search'])->name('api.membros.search');
+        Route::get('membros/stats', [MembrosApiController::class, 'stats'])->name('api.membros.stats');
+        Route::post('membros/{membro}/foto', [MembrosApiController::class, 'uploadFoto'])->name('api.membros.foto');
+        
+        // Cultos
+        Route::apiResource('cultos', CultosApiController::class);
+        Route::get('cultos/{culto}/presencas', [CultosApiController::class, 'presencas'])->name('api.cultos.presencas');
+        Route::post('cultos/{culto}/presencas', [CultosApiController::class, 'marcarPresenca'])->name('api.cultos.marcar-presenca');
+        Route::get('cultos/{culto}/ofertas', [CultosApiController::class, 'ofertas'])->name('api.cultos.ofertas');
+        Route::post('cultos/{culto}/ofertas', [CultosApiController::class, 'registrarOferta'])->name('api.cultos.registrar-oferta');
+        
+        // Células
+        Route::apiResource('celulas', CelulasApiController::class);
+        Route::get('celulas/{celula}/membros', [CelulasApiController::class, 'membros'])->name('api.celulas.membros');
+        Route::post('celulas/{celula}/membros', [CelulasApiController::class, 'adicionarMembro'])->name('api.celulas.adicionar-membro');
+        Route::delete('celulas/{celula}/membros/{membro}', [CelulasApiController::class, 'removerMembro'])->name('api.celulas.remover-membro');
+        Route::get('celulas/{celula}/encontros', [CelulasApiController::class, 'encontros'])->name('api.celulas.encontros');
+        
+        // Financeiro
+        Route::middleware('permission:financeiro.view')->group(function () {
+            Route::apiResource('financeiro', FinanceiroApiController::class);
+            Route::get('financeiro/stats', [FinanceiroApiController::class, 'stats'])->name('api.financeiro.stats');
+            Route::get('financeiro/fluxo-caixa', [FinanceiroApiController::class, 'fluxoCaixa'])->name('api.financeiro.fluxo-caixa');
+        });
+        
+        // Escalas
+        Route::apiResource('escalas', EscalasApiController::class);
+        Route::get('escalas/proximas', [EscalasApiController::class, 'proximas'])->name('api.escalas.proximas');
+        Route::get('escalas/membro/{membro}', [EscalasApiController::class, 'escalasMembro'])->name('api.escalas.membro');
+        
+        // Relatórios
+        Route::middleware('permission:relatorios.view')->group(function () {
+            Route::get('relatorios/membros', [RelatoriosApiController::class, 'membros'])->name('api.relatorios.membros');
+            Route::get('relatorios/cultos', [RelatoriosApiController::class, 'cultos'])->name('api.relatorios.cultos');
+            Route::get('relatorios/financeiro', [RelatoriosApiController::class, 'financeiro'])->name('api.relatorios.financeiro');
+            Route::get('relatorios/aniversariantes', [RelatoriosApiController::class, 'aniversariantes'])->name('api.relatorios.aniversariantes');
+        });
+        
+        // Utilitários
+        Route::get('lookup/situacoes-membro', function () {
+            return \App\Models\SituacaoMembro::all(['id', 'nome', 'cor']);
+        });
+        
+        Route::get('lookup/estados-civis', function () {
+            return \App\Models\EstadoCivil::all(['id', 'nome']);
+        });
+        
+        Route::get('lookup/escolaridades', function () {
+            return \App\Models\Escolaridade::all(['id', 'nome']);
+        });
+        
+        Route::get('lookup/tipos-culto', function () {
+            return \App\Models\TipoCulto::all(['id', 'nome', 'cor']);
+        });
+        
+        // Dashboard
+        Route::get('dashboard', function () {
+            $congregacao = app('congregacao');
+            
+            return response()->json([
+                'congregacao' => [
+                    'nome' => $congregacao->nome,
+                    'identificacao' => $congregacao->identificacao,
+                ],
+                'stats' => [
+                    'membros_total' => $congregacao->membros()->count(),
+                    'membros_ativos' => $congregacao->membros()->where('ativo', true)->count(),
+                    'cultos_mes' => $congregacao->cultos()->whereMonth('data', now()->month)->count(),
+                    'celulas_ativas' => $congregacao->celulas()->where('ativa', true)->count(),
+                ],
+                'user' => auth()->user()->load('membro'),
+                'permissions' => auth()->user()->getAllPermissions()->pluck('name'),
+                'roles' => auth()->user()->getRoleNames(),
+            ]);
+        });
+    });
+});
+
+// Rate limiting customizado
+Route::middleware(['throttle:login'])->group(function () {
+    Route::post('auth/login', [AuthController::class, 'login']);
+});
+
+// Configurar rate limiting no RouteServiceProvider
+protected function configureRateLimiting()
+{
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
+
+    RateLimiter::for('login', function (Request $request) {
+        return Limit::perMinute(5)->by($request->ip());
+    });
+}
+</pre>
+                </div>
+            </section>
+
+            <!-- Documentação da API -->
+            <section class="card" id="documentation">
+                <div class="card-header">
+                    <h2 class="card-title">📚 Documentação da API</h2>
+                    <p class="card-description">Endpoints principais e exemplos de uso</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Método</th>
+                                <th>Descrição</th>
+                                <th>Permissão</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/api/auth/login</code></td>
+                                <td><span class="badge badge-warning">POST</span></td>
+                                <td>Autenticação de usuário</td>
+                                <td>Público</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/membros</code></td>
+                                <td><span class="badge badge-info">GET</span></td>
+                                <td>Lista paginada de membros</td>
+                                <td>membros.view</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/membros</code></td>
+                                <td><span class="badge badge-warning">POST</span></td>
+                                <td>Criar novo membro</td>
+                                <td>membros.create</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/membros/{id}</code></td>
+                                <td><span class="badge badge-info">GET</span></td>
+                                <td>Detalhes de um membro</td>
+                                <td>membros.view</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/membros/{id}</code></td>
+                                <td><span class="badge badge-success">PUT</span></td>
+                                <td>Atualizar membro</td>
+                                <td>membros.edit</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/membros/{id}</code></td>
+                                <td><span class="badge badge-danger">DELETE</span></td>
+                                <td>Excluir membro</td>
+                                <td>membros.delete</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/cultos</code></td>
+                                <td><span class="badge badge-info">GET</span></td>
+                                <td>Lista de cultos</td>
+                                <td>cultos.view</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/cultos/{id}/presencas</code></td>
+                                <td><span class="badge badge-warning">POST</span></td>
+                                <td>Marcar presença em culto</td>
+                                <td>cultos.edit</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/celulas</code></td>
+                                <td><span class="badge badge-info">GET</span></td>
+                                <td>Lista de células</td>
+                                <td>celulas.view</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/v1/relatorios/membros</code></td>
+                                <td><span class="badge badge-info">GET</span></td>
+                                <td>Relatório de membros</td>
+                                <td>relatorios.view</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Exemplos de Uso</h4>
+                <div class="code-block">
+                    <pre>
+# Login
+curl -X POST https://congregacao.kleros.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@congregacao.com", "password": "senha123", "device_name": "Mobile App"}'
+
+# Response
+{
+  "access_token": "1|abc123...",
+  "token_type": "Bearer",
+  "user": {
+    "id": 1,
+    "email": "admin@congregacao.com",
+    "membro": {...}
+  }
+}
+
+# Listar membros
+curl -X GET https://congregacao.kleros.app/api/v1/membros \
+  -H "Authorization: Bearer 1|abc123..." \
+  -H "Accept: application/json"
+
+# Criar membro
+curl -X POST https://congregacao.kleros.app/api/v1/membros \
+  -H "Authorization: Bearer 1|abc123..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João Silva",
+    "email": "joao@email.com",
+    "sexo": "M",
+    "situacao_id": 1
+  }'
+
+# Buscar membros
+curl -X GET "https://congregacao.kleros.app/api/v1/membros?nome=João&page=1&per_page=10" \
+  -H "Authorization: Bearer 1|abc123..."
+
+# Estatísticas
+curl -X GET https://congregacao.kleros.app/api/v1/membros/stats \
+  -H "Authorization: Bearer 1|abc123..."
+</pre>
+                </div>
+            </section>
+
+            <!-- Versioning e Versionamento -->
+            <section class="card" id="versioning">
+                <div class="card-header">
+                    <h2 class="card-title">🔄 Versionamento da API</h2>
+                    <p class="card-description">Estratégia de versionamento e backward compatibility</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Estratégia de Versionamento</h4>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">📍</span>
+                                <span><strong>URL Path:</strong> /api/v1, /api/v2</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">⬆️</span>
+                                <span><strong>Semantic Versioning:</strong> Major.Minor.Patch</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔒</span>
+                                <span><strong>Backward Compatibility:</strong> Mantida por 2 versões</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📅</span>
+                                <span><strong>Deprecation Notice:</strong> 6 meses de aviso</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Headers de Versionamento</h4>
+                        <div class="code-block">
+                            <pre>
+# Request Headers
+Accept: application/json
+API-Version: v1
+X-API-Version: 1.2.0
+
+# Response Headers
+API-Version: v1
+API-Current-Version: 1.2.3
+API-Deprecated: false
+API-Sunset-Date: 2025-12-31
+
+# Deprecation Warning
+{
+  "data": [...],
+  "warnings": [
+    {
+      "code": "deprecated",
+      "message": "This endpoint will be deprecated on 2025-06-01",
+      "new_endpoint": "/api/v2/membros"
+    }
+  ]
+}
+
+# Version Middleware
+class ApiVersionMiddleware
+{
+    public function handle($request, Closure $next, $version = 'v1')
+    {
+        $request->attributes->set('api_version', $version);
+        
+        $response = $next($request);
+        
+        $response->headers->set('API-Version', $version);
+        $response->headers->set('API-Current-Version', config('api.current_version'));
+        
+        return $response;
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

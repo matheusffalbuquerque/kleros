@@ -34,6 +34,8 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\ProgramacaoController;
+use App\Http\Middleware\CheckAdminRole;
+use App\Http\Controllers\Admin\ReportController;
 
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
@@ -64,9 +66,74 @@ Route::domain('admin.local')->middleware('setlocale')->group(function () {
     Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
     Route::post('/login', [AdminController::class, 'authenticate'])->name('admin.authenticate');
     
+    // Rota de gerenciamento acessível para usuários autenticados. A lógica interna
+    // do controller adaptará os dados quando o usuário for 'gestor'.
     Route::middleware(['auth'])->group(function () {
+        Route::get('/manage', [AdminController::class, 'manage'])->name('admin.manage');
+        Route::get('/reports/congregations', [ReportController::class, 'congregationsReport'])->name('admin.reports.congregations');
+        Route::get('/reports/congregation/{id}', [ReportController::class, 'congregationReport'])->name('admin.reports.congregation');
+        Route::get('/debug/congregation/{id}', [ReportController::class, 'debugCongregation'])->name('admin.debug.congregation');
+    });
+
+    Route::middleware(['auth', CheckAdminRole::class])->group(function () {
         Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        // outras rotas administrativas...
+        
+        Route::get('/guia-tecnico/{file?}', function ($file = null) {
+            if ($file === null) { $file = 'index.html'; }
+            
+            // Se não tem extensão, adiciona .html
+            if (!str_contains($file, '.')) { $file .= '.html'; }
+            
+            $path = public_path('guia-tecnico/' . $file);
+            
+            // Verifica se o arquivo existe e é um HTML
+            if (!file_exists($path) || !str_ends_with($file, '.html')) {
+                $path = public_path('guia-tecnico/index.html');
+            }
+            
+            // Ler o conteúdo e injetar CSS e JS
+            $content = file_get_contents($path);
+            
+            // Ler CSS e JS
+            $cssPath = public_path('guia-tecnico/assets/style.css');
+            $jsPath = public_path('guia-tecnico/assets/script.js');
+            
+            $cssContent = file_exists($cssPath) ? file_get_contents($cssPath) : '';
+            $jsContent = file_exists($jsPath) ? file_get_contents($jsPath) : '';
+            
+            // Substituir link do CSS por CSS inline
+            $content = str_replace(
+                'href="assets/style.css"',
+                'href="#" style="display:none;"',
+                $content
+            );
+            
+            // Inserir CSS inline no head
+            $content = str_replace(
+                '</head>',
+                "<style>\n{$cssContent}\n</style>\n</head>",
+                $content
+            );
+            
+            // Substituir link do JS por JS inline
+            $content = str_replace(
+                'src="assets/script.js"',
+                'src="#" style="display:none;"',
+                $content
+            );
+            
+            // Inserir JS inline antes do </body>
+            $content = str_replace(
+                '</body>',
+                "<script>\n{$jsContent}\n</script>\n</body>",
+                $content
+            );
+            
+            return response($content, 200, [
+                'Content-Type' => 'text/html; charset=utf-8',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate'
+            ]);
+        })->name('admin.guia-tecnico');
     });
 
 });
@@ -88,22 +155,22 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
     Route::middleware(['auth','check.session','member.activity'])->group(function () {
 
         //Rotas para já cadastradas
-        Route::get('/configuracoes/{id}', [CongregacaoController::class, 'editar'])->name('configuracoes.editar')->middleware(['auth','role:gestor']);
-        Route::put('/configuracoes/{id}', [CongregacaoController::class, 'update'])->name('configuracoes.atualizar')->middleware(['auth','role:gestor']);
-        Route::delete('/configuracoes/{id}', [CongregacaoController::class, 'destroy'])->name('configuracoes.excluir')->middleware(['auth','role:gestor']);
+        Route::get('/configuracoes/{id}', [CongregacaoController::class, 'editar'])->name('configuracoes.editar')->middleware(['auth','gestor']);
+        Route::put('/configuracoes/{id}', [CongregacaoController::class, 'update'])->name('configuracoes.atualizar')->middleware(['auth','gestor']);
+        Route::delete('/configuracoes/{id}', [CongregacaoController::class, 'destroy'])->name('configuracoes.excluir')->middleware(['auth','gestor']);
 
         Route::get('/', [HomeController::class, 'index'])->name('index');
         Route::get('/programacoes', [ProgramacaoController::class, 'index'])->name('programacoes.painel');
         Route::get('/programacoes/eventos/{evento}', [ProgramacaoController::class, 'showEvento'])->name('programacoes.eventos.show');
         Route::get('/programacoes/cultos/{culto}', [ProgramacaoController::class, 'showCulto'])->name('programacoes.cultos.show');
-        Route::get('/cadastros', [CadastroController::class, 'index'])->name('cadastros.index')->middleware(['auth','role:gestor']);
+        Route::get('/cadastros', [CadastroController::class, 'index'])->name('cadastros.index')->middleware(['auth','gestor']);
         
-        Route::get('/tutoriais', [TutorialController::class, 'index'])->name('tutoriais.index')->middleware(['auth','role:gestor']);
+        Route::get('/tutoriais', [TutorialController::class, 'index'])->name('tutoriais.index')->middleware(['auth','gestor']);
 
         Route::get('/perfil', [MembroController::class, 'perfil'])->name('perfil')->middleware('auth');
         Route::put('/perfil/{id}', [MembroController::class, 'save_perfil'])->name('perfil.update')->middleware('auth');
 
-        Route::middleware(['auth','role:gestor'])->group(function () {
+        Route::middleware(['auth','gestor'])->group(function () {
         Route::post('/membros', [MembroController::class, 'store'])->name('membros.store');
         Route::get('/membros/adicionar', [MembroController::class, 'adicionar'])->name('membros.adicionar'); 
         Route::get('/membros/painel', [MembroController::class, 'painel'])->name('membros.painel');
@@ -209,40 +276,40 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index')->middleware('auth');
         Route::get('/agenda/eventos', [AgendaController::class, 'eventosJson'])->name('agenda.eventos.json')->middleware('auth');
 
-        Route::get('/livraria', [LivrariaController::class, 'index'])->name('livraria.index')->middleware(['auth','role:gestor']);
-        Route::post('/livraria/search', [LivrariaController::class, 'search'])->name('livraria.search')->middleware(['auth','role:gestor']);
+        Route::get('/livraria', [LivrariaController::class, 'index'])->name('livraria.index')->middleware(['auth','gestor']);
+        Route::post('/livraria/search', [LivrariaController::class, 'search'])->name('livraria.search')->middleware(['auth','gestor']);
 
-        Route::get('/reunioes', [ReuniaoController::class, 'create'])->name('reunioes.create')->middleware(['auth','role:gestor']);
-        Route::get('/reunioes/painel', [ReuniaoController::class, 'index'])->name('reunioes.painel')->middleware(['auth','role:gestor']);
-        Route::post('/reunioes', [ReuniaoController::class, 'store'])->name('reunioes.store')->middleware(['auth','role:gestor']);
-        Route::post('/reunioes/search', [ReuniaoController::class, 'search'])->name('reunioes.search')->middleware(['auth','role:gestor']);
-        Route::get('/reunioes/novo', [ReuniaoController::class, 'form_criar'])->name('reunioes.form_criar')->middleware(['auth','role:gestor']);
-        Route::get('/reunioes/editar/{id}', [ReuniaoController::class, 'form_editar'])->name('reunioes.form_editar')->middleware(['auth','role:gestor']);
-        Route::put('/reunioes/{reuniao}', [ReuniaoController::class, 'update'])->name('reunioes.update')->middleware(['auth','role:gestor']);
-        Route::delete('/reunioes/{reuniao}', [ReuniaoController::class, 'destroy'])->name('reunioes.destroy')->middleware(['auth','role:gestor']);
+        Route::get('/reunioes', [ReuniaoController::class, 'create'])->name('reunioes.create')->middleware(['auth','gestor']);
+        Route::get('/reunioes/painel', [ReuniaoController::class, 'index'])->name('reunioes.painel')->middleware(['auth','gestor']);
+        Route::post('/reunioes', [ReuniaoController::class, 'store'])->name('reunioes.store')->middleware(['auth','gestor']);
+        Route::post('/reunioes/search', [ReuniaoController::class, 'search'])->name('reunioes.search')->middleware(['auth','gestor']);
+        Route::get('/reunioes/novo', [ReuniaoController::class, 'form_criar'])->name('reunioes.form_criar')->middleware(['auth','gestor']);
+        Route::get('/reunioes/editar/{id}', [ReuniaoController::class, 'form_editar'])->name('reunioes.form_editar')->middleware(['auth','gestor']);
+        Route::put('/reunioes/{reuniao}', [ReuniaoController::class, 'update'])->name('reunioes.update')->middleware(['auth','gestor']);
+        Route::delete('/reunioes/{reuniao}', [ReuniaoController::class, 'destroy'])->name('reunioes.destroy')->middleware(['auth','gestor']);
 
-        Route::get('/pesquisas/painel', [PesquisaController::class, 'painel'])->name('pesquisas.painel')->middleware(['auth','role:gestor']);
-        Route::get('/pesquisas/novo', [PesquisaController::class, 'form_criar'])->name('pesquisas.form_criar')->middleware(['auth','role:gestor']);
-        Route::get('/pesquisas/editar/{id}', [PesquisaController::class, 'form_editar'])->name('pesquisas.form_editar')->middleware(['auth','role:gestor']);
-        Route::post('/pesquisas', [PesquisaController::class, 'store'])->name('pesquisas.store')->middleware(['auth','role:gestor']);
-        Route::put('/pesquisas/{id}', [PesquisaController::class, 'update'])->name('pesquisas.update')->middleware(['auth','role:gestor']);
-        Route::delete('/pesquisas/{id}', [PesquisaController::class, 'destroy'])->name('pesquisas.destroy')->middleware(['auth','role:gestor']);
-        Route::post('/pesquisas/{pesquisa}/perguntas', [PesquisaController::class, 'storePergunta'])->name('pesquisas.perguntas.store')->middleware(['auth','role:gestor']);
-        Route::put('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'updatePergunta'])->name('pesquisas.perguntas.update')->middleware(['auth','role:gestor']);
-        Route::delete('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'destroyPergunta'])->name('pesquisas.perguntas.destroy')->middleware(['auth','role:gestor']);
+        Route::get('/pesquisas/painel', [PesquisaController::class, 'painel'])->name('pesquisas.painel')->middleware(['auth','gestor']);
+        Route::get('/pesquisas/novo', [PesquisaController::class, 'form_criar'])->name('pesquisas.form_criar')->middleware(['auth','gestor']);
+        Route::get('/pesquisas/editar/{id}', [PesquisaController::class, 'form_editar'])->name('pesquisas.form_editar')->middleware(['auth','gestor']);
+        Route::post('/pesquisas', [PesquisaController::class, 'store'])->name('pesquisas.store')->middleware(['auth','gestor']);
+        Route::put('/pesquisas/{id}', [PesquisaController::class, 'update'])->name('pesquisas.update')->middleware(['auth','gestor']);
+        Route::delete('/pesquisas/{id}', [PesquisaController::class, 'destroy'])->name('pesquisas.destroy')->middleware(['auth','gestor']);
+        Route::post('/pesquisas/{pesquisa}/perguntas', [PesquisaController::class, 'storePergunta'])->name('pesquisas.perguntas.store')->middleware(['auth','gestor']);
+        Route::put('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'updatePergunta'])->name('pesquisas.perguntas.update')->middleware(['auth','gestor']);
+        Route::delete('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'destroyPergunta'])->name('pesquisas.perguntas.destroy')->middleware(['auth','gestor']);
 
-        Route::get('/avisos/admin', [AvisoController::class, 'index'])->name('avisos.admin')->middleware(['auth','role:gestor']);
+        Route::get('/avisos/admin', [AvisoController::class, 'index'])->name('avisos.admin')->middleware(['auth','gestor']);
         Route::get('/avisos', [AvisoController::class, 'avisosDoMembro'])->name('avisos.painel')->middleware('auth');
-        Route::post('/avisos', [AvisoController::class, 'store'])->name('avisos.store')->middleware(['auth','role:gestor']);
-        Route::get('/avisos/novo', [AvisoController::class, 'form_criar'])->name('avisos.form_criar')->middleware(['auth','role:gestor']);
+        Route::post('/avisos', [AvisoController::class, 'store'])->name('avisos.store')->middleware(['auth','gestor']);
+        Route::get('/avisos/novo', [AvisoController::class, 'form_criar'])->name('avisos.form_criar')->middleware(['auth','gestor']);
         Route::get('/avisos/{aviso}', [AvisoController::class, 'show'])->name('avisos.show')->middleware('auth');
 
-        Route::get('/arquivos/imagens', [ArquivoController::class, 'form_imagens'])->name('arquivos.imagens')->middleware(['auth','role:gestor']);
-        Route::post('/arquivos', [ArquivoController::class, 'store'])->name('arquivos.store')->middleware(['auth','role:gestor']);
-        Route::delete('/arquivos/{id}', [ArquivoController::class, 'destroy'])->name('arquivos.destroy')->middleware(['auth','role:gestor']);
-        Route::get('/arquivos/lista_imagens', [ArquivoController::class, 'lista_imagens'])->name('arquivos.lista_imagens')->middleware(['auth','role:gestor']);
+        Route::get('/arquivos/imagens', [ArquivoController::class, 'form_imagens'])->name('arquivos.imagens')->middleware(['auth','gestor']);
+        Route::post('/arquivos', [ArquivoController::class, 'store'])->name('arquivos.store')->middleware(['auth','gestor']);
+        Route::delete('/arquivos/{id}', [ArquivoController::class, 'destroy'])->name('arquivos.destroy')->middleware(['auth','gestor']);
+        Route::get('/arquivos/lista_imagens', [ArquivoController::class, 'lista_imagens'])->name('arquivos.lista_imagens')->middleware(['auth','gestor']);
 
-        Route::get('/relatorios', [RelatorioController::class, 'painel'])->name('relatorios.painel')->middleware(['auth','role:gestor']);
+        Route::get('/relatorios', [RelatorioController::class, 'painel'])->name('relatorios.painel')->middleware(['auth','gestor']);
 
         Route::get('/financeiro/caixas/novo', [FinanceiroController::class, 'formCaixa'])->name('financeiro.caixas.form_criar');
         Route::get('/financeiro/caixas/{id}/editar', [FinanceiroController::class, 'formCaixaEditar'])->name('financeiro.caixas.form_editar');
@@ -264,16 +331,16 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/financeiro/caixas/novo', [FinanceiroController::class, 'formCaixa'])->name('financeiro.caixas.form_criar');
 
         //Rotas para buscas dinâmicas de localização
-        Route::get('/estados/{pais_id}', [LocalizacaoController::class, 'getEstados'])->name('localizacao.estados')->middleware(['auth','role:gestor']);
-        Route::get('/cidades/{uf}', [LocalizacaoController::class, 'getCidades'])->name('localizacao.cidades')->middleware(['auth','role:gestor']);
+        Route::get('/estados/{pais_id}', [LocalizacaoController::class, 'getEstados'])->name('localizacao.estados')->middleware(['auth','gestor']);
+        Route::get('/cidades/{uf}', [LocalizacaoController::class, 'getCidades'])->name('localizacao.cidades')->middleware(['auth','gestor']);
 
-        Route::get('/extensoes', [ExtensoesController::class, 'index'])->name('extensoes.painel')->middleware(['auth','role:gestor']);
-        Route::put('/extensoes/{module}', [ExtensoesController::class, 'update'])->name('extensoes.update')->middleware(['auth','role:gestor']);
+        Route::get('/extensoes', [ExtensoesController::class, 'index'])->name('extensoes.painel')->middleware(['auth','gestor']);
+        Route::put('/extensoes/{module}', [ExtensoesController::class, 'update'])->name('extensoes.update')->middleware(['auth','gestor']);
 
         Route::get('/notificacoes', [NotificacaoController::class, 'index'])->name('notificacoes.index')->middleware('auth');
 
-        Route::get('/assinaturas', [AssinaturaController::class, 'index'])->name('assinaturas.index')->middleware(['auth','role:gestor']);
-        Route::get('/assinaturas/novo', [AssinaturaController::class, 'form_criar'])->name('assinaturas.form_criar')->middleware(['auth','role:gestor']);
+        Route::get('/assinaturas', [AssinaturaController::class, 'index'])->name('assinaturas.index')->middleware(['auth','gestor']);
+        Route::get('/assinaturas/novo', [AssinaturaController::class, 'form_criar'])->name('assinaturas.form_criar')->middleware(['auth','gestor']);
 
     });
 });

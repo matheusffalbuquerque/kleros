@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link active">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🏗️ Arquitetura do Sistema</h1>
+                <p class="page-subtitle">
+                    Visão detalhada da arquitetura do Kleros, padrões utilizados e estrutura organizacional.
+                </p>
+            </div>
+
+            <!-- Arquitetura Geral -->
+            <section class="card" id="overview">
+                <div class="card-header">
+                    <h2 class="card-title">📐 Visão Arquitetural</h2>
+                    <p class="card-description">Estrutura geral e camadas do sistema</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+┌─────────────────────────────────────────────────────────────┐
+│                    SISTEMA KLEROS                          │
+├─────────────────────────────────────────────────────────────┤
+│ APRESENTAÇÃO                                                │
+│ ├── Blade Templates (Views)                                │
+│ ├── TailwindCSS + Alpine.js                               │
+│ └── Assets (CSS/JS via Vite)                              │
+├─────────────────────────────────────────────────────────────┤
+│ APLICAÇÃO                                                   │
+│ ├── Controllers (Lógica de Negócio)                       │
+│ ├── Middleware (Autenticação/Autorização)                 │
+│ ├── Routes (Mapeamento de URLs)                           │
+│ └── Jobs/Mail (Processamento Assíncrono)                  │
+├─────────────────────────────────────────────────────────────┤
+│ DOMÍNIO                                                     │
+│ ├── Models (Eloquent)                                     │
+│ ├── Services (Lógica Complexa)                            │
+│ └── Helpers (Funções Auxiliares)                          │
+├─────────────────────────────────────────────────────────────┤
+│ INFRAESTRUTURA                                              │
+│ ├── Database (MySQL/SQLite)                               │
+│ ├── Storage (Arquivos/Uploads)                            │
+│ └── Cache (Otimização)                                    │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+            </section>
+
+            <!-- Padrão MVC -->
+            <section class="card" id="mvc">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Padrão MVC Laravel</h2>
+                    <p class="card-description">Como o Laravel MVC é implementado no Kleros</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h3>Model (M)</h3>
+                        <p>Representação dos dados e regras de negócio</p>
+                        <div class="code-block">
+                            <pre>
+app/Models/
+├── User.php              # Usuários do sistema
+├── Denominacao.php       # Denominações
+├── Congregacao.php       # Congregações
+├── Membro.php           # Membros
+├── Culto.php            # Cultos/Eventos
+├── Celula.php           # Células
+├── Curso.php            # Cursos EAD
+└── ...
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>View (V)</h3>
+                        <p>Interface do usuário com Blade Templates</p>
+                        <div class="code-block">
+                            <pre>
+resources/views/
+├── layouts/             # Layouts base
+├── components/          # Componentes reutilizáveis
+├── auth/               # Telas de autenticação
+├── admin/              # Painel administrativo
+├── membros/            # Gestão de membros
+├── cultos/             # Gestão de cultos
+└── ...
+</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h3>Controller (C)</h3>
+                    <p>Lógica de aplicação e coordenação entre Model e View</p>
+                    <div class="code-block">
+                        <pre>
+app/Http/Controllers/
+├── Controller.php           # Base controller
+├── HomeController.php       # Dashboard
+├── Admin/
+│   └── AdminController.php  # Painel administrativo
+├── MembroController.php     # Gestão membros
+├── CultoController.php      # Gestão cultos
+├── CongregacaoController.php # Gestão congregações
+└── ...
+</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Multi-tenancy -->
+            <section class="card" id="multitenancy">
+                <div class="card-header">
+                    <h2 class="card-title">🏢 Arquitetura Multi-tenant</h2>
+                    <p class="card-description">Isolamento de dados por congregação</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+ESTRATÉGIA: Database Shared + Tenant Identification
+
+1. IDENTIFICAÇÃO DE TENANT:
+   ├── Subdomínio → {congregacao}.local
+   ├── Middleware AcessarCongregacaoPeloDominio
+   ├── Binding no Service Container: app('congregacao')
+   └── Contexto disponível em toda aplicação
+
+2. ISOLAMENTO DE DADOS:
+   ├── Foreign Keys: congregacao_id em tabelas principais
+   ├── Global Scopes (quando necessário)
+   ├── Policy-based authorization
+   └── Context injection nos controllers
+
+3. FLUXO DE REQUISIÇÃO:
+   Request → Middleware → Identify Tenant → Bind Context → Continue
+</pre>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Responsabilidade</th>
+                                <th>Implementação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Middleware</td>
+                                <td>Identificar tenant</td>
+                                <td><code>AcessarCongregacaoPeloDominio</code></td>
+                            </tr>
+                            <tr>
+                                <td>Service Container</td>
+                                <td>Fornecer contexto</td>
+                                <td><code>app('congregacao')</code></td>
+                            </tr>
+                            <tr>
+                                <td>Models</td>
+                                <td>Filtrar dados</td>
+                                <td>Foreign keys + Scopes</td>
+                            </tr>
+                            <tr>
+                                <td>Controllers</td>
+                                <td>Aplicar contexto</td>
+                                <td>Injeção de dependência</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Sistema Modular -->
+            <section class="card" id="modules">
+                <div class="card-header">
+                    <h2 class="card-title">🧩 Sistema Modular</h2>
+                    <p class="card-description">Arquitetura extensível baseada em módulos</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+modules/
+├── Celulas/                    # Módulo de Células
+│   ├── Http/Controllers/       # Controllers específicos
+│   ├── routes/web.php         # Rotas do módulo
+│   ├── resources/views/       # Views do módulo
+│   ├── database/migrations/   # Migrações específicas
+│   ├── Providers/             # Service Providers
+│   └── module.json           # Manifesto do módulo
+├── Cursos/                    # Módulo EAD
+├── Drive/                     # Módulo de arquivos
+├── Projetos/                  # Módulo de projetos
+└── Recados/                   # Módulo de recados
+</pre>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Service Provider Pattern</h4>
+                        <div class="code-block">
+                            <pre>
+class CelulasServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'celulas');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Manifesto do Módulo</h4>
+                        <div class="code-block">
+                            <pre>
+{
+    "name": "Células",
+    "description": "Gestão de células",
+    "version": "1.0.0",
+    "author": "Kleros Team",
+    "requires": {
+        "laravel": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Celulas\\": ""
+        }
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Camada de Dados -->
+            <section class="card" id="data-layer">
+                <div class="card-header">
+                    <h2 class="card-title">🗄️ Camada de Dados</h2>
+                    <p class="card-description">Estratégia de persistência e acesso a dados</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Padrão Repository (Implícito)</h4>
+                        <p>Eloquent ORM atua como Repository Pattern</p>
+                        <div class="code-block">
+                            <pre>
+// Model como Repository
+class Membro extends Model
+{
+    // Query Scopes
+    public function scopeAtivos($query) {
+        return $query->where('ativo', true);
+    }
+    
+    // Relationships
+    public function congregacao() {
+        return $this->belongsTo(Congregacao::class);
+    }
+    
+    // Business Logic
+    public function getNomeCompletoAttribute() {
+        return $this->primeiro_nome . ' ' . $this->sobrenome;
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Relacionamentos</h4>
+                        <p>Mapeamento objeto-relacional com Eloquent</p>
+                        <div class="code-block">
+                            <pre>
+// Hierarquia Principal
+Denominacao 1:N Congregacao 1:N Membro
+
+// Relacionamentos Modulares
+Congregacao 1:N Celula 1:N MembroCelula
+Congregacao 1:N Curso 1:N ModuloCurso
+Congregacao 1:N Evento 1:N EventoParticipante
+
+// Multi-polymorphic
+Arquivo belongsTo(Congregacao|Celula|Curso)
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Segurança -->
+            <section class="card" id="security">
+                <div class="card-header">
+                    <h2 class="card-title">🔐 Arquitetura de Segurança</h2>
+                    <p class="card-description">Camadas de proteção e autorização</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+CAMADAS DE SEGURANÇA:
+
+1. NETWORK LEVEL:
+   ├── Domain-based isolation
+   ├── HTTPS enforcement
+   └── CORS policies
+
+2. APPLICATION LEVEL:
+   ├── Authentication (Laravel Sanctum)
+   ├── Authorization (Spatie Permission)
+   ├── CSRF Protection
+   └── Input Validation
+
+3. DATABASE LEVEL:
+   ├── Eloquent Mass Assignment Protection
+   ├── SQL Injection Prevention
+   ├── Foreign Key Constraints
+   └── Data Encryption (quando sensível)
+
+4. BUSINESS LOGIC LEVEL:
+   ├── Role-based Access Control (RBAC)
+   ├── Tenant Data Isolation
+   ├── Activity Logging
+   └── Policy-based Authorization
+</pre>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nível</th>
+                                <th>Tecnologia/Padrão</th>
+                                <th>Implementação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Autenticação</td>
+                                <td>Laravel Auth + Session</td>
+                                <td>Multi-domain sessions</td>
+                            </tr>
+                            <tr>
+                                <td>Autorização</td>
+                                <td>Spatie Permission</td>
+                                <td>Roles: kleros, admin, gestor</td>
+                            </tr>
+                            <tr>
+                                <td>Validação</td>
+                                <td>Form Requests</td>
+                                <td>Request validation classes</td>
+                            </tr>
+                            <tr>
+                                <td>Middleware</td>
+                                <td>Laravel Middleware</td>
+                                <td>Domain, Auth, Role checks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Performance -->
+            <section class="card" id="performance">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ Arquitetura de Performance</h2>
+                    <p class="card-description">Estratégias de otimização e escalabilidade</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Caching Strategy</h4>
+                        <div class="code-block">
+                            <pre>
+// Config Cache
+php artisan config:cache
+
+// Route Cache  
+php artisan route:cache
+
+// View Cache
+php artisan view:cache
+
+// Query Cache (implícito via Eloquent)
+// Session Cache (Redis/File)
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Database Optimization</h4>
+                        <div class="code-block">
+                            <pre>
+// Eager Loading
+Congregacao::with('membros', 'denominacao')->get();
+
+// Pagination
+Membro::paginate(50);
+
+// Query Optimization
+Membro::select('id', 'nome')->where('ativo', true);
+
+// Database Indexes (migrations)
+$table->index(['congregacao_id', 'ativo']);
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

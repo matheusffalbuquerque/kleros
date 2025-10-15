@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-tenancy - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link active">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🏢 Multi-tenancy</h1>
+                <p class="page-subtitle">
+                    Implementação de multi-tenancy baseada em domínios no sistema Kleros, garantindo isolamento de dados entre congregações.
+                </p>
+            </div>
+
+            <!-- Conceito -->
+            <section class="card" id="concept">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Conceito e Estratégia</h2>
+                    <p class="card-description">Como funciona o multi-tenancy no Kleros</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>O que é Multi-tenancy?</h4>
+                        <p>Multi-tenancy permite que múltiplas organizações (tenants) compartilhem a mesma aplicação mantendo seus dados isolados e seguros.</p>
+                        
+                        <h5>Benefícios:</h5>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">💰</span>
+                                <span>Redução de custos de infraestrutura</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔧</span>
+                                <span>Manutenção centralizada</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📈</span>
+                                <span>Escalabilidade otimizada</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔒</span>
+                                <span>Isolamento de dados</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Estratégia do Kleros</h4>
+                        <div class="code-block">
+                            <pre>
+MODELO: Single Database + Shared Schema
+
+┌─────────────────────────────────────────┐
+│         APLICAÇÃO KLEROS                │
+├─────────────────────────────────────────┤
+│ kleros.local      │ admin.local         │
+│ (Site principal)  │ (Painel admin)      │
+├─────────────────────────────────────────┤
+│ congregacao1.local │ congregacao2.local │
+│ (Tenant 1)         │ (Tenant 2)         │
+└─────────────────────────────────────────┘
+                     │
+                     ▼
+            ┌─────────────────┐
+            │   DATABASE      │
+            │ ┌─────────────┐ │
+            │ │ Table 1     │ │ ← congregacao_id
+            │ │ Table 2     │ │ ← congregacao_id  
+            │ │ Table 3     │ │ ← congregacao_id
+            │ └─────────────┘ │
+            └─────────────────┘
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Implementação -->
+            <section class="card" id="implementation">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ Implementação Técnica</h2>
+                    <p class="card-description">Como o sistema identifica e isola os tenants</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+FLUXO DE IDENTIFICAÇÃO DE TENANT:
+
+1. REQUISIÇÃO CHEGA
+   ├── User acessa: congregacao1.local/dashboard
+   ├── Laravel captura: request()->getHost()
+   └── Host = "congregacao1.local"
+
+2. MIDDLEWARE INTERCEPTA
+   ├── AcessarCongregacaoPeloDominio.php
+   ├── Extrai subdomain: "congregacao1"
+   └── Busca na tabela 'dominios'
+
+3. RESOLUÇÃO DO TENANT
+   ├── SELECT * FROM dominios WHERE dominio = 'congregacao1'
+   ├── JOIN com congregacoes
+   └── Verifica se ativa
+
+4. BINDING NO CONTAINER
+   ├── app()->singleton('congregacao', $congregacao)
+   ├── Disponível em toda aplicação
+   └── Controllers acessam via app('congregacao')
+
+5. APLICAÇÃO DO CONTEXTO
+   ├── Queries filtradas automaticamente
+   ├── Views recebem contexto
+   └── URLs geradas com tenant correto
+</pre>
+                </div>
+            </section>
+
+            <!-- Middleware Principal -->
+            <section class="card" id="middleware">
+                <div class="card-header">
+                    <h2 class="card-title">🛡️ Middleware de Tenant</h2>
+                    <p class="card-description">AcessarCongregacaoPeloDominio - Core do multi-tenancy</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Models\Dominio;
+use Closure;
+use Illuminate\Http\Request;
+
+class AcessarCongregacaoPeloDominio
+{
+    public function handle(Request $request, Closure $next)
+    {
+        // 1. Extrair domínio da requisição
+        $host = $request->getHost();
+        $subdomain = explode('.', $host)[0];
+        
+        // 2. Buscar congregação pelo domínio
+        $dominio = Dominio::where('dominio', $subdomain)
+            ->where('ativo', true)
+            ->with('congregacao')
+            ->first();
+            
+        // 3. Verificar se existe e está ativa
+        if (!$dominio || !$dominio->congregacao || !$dominio->congregacao->ativa) {
+            return redirect()->route('congregacoes.cadastro')
+                ->with('error', 'Congregação não encontrada ou inativa.');
+        }
+        
+        // 4. Bind da congregação no service container
+        app()->singleton('congregacao', function () use ($dominio) {
+            return $dominio->congregacao;
+        });
+        
+        // 5. Configurar contexto da sessão
+        session(['congregacao_id' => $dominio->congregacao->id]);
+        
+        // 6. Log de acesso (opcional)
+        Log::info('Acesso à congregação', [
+            'congregacao' => $dominio->congregacao->identificacao,
+            'dominio' => $subdomain,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+        
+        return $next($request);
+    }
+}
+</pre>
+                </div>
+            </section>
+
+            <!-- Isolamento de Dados -->
+            <section class="card" id="data-isolation">
+                <div class="card-header">
+                    <h2 class="card-title">🔐 Isolamento de Dados</h2>
+                    <p class="card-description">Estratégias para garantir separação entre tenants</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Foreign Keys</h4>
+                        <p>Chave primária para isolamento</p>
+                        <div class="code-block">
+                            <pre>
+// Todas as tabelas principais têm congregacao_id
+Schema::create('membros', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('congregacao_id')
+          ->constrained('congregacoes')
+          ->onDelete('cascade');
+    $table->string('primeiro_nome');
+    $table->string('sobrenome');
+    // ...
+    
+    // Index para performance
+    $table->index(['congregacao_id', 'ativo']);
+});
+
+// Aplicação automática em controllers
+class MembroController extends Controller
+{
+    public function index()
+    {
+        // Filtragem automática por congregacao_id
+        $congregacao = app('congregacao');
+        
+        $membros = $congregacao->membros()
+            ->ativos()
+            ->paginate(50);
+            
+        return view('membros.index', compact('membros'));
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Global Scopes</h4>
+                        <p>Filtragem automática via Eloquent</p>
+                        <div class="code-block">
+                            <pre>
+// Scope global para auto-filtrar por tenant
+class TenantScope implements Scope
+{
+    public function apply(Builder $builder, Model $model)
+    {
+        if (app()->bound('congregacao')) {
+            $congregacao = app('congregacao');
+            $builder->where($model->getTable() . '.congregacao_id', $congregacao->id);
+        }
+    }
+}
+
+// Aplicar em models que precisam
+class Membro extends Model
+{
+    protected static function booted()
+    {
+        static::addGlobalScope(new TenantScope);
+    }
+    
+    // Para queries sem filtro (admin)
+    public function newQueryWithoutScopes()
+    {
+        return parent::newQueryWithoutScopes();
+    }
+}
+
+// Uso automático
+$membros = Membro::all(); // Já filtrado por congregacao_id
+$todosMembros = Membro::withoutGlobalScopes()->get(); // Sem filtro
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Container -->
+            <section class="card" id="service-container">
+                <div class="card-header">
+                    <h2 class="card-title">🏗️ Service Container</h2>
+                    <p class="card-description">Disponibilização do contexto do tenant</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+// app/Providers/AppServiceProvider.php
+class AppServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        // Binding da congregação será feito pelo middleware
+        // Aqui apenas preparamos o container
+    }
+    
+    public function boot()
+    {
+        // Helper global para acessar a congregação
+        if (!function_exists('congregacao')) {
+            function congregacao() {
+                return app('congregacao');
+            }
+        }
+        
+        // Macro para URL com tenant
+        \Illuminate\Support\Facades\URL::macro('tenant', function ($route, $parameters = []) {
+            $congregacao = app('congregacao');
+            $domain = $congregacao->dominio->dominio . '.local';
+            
+            return route($route, $parameters, true, $domain);
+        });
+    }
+}
+
+// Uso em controllers
+class CultoController extends Controller
+{
+    public function index()
+    {
+        // Acesso via helper
+        $congregacao = congregacao();
+        
+        // Ou via service container
+        $congregacao = app('congregacao');
+        
+        $cultos = $congregacao->cultos()
+            ->orderBy('data_hora', 'desc')
+            ->paginate(20);
+            
+        return view('cultos.index', compact('cultos'));
+    }
+}
+
+// Uso em views
+@php
+    $congregacao = congregacao();
+@endphp
+
+<h1>{{ $congregacao->identificacao }}</h1>
+
+// Uso para URLs
+<a href="{{ URL::tenant('membros.index') }}">Membros</a>
+</pre>
+                </div>
+            </section>
+
+            <!-- Domínios e Rotas -->
+            <section class="card" id="domains-routes">
+                <div class="card-header">
+                    <h2 class="card-title">🌐 Domínios e Rotas</h2>
+                    <p class="card-description">Configuração de domínios e roteamento</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+// routes/web.php - Estrutura de domínios
+
+// 1. SITE PRINCIPAL
+Route::domain('kleros.local')
+    ->middleware('setlocale')
+    ->group(function () {
+        Route::get('/', [SiteController::class, 'home']);
+        Route::get('/denominacoes', [DenominacaoController::class, 'index']);
+        Route::post('/denominacoes', [DenominacaoController::class, 'store']);
+        Route::get('/checkin', [CongregacaoController::class, 'create']);
+    });
+
+// 2. PAINEL ADMINISTRATIVO
+Route::domain('admin.local')
+    ->middleware('setlocale')
+    ->group(function () {
+        Route::get('/login', [AdminController::class, 'login']);
+        Route::post('/login', [AdminController::class, 'authenticate']);
+        
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/manage', [AdminController::class, 'manage']);
+        });
+        
+        Route::middleware(['auth', CheckAdminRole::class])->group(function () {
+            Route::get('/admin', [AdminController::class, 'dashboard']);
+        });
+    });
+
+// 3. TENANTS (CONGREGAÇÕES)
+Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
+    // Rotas de autenticação
+    Route::get('/login', [HomeController::class, 'login']);
+    Route::post('/login', [HomeController::class, 'authenticate']);
+    Route::get('/logout', function () {
+        Auth::logout();
+        return redirect()->route('login');
+    });
+    
+    // Rotas autenticadas
+    Route::middleware(['auth', 'check.session', 'member.activity'])->group(function () {
+        Route::get('/', [HomeController::class, 'index']);
+        
+        // Rotas para gestores
+        Route::middleware(['role:gestor'])->group(function () {
+            Route::resource('membros', MembroController::class);
+            Route::resource('cultos', CultoController::class);
+            Route::resource('celulas', CelulaController::class);
+        });
+    });
+});
+</pre>
+                </div>
+            </section>
+
+            <!-- Configuração de Domínios -->
+            <section class="card" id="domain-config">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ Configuração de Domínios</h2>
+                    <p class="card-description">Setup e gestão dos domínios dos tenants</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Tabela de Domínios</h4>
+                        <div class="code-block">
+                            <pre>
+// Migration: create_dominios_table
+Schema::create('dominios', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('congregacao_id')
+          ->constrained('congregacoes')
+          ->onDelete('cascade');
+    $table->string('dominio')->unique();
+    $table->boolean('ativo')->default(true);
+    $table->timestamps();
+    
+    $table->index(['dominio', 'ativo']);
+});
+
+// Model: Dominio
+class Dominio extends Model
+{
+    protected $fillable = [
+        'congregacao_id', 'dominio', 'ativo'
+    ];
+    
+    protected $casts = [
+        'ativo' => 'boolean'
+    ];
+    
+    public function congregacao()
+    {
+        return $this->belongsTo(Congregacao::class);
+    }
+    
+    // Scope para domínios ativos
+    public function scopeAtivos($query)
+    {
+        return $query->where('ativo', true);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Criação de Domínio</h4>
+                        <div class="code-block">
+                            <pre>
+// CongregacaoController - Criar congregação com domínio
+public function store(Request $request)
+{
+    $request->validate([
+        'identificacao' => 'required|string|max:255',
+        'dominio' => [
+            'required',
+            'string',
+            'max:50',
+            'regex:/^[a-z0-9\-]+$/',
+            'unique:dominios,dominio'
+        ],
+        // ... outros campos
+    ]);
+    
+    DB::transaction(function () use ($request) {
+        // 1. Criar congregação
+        $congregacao = Congregacao::create([
+            'identificacao' => $request->identificacao,
+            'denominacao_id' => $request->denominacao_id,
+            'cidade_id' => $request->cidade_id,
+            'ativa' => true
+        ]);
+        
+        // 2. Criar domínio
+        Dominio::create([
+            'congregacao_id' => $congregacao->id,
+            'dominio' => $request->dominio,
+            'ativo' => true
+        ]);
+        
+        // 3. Criar usuário gestor
+        $user = User::create([
+            'name' => $request->gestor_nome,
+            'email' => $request->gestor_email,
+            'password' => Hash::make($request->gestor_senha),
+            'congregacao_id' => $congregacao->id
+        ]);
+        
+        $user->assignRole('gestor');
+    });
+    
+    return redirect()->route('congregacoes.sucesso')
+        ->with('success', 'Congregação criada com sucesso!');
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Segurança -->
+            <section class="card" id="security">
+                <div class="card-header">
+                    <h2 class="card-title">🔒 Segurança Multi-tenant</h2>
+                    <p class="card-description">Garantias de isolamento e proteção</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Validações de Segurança</h4>
+                        <div class="code-block">
+                            <pre>
+// Model Binding com validação de tenant
+Route::bind('membro', function ($id) {
+    $congregacao = app('congregacao');
+    
+    return Membro::where('id', $id)
+        ->where('congregacao_id', $congregacao->id)
+        ->firstOrFail();
+});
+
+// Policy baseada em tenant
+class MembroPolicy
+{
+    public function view(User $user, Membro $membro)
+    {
+        // Verificar se membro pertence à congregação do usuário
+        return $user->congregacao_id === $membro->congregacao_id;
+    }
+    
+    public function update(User $user, Membro $membro)
+    {
+        return $user->hasRole('gestor') 
+            && $user->congregacao_id === $membro->congregacao_id;
+    }
+}
+
+// Middleware de verificação de tenant
+class VerifyTenantAccess
+{
+    public function handle($request, Closure $next)
+    {
+        $user = auth()->user();
+        $congregacao = app('congregacao');
+        
+        // Verificar se usuário pertence ao tenant
+        if ($user->congregacao_id !== $congregacao->id) {
+            abort(403, 'Acesso negado a esta congregação.');
+        }
+        
+        return $next($request);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Auditoria e Logs</h4>
+                        <div class="code-block">
+                            <pre>
+// Middleware para log de atividades
+class LogMemberActivity
+{
+    public function handle($request, Closure $next)
+    {
+        $response = $next($request);
+        
+        if (auth()->check()) {
+            MemberActivityLog::create([
+                'user_id' => auth()->id(),
+                'congregacao_id' => app('congregacao')->id,
+                'action' => $request->method(),
+                'route' => $request->route()->getName(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now()
+            ]);
+        }
+        
+        return $response;
+    }
+}
+
+// Model para auditoria
+class MemberActivityLog extends Model
+{
+    protected $fillable = [
+        'user_id', 'congregacao_id', 'action',
+        'route', 'ip_address', 'user_agent'
+    ];
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    public function congregacao()
+    {
+        return $this->belongsTo(Congregacao::class);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Performance -->
+            <section class="card" id="performance">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ Performance em Multi-tenancy</h2>
+                    <p class="card-description">Otimizações específicas para ambiente multi-tenant</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Caching por Tenant</h4>
+                        <div class="code-block">
+                            <pre>
+// Helper para cache específico do tenant
+function tenantCache($key, $callback = null, $ttl = 3600)
+{
+    $congregacao = app('congregacao');
+    $tenantKey = "tenant_{$congregacao->id}_{$key}";
+    
+    if ($callback) {
+        return Cache::remember($tenantKey, $ttl, $callback);
+    }
+    
+    return Cache::get($tenantKey);
+}
+
+// Uso em controllers
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $stats = tenantCache('dashboard_stats', function () {
+            return [
+                'membros' => Membro::count(),
+                'celulas' => Celula::count(),
+                'cultos_mes' => Culto::whereMonth('data_hora', now()->month)->count(),
+            ];
+        }, 1800); // 30 minutos
+        
+        return view('dashboard', compact('stats'));
+    }
+}
+
+// Invalidação de cache
+class MembroController extends Controller
+{
+    public function store(Request $request)
+    {
+        $membro = Membro::create($request->validated());
+        
+        // Invalidar caches relacionados
+        $congregacao = app('congregacao');
+        Cache::forget("tenant_{$congregacao->id}_dashboard_stats");
+        Cache::forget("tenant_{$congregacao->id}_membros_count");
+        
+        return redirect()->route('membros.index');
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Índices de Banco</h4>
+                        <div class="code-block">
+                            <pre>
+// Índices otimizados para queries multi-tenant
+Schema::create('membros', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('congregacao_id')->constrained();
+    $table->string('primeiro_nome');
+    $table->string('sobrenome');
+    $table->boolean('ativo')->default(true);
+    $table->timestamps();
+    
+    // Índices compostos para performance
+    $table->index(['congregacao_id', 'ativo']);
+    $table->index(['congregacao_id', 'created_at']);
+    $table->index(['congregacao_id', 'primeiro_nome', 'sobrenome']);
+});
+
+// Query otimizada
+class MembroController extends Controller
+{
+    public function search(Request $request)
+    {
+        $congregacao = app('congregacao');
+        $termo = $request->get('q');
+        
+        // Query otimizada com índices
+        $membros = Membro::select('id', 'primeiro_nome', 'sobrenome')
+            ->where('congregacao_id', $congregacao->id) // Primeiro filtro
+            ->where('ativo', true)                      // Segundo filtro
+            ->where(function ($query) use ($termo) {    // Busca textual
+                $query->where('primeiro_nome', 'like', "%{$termo}%")
+                      ->orWhere('sobrenome', 'like', "%{$termo}%");
+            })
+            ->limit(20)
+            ->get();
+            
+        return response()->json($membros);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

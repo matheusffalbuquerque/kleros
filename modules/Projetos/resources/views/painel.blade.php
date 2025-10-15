@@ -24,9 +24,9 @@
                 </div>
                 <div class="search-panel-item">
                     <button type="submit"><i class="bi bi-search"></i> Buscar</button>
-                    @role('gestor')
+                    @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                         <button type="button" class="btn btn-secondary" onclick="abrirJanelaModal('{{ route('projetos.form_criar') }}')"><i class="bi bi-plus-circle"></i> Novo projeto</button>
-                    @endrole
+                    @endif
                 </div>
             </div>
         </form>

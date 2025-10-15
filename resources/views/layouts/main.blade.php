@@ -80,7 +80,7 @@
                     </div>
                     <div class="nav-menu">
                         <ul id="menu-express">
-                            @role('gestor')
+                            @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                                 <a href="{{ route('index') }}"><li><i class="bi bi-kanban"></i> Controle</li></a>
                                 <a href="{{ route('membros.painel') }}"><li><i class="bi bi-people"></i> Membros</li></a>
                                 <a href="{{ route('cadastros.index') }}"><li><i class="bi bi-journals"></i> Cadastros</li></a>
@@ -91,7 +91,7 @@
                                 <a href="{{ route('agenda.index') }}"><li><i class="bi bi-calendar3"></i> Agenda</li></a>
                                 <a href="{{ route('noticias.painel') }}"><li><i class="bi bi-newspaper"></i> Notícias</li></a>
                                 <a href="{{ route('programacoes.painel') }}"><li><i class="bi bi-collection"></i> Programações</li></a>
-                            @endrole
+                            @endif
                         </ul>
                     </div>
                     <div class="login_info">
@@ -160,15 +160,15 @@
                 @endif
                 <nav class="left-navbar nao-imprimir">
                     <div class="menu-btn">
-                        @role('gestor')
+                        @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                             <a href="{{route('tutoriais.index')}}"><span title="Tutoriais" id="btn-tutorial"><i class="bi bi-question-octagon"></i></span></a>
                             <a href="{{route('configuracoes.atualizar', $congregacao->id)}}"><span title="Configurações" id="btn-config"><i class="bi bi-gear"></i></span></a>
-                        @endrole
+                        @endif
                         <span title="Menu Principal" id="btn-menu"><i class="bi bi-list"></i></span>
                     </div>
                     <ul class="menu-content">
                         <a href="{{route('index')}}"><li><span title="Controle"><i class="bi bi-kanban"></i></span><span>Controle</span></li></a>
-                        @role('gestor')
+                        @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                             <a href="{{route('membros.painel')}}"><li><span title="Membros"><i class="bi bi-people"></i></span><span>Membros</span></li></a>
                             <a href="{{route('agenda.index')}}"><li><span title="Agenda"><i class="bi bi-calendar3"></i></span><span>Agenda</span></li></a>
                             <a href="{{route('eventos.agenda')}}"><li><span title="Eventos"><i class="bi bi-calendar-event"></i></span><span>Eventos</span></li></a>
@@ -215,7 +215,7 @@
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
                             @endif
                             <a href="{{ route('perfil') }}"><li><span title="Perfil"><i class="bi bi-person-badge"></i></span><span>Perfil</span></li></a>
-                        @endrole
+                        @endif
                     </ul>
                 </nav>
                 @yield('content')

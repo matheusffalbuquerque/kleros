@@ -1,0 +1,321 @@
+# Instruções para Agentes de IA - Sistema Kleros
+
+## Visão Geral do Projeto
+
+**Kleros** é um sistema de gestão eclesiástica desenvolvido em Laravel 11.31 com PHP 8.2+ que oferece uma plataforma multi-tenancy para gerenciamento de denominações, congregações, membros e atividades religiosas.
+
+### Tecnologias e Dependências Principais
+- **Backend**: Laravel 11.31, PHP 8.2+, Eloquent ORM
+- **Autenticação/Autorização**: Spatie Permission (roles: admin, kleros, gestor)
+- **Frontend**: Blade templates, TailwindCSS, Alpine.js
+- **Gráficos**: Larapex Charts
+- **PDF**: DomPDF
+- **Feeds**: php-feed-io/feed-io
+- **HTTP Client**: Guzzle
+- **Geocoding**: Nominatim API (OpenStreetMap)
+- **Mapas**: Google Maps JavaScript API + Leaflet (fallback)
+
+## Arquitetura Multi-Tenancy por Domínio
+
+### Estrutura Hierárquica
+```
+Denominação (ex: "Assembleia de Deus Jerusalém")
+├── Congregação (ex: "Ilha Solteira")
+│   ├── Domínio (ex: "adjerusalemilha.local")
+│   ├── Membros
+│   ├── Células
+│   ├── Grupos/Departamentos/Setores
+│   ├── Cultos/Eventos
+│   └── Configurações específicas
+└── Usuários (Users) - podem estar vinculados à denominação
+```
+
+### Middleware de Domínio (`AcessarCongregacaoPeloDominio`)
+- **Domínios especiais**:
+  - `kleros.local`: Site público/principal
+  - `admin.local`: Painel administrativo global
+- **Domínios de congregação**: `{slug}.local` (ex: `adjerusalemilha.local`)
+- **Context Injection**: `app('congregacao')`, `app('modo_admin')`, `app('site_publico')`
+
+### Grupos de Rotas por Domínio
+```php
+// Site público (kleros.local)
+Route::domain('kleros.local')->middleware('setlocale')->group(function () {
+    // Cadastro de denominações/congregações
+});
+
+// Painel administrativo (admin.local) 
+Route::domain('admin.local')->middleware('setlocale')->group(function () {
+    // Admin global: dashboard, manage
+});
+
+// Congregações individuais (dominio middleware)
+Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
+    // Sistema da congregação: membros, cultos, células, etc.
+});
+```
+
+## Modelos e Relacionamentos Principais
+
+### Denominacao
+```php
+- hasMany: congregacoes, ministerios, users
+- hasOne: baseDoutrinaria
+```
+
+### Congregacao 
+```php
+- belongsTo: denominacao, cidade, estado, pais
+- hasOne: config, dominio
+- hasMany: membros, celulas, grupos, setores, reunioes, cultos, eventos
+```
+
+### Membro
+```php
+- belongsTo: congregacao, estadoCiv, escolaridade, ministerio, setor
+- hasOneThrough: denominacao (via congregacao)
+- belongsToMany: celulas, agrupamentos, eventos, reunioes, avisos
+- hasOne: user
+```
+
+### User (Autenticação)
+```php
+- use HasRoles (Spatie)
+- belongsTo: denominacao, membro
+- Roles: 'admin', 'kleros', 'gestor'
+```
+
+### Celula
+```php
+- belongsTo: congregacao, lider (Membro), colider (Membro)
+- belongsToMany: participantes (Membro)
+- hasMany: encontros
+- Auto-inject congregacao_id via boot()
+```
+
+### Dominio
+```php
+- belongsTo: congregacao
+- Único por congregação, usado para multi-tenancy
+```
+
+## Sistema de Roles e Permissões
+
+### Roles Disponíveis
+- **`kleros`**: Acesso ao dashboard administrativo global (`admin.dashboard`)
+- **`admin`**: Acesso à página de gerenciamento (`admin.manage`) - visualiza todos os dados
+- **`gestor`**: Acesso limitado ao sistema da congregação específica
+
+### Middleware de Autenticação
+- **`CheckAdminRole`**: Protege `admin.dashboard` (apenas `kleros`)
+- **`auth`**: Proteção básica para `admin.manage` (controller valida role internamente)
+- **`role:gestor`**: Middleware Spatie para funcionalidades específicas
+
+### Fluxo de Login Administrativo (`AdminController::authenticate`)
+```php
+if ($hasRole('kleros')) {
+    return redirect()->route('admin.dashboard'); // Dashboard global
+}
+if ($hasRole('admin')) {
+    return redirect()->route('admin.manage'); // Gerenciamento
+}
+// Caso contrário: logout + erro
+```
+
+## Padrões de Desenvolvimento
+
+### Auto-Injection em Models
+```php
+// Celula, outros models fazem auto-inject da congregacao_id
+protected static function booted() {
+    static::creating(function ($model) {
+        $model->congregacao_id = app('congregacao')->id;
+    });
+}
+```
+
+### Verificação Segura de Roles
+```php
+$hasRole = function ($role) use ($user) {
+    if (! $user) return false;
+    if (method_exists($user, 'hasRole')) {
+        try { return $user->hasRole($role); } catch (\Throwable $e) { return false; }
+    }
+    if (method_exists($user, 'roles')) {
+        try { return (bool) $user->roles()->where('name', $role)->exists(); } catch (\Throwable $e) { return false; }
+    }
+    return false;
+};
+```
+
+### Scopes Comuns
+```php
+// Filtrar por congregação atual
+public function scopeDaCongregacao($query) {
+    return $query->where('congregacao_id', app('congregacao')->id);
+}
+```
+
+## Módulos (Namespace `Modules\`)
+
+### Estrutura Modular
+- **Biblia/**: Funcionalidades bíblicas
+- **Celulas/**: Gestão de células (CelulaController, views, rotas)
+- **Cursos/**: Sistema de cursos
+- **Drive/**: Gerenciamento de arquivos
+- **Projetos/**: Gestão de projetos (Kanban)
+- **Recados/**: Sistema de recados
+
+### Exemplo: Módulo Células
+```php
+// modules/Celulas/Http/Controllers/CelulaController.php
+// modules/Celulas/resources/views/painel.blade.php
+// modules/Celulas/routes/web.php
+```
+
+## Geocoding e Mapas
+
+### Implementação de Coordenadas
+- **Geocoding**: Nominatim API (OpenStreetMap) via Laravel HTTP client
+- **Mapas**: Google Maps JavaScript API (AdvancedMarkerElement) + fallback Leaflet
+- **Auto-preenchimento**: `preencherCoordenadas()` em CelulaController
+- **SRI**: Verificação de integridade para scripts externos (Leaflet)
+
+### Padrão de Uso
+```php
+// Salvar coordenadas antes de salvar modelo
+$this->preencherCoordenadas($celula);
+$celula->save();
+```
+
+## Views e Frontend
+
+### Estrutura de Layout
+- **Site público**: `layouts.site`
+- **Admin**: Views em `resources/views/admin/`
+- **Congregação**: Views específicas por funcionalidade
+
+### Padrões de UI
+- **TailwindCSS**: Utility-first CSS framework
+- **Cores dinâmicas**: `$congregacao->config->conjunto_cores`
+- **Responsividade**: Mobile-first approach
+- **Componentes**: Blade components para reutilização
+
+### JavaScript e Mapas
+```javascript
+// Google Maps com callback
+window.initializeMap = function() {
+    // Implementação do mapa
+};
+
+// Leaflet como fallback
+L.map('map-id').setView([lat, lng], zoom);
+```
+
+## Comandos e Ferramentas
+
+### Artisan Commands Personalizados
+```bash
+php artisan route:clear     # Limpar cache de rotas
+php artisan config:clear    # Limpar cache de configuração
+php artisan cache:clear     # Limpar cache geral
+php artisan view:clear      # Limpar cache de views
+```
+
+### Desenvolvimento
+```bash
+composer dev    # Concurrently: serve + queue + pail + vite
+```
+
+## Boas Práticas para Agentes de IA
+
+### 1. Contexto de Congregação
+- **SEMPRE verificar**: `app('congregacao')` está disponível
+- **Auto-injection**: Modelos fazem inject automático da congregacao_id
+- **Filtros**: Usar scopes para filtrar por congregação
+
+### 2. Roles e Permissões
+- **Verificação defensiva**: Use try/catch para `hasRole()`
+- **Middleware adequado**: `auth`, `role:gestor`, `CheckAdminRole`
+- **Redirecionamentos**: Considerar o tipo de usuário na autenticação
+
+### 3. Multi-tenancy
+- **Domínios**: Respeitar a estrutura por domínio
+- **Context injection**: Usar `app('congregacao')`, `app('modo_admin')`
+- **Isolamento**: Dados devem ser isolados por congregação
+
+### 4. Geocoding e Mapas
+- **Coordenadas**: Sempre validar latitude/longitude
+- **Fallbacks**: Google Maps → Leaflet → mensagem de erro
+- **SRI**: Manter integridade dos scripts externos
+
+### 5. Relacionamentos Eloquent
+- **Eager loading**: Use `with()` para evitar N+1
+- **Denominação via Congregação**: `membro->denominacao` (hasOneThrough)
+- **Filtragem**: Use `whereHas()` para relacionamentos
+
+### 6. Debugging
+- **Logs**: `Log::debug()` para investigação
+- **Tinker**: `php artisan tinker` para verificar dados/roles
+- **Cache**: Limpar caches após mudanças em rotas/config
+
+### 7. Frontend
+- **Responsive**: Mobile-first com TailwindCSS
+- **Alpine.js**: Para interatividade simples
+- **Blade**: Componentes reutilizáveis
+- **Asset**: `asset()` para URLs de recursos
+
+### 8. Módulos
+- **Namespace**: `Modules\{Nome}\{Estrutura}`
+- **Rotas modulares**: Cada módulo tem suas próprias rotas
+- **Controllers**: Seguir padrão Laravel PSR-4
+
+### 9. Performance
+- **Pagination**: Use `paginate()` para listagens grandes
+- **Indexes**: Considerar índices de BD para consultas frequentes
+- **Caching**: Usar cache para dados estáticos
+
+### 10. Segurança
+- **CSRF**: Tokens em formulários
+- **Validation**: Sempre validar input
+- **Authorization**: Verificar permissões antes de ações
+- **Sanitização**: Escapar dados de saída
+
+## Comandos de Migração/Seeding
+
+```bash
+php artisan migrate                    # Executar migrações
+php artisan db:seed --class=DadosFixosSeeder  # Popular dados iniciais
+```
+
+## Estrutura de Arquivos Importantes
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Admin/AdminController.php    # Painel administrativo
+│   │   ├── HomeController.php           # Dashboard congregação
+│   │   └── CongregacaoController.php    # Gestão congregações
+│   └── Middleware/
+│       ├── AcessarCongregacaoPeloDominio.php  # Multi-tenancy
+│       └── CheckAdminRole.php                 # Autorização admin
+├── Models/                              # Todos os models Eloquent
+└── Providers/AppServiceProvider.php     # Service bindings
+
+resources/views/
+├── admin/                               # Views administrativas
+├── layouts/                             # Layouts base
+└── {funcionalidade}/                    # Views por funcionalidade
+
+modules/                                 # Módulos adicionais
+├── Celulas/
+├── Projetos/
+└── {outros}/
+
+database/
+├── migrations/                          # Migrações de BD
+└── seeders/                            # Seeders de dados
+```
+
+Esta documentação serve como guia abrangente para agentes de IA trabalhando no sistema Kleros. Sempre consulte o código fonte atual para verificar implementações específicas, pois este é um sistema em desenvolvimento ativo.

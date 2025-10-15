@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Models & Database - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link active">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🗃️ Models & Database</h1>
+                <p class="page-subtitle">
+                    Estrutura de dados, relacionamentos e implementação dos Models Eloquent no sistema Kleros.
+                </p>
+            </div>
+
+            <!-- Diagrama ER -->
+            <section class="card" id="er-diagram">
+                <div class="card-header">
+                    <h2 class="card-title">🏗️ Diagrama Entidade-Relacionamento</h2>
+                    <p class="card-description">Principais entidades e relacionamentos do sistema</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Denominacao │ 1:N │ Congregacao │ 1:N │   Membro    │
+│             │────▶│             │────▶│             │
+│ - id        │     │ - id        │     │ - id        │
+│ - nome      │     │ - denominac.│     │ - congregac.│
+│ - ativa     │     │ - identific.│     │ - nome      │
+└─────────────┘     │ - cidade_id │     │ - email     │
+                    └─────────────┘     │ - ativo     │
+                           │            └─────────────┘
+                           │ 1:N               │
+                           ▼                  │ 1:N
+                    ┌─────────────┐           ▼
+                    │   Dominio   │    ┌─────────────┐
+                    │             │    │   Celula    │
+                    │ - id        │    │             │
+                    │ - congregac.│    │ - id        │
+                    │ - dominio   │    │ - congregac.│
+                    └─────────────┘    │ - nome      │
+                                      │ - ativa     │
+                                      └─────────────┘
+</pre>
+                </div>
+            </section>
+
+            <!-- Models Principais -->
+            <section class="card" id="main-models">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Models Principais</h2>
+                    <p class="card-description">Entidades core do sistema</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <!-- User Model -->
+                    <div>
+                        <h4>👤 User Model</h4>
+                        <div class="code-block">
+                            <pre>
+class User extends Authenticatable
+{
+    use HasRoles, Notifiable;
+    
+    protected $fillable = [
+        'name', 'email', 'password',
+        'congregacao_id', 'denominacao_id'
+    ];
+    
+    // Relacionamentos
+    public function congregacao() {
+        return $this->belongsTo(Congregacao::class);
+    }
+    
+    public function membro() {
+        return $this->belongsTo(Membro::class);
+    }
+    
+    // Roles: kleros, admin, gestor
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Denominacao Model -->
+                    <div>
+                        <h4>⛪ Denominacao Model</h4>
+                        <div class="code-block">
+                            <pre>
+class Denominacao extends Model
+{
+    protected $table = 'denominacoes';
+    
+    protected $fillable = [
+        'nome', 'base_doutrinaria',
+        'ativa', 'ministerios_eclesiasticos'
+    ];
+    
+    protected $casts = [
+        'ministerios_eclesiasticos' => 'array'
+    ];
+    
+    public function congregacoes() {
+        return $this->hasMany(Congregacao::class);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Congregacao Model -->
+                    <div>
+                        <h4>🏛️ Congregacao Model</h4>
+                        <div class="code-block">
+                            <pre>
+class Congregacao extends Model
+{
+    protected $table = 'congregacoes';
+    
+    protected $casts = [
+        'gestor_notificado_em' => 'datetime'
+    ];
+    
+    // Relacionamentos principais
+    public function denominacao() {
+        return $this->belongsTo(Denominacao::class);
+    }
+    
+    public function membros() {
+        return $this->hasMany(Membro::class);
+    }
+    
+    public function dominio() {
+        return $this->hasOne(Dominio::class);
+    }
+    
+    public function celulas() {
+        return $this->hasMany(Celula::class);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Membro Model -->
+                    <div>
+                        <h4>👥 Membro Model</h4>
+                        <div class="code-block">
+                            <pre>
+class Membro extends Model
+{
+    protected $table = 'membros';
+    
+    protected $fillable = [
+        'congregacao_id', 'primeiro_nome',
+        'sobrenome', 'email', 'telefone',
+        'data_nascimento', 'sexo', 'ativo'
+    ];
+    
+    protected $casts = [
+        'data_nascimento' => 'date',
+        'ativo' => 'boolean'
+    ];
+    
+    public function congregacao() {
+        return $this->belongsTo(Congregacao::class);
+    }
+    
+    public function celulas() {
+        return $this->belongsToMany(Celula::class, 'membro_celula');
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabelas do Sistema -->
+            <section class="card" id="database-tables">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Estrutura de Tabelas</h2>
+                    <p class="card-description">Principais tabelas e seus campos</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tabela</th>
+                                <th>Propósito</th>
+                                <th>Campos Principais</th>
+                                <th>Foreign Keys</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>users</code></td>
+                                <td>Usuários do sistema</td>
+                                <td>name, email, password</td>
+                                <td>congregacao_id, denominacao_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>denominacoes</code></td>
+                                <td>Denominações religiosas</td>
+                                <td>nome, ativa, ministerios_eclesiasticos</td>
+                                <td>base_doutrinaria</td>
+                            </tr>
+                            <tr>
+                                <td><code>congregacoes</code></td>
+                                <td>Congregações/Igrejas</td>
+                                <td>identificacao, nome_reduzido, ativa</td>
+                                <td>denominacao_id, cidade_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>membros</code></td>
+                                <td>Membros das congregações</td>
+                                <td>primeiro_nome, sobrenome, email, ativo</td>
+                                <td>congregacao_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>dominios</code></td>
+                                <td>Domínios das congregações</td>
+                                <td>dominio, ativo</td>
+                                <td>congregacao_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>celulas</code></td>
+                                <td>Células/Grupos pequenos</td>
+                                <td>nome, endereco, ativa</td>
+                                <td>congregacao_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>cultos</code></td>
+                                <td>Cultos e eventos</td>
+                                <td>titulo, data_hora, local</td>
+                                <td>congregacao_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>arquivos</code></td>
+                                <td>Arquivos/uploads</td>
+                                <td>nome, caminho, tipo</td>
+                                <td>congregacao_id</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Relacionamentos -->
+            <section class="card" id="relationships">
+                <div class="card-header">
+                    <h2 class="card-title">🔗 Relacionamentos Eloquent</h2>
+                    <p class="card-description">Mapeamento de relacionamentos entre entidades</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>One-to-Many (1:N)</h4>
+                        <div class="code-block">
+                            <pre>
+// Denominacao → Congregacoes
+public function congregacoes() {
+    return $this->hasMany(Congregacao::class);
+}
+
+// Congregacao → Membros
+public function membros() {
+    return $this->hasMany(Membro::class);
+}
+
+// Congregacao → Celulas
+public function celulas() {
+    return $this->hasMany(Celula::class);
+}
+
+// Congregacao → Cultos
+public function cultos() {
+    return $this->hasMany(Culto::class);
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>One-to-One (1:1)</h4>
+                        <div class="code-block">
+                            <pre>
+// Congregacao → Dominio
+public function dominio() {
+    return $this->hasOne(Dominio::class);
+}
+
+// Congregacao → Config
+public function config() {
+    return $this->hasOne(CongregacaoConfig::class);
+}
+
+// User → Membro
+public function membro() {
+    return $this->belongsTo(Membro::class);
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Many-to-Many (N:N)</h4>
+                        <div class="code-block">
+                            <pre>
+// Membro ↔ Celula
+public function celulas() {
+    return $this->belongsToMany(
+        Celula::class, 
+        'membro_celula'
+    );
+}
+
+// Membro ↔ Ministerio
+public function ministerios() {
+    return $this->belongsToMany(
+        Ministerio::class,
+        'membro_ministerio'
+    );
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Polymorphic</h4>
+                        <div class="code-block">
+                            <pre>
+// Arquivo pode pertencer a diferentes entidades
+class Arquivo extends Model {
+    public function arquivavel() {
+        return $this->morphTo();
+    }
+}
+
+// Em Congregacao, Celula, etc.
+public function arquivos() {
+    return $this->morphMany(Arquivo::class, 'arquivavel');
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Migrations -->
+            <section class="card" id="migrations">
+                <div class="card-header">
+                    <h2 class="card-title">🔧 Migrações do Banco</h2>
+                    <p class="card-description">Estrutura e evolução do schema</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+database/migrations/
+├── 0001_01_01_000000_create_users_table.php
+├── 2025_07_09_233628_create_denominacoes_table.php
+├── 2025_07_10_003056_create_congregacoes_table.php
+├── 2025_07_12_212737_create_membro_table.php
+├── 2025_07_12_213145_create_visitante_table.php
+├── 2025_07_12_233126_create_agrupamento_membro_table.php
+├── 2025_07_12_234843_create_celulas_table.php
+├── 2025_07_20_160117_create_dominios_table.php
+├── 2025_08_07_014424_create_cursos_table.php
+├── 2025_09_28_073749_create_permission_tables.php
+└── ...
+
+# Executar migrações
+php artisan migrate
+
+# Rollback
+php artisan migrate:rollback
+
+# Status
+php artisan migrate:status
+</pre>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Exemplo: Criar Tabela</h4>
+                        <div class="code-block">
+                            <pre>
+public function up(): void
+{
+    Schema::create('membros', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('congregacao_id')
+              ->constrained('congregacoes')
+              ->onDelete('cascade');
+        $table->string('primeiro_nome');
+        $table->string('sobrenome');
+        $table->string('email')->unique()->nullable();
+        $table->string('telefone')->nullable();
+        $table->date('data_nascimento')->nullable();
+        $table->enum('sexo', ['M', 'F'])->nullable();
+        $table->boolean('ativo')->default(true);
+        $table->timestamps();
+        
+        $table->index(['congregacao_id', 'ativo']);
+    });
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Exemplo: Modificar Tabela</h4>
+                        <div class="code-block">
+                            <pre>
+public function up(): void
+{
+    Schema::table('congregacoes', function (Blueprint $table) {
+        $table->timestamp('gestor_notificado_em')
+              ->nullable()
+              ->after('ativa');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('congregacoes', function (Blueprint $table) {
+        $table->dropColumn('gestor_notificado_em');
+    });
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seeders -->
+            <section class="card" id="seeders">
+                <div class="card-header">
+                    <h2 class="card-title">🌱 Seeders</h2>
+                    <p class="card-description">População inicial do banco de dados</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+database/seeders/
+├── DatabaseSeeder.php          # Seeder principal
+├── DadosFixosSeeder.php       # Dados fixos (países, estados)
+├── UserSeeder.php             # Usuários de teste
+└── CongregacaoSeeder.php      # Congregações de exemplo
+
+# Executar seeders
+php artisan db:seed
+php artisan db:seed --class=DadosFixosSeeder
+</pre>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>DatabaseSeeder.php</h4>
+                        <div class="code-block">
+                            <pre>
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        $this->call([
+            DadosFixosSeeder::class,
+        ]);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>DadosFixosSeeder.php</h4>
+                        <div class="code-block">
+                            <pre>
+class DadosFixosSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // Países
+        DB::table('paises')->insert([
+            ['nome' => 'Brasil', 'codigo' => 'BR'],
+            ['nome' => 'Portugal', 'codigo' => 'PT'],
+        ]);
+        
+        // Estados brasileiros
+        DB::table('estados')->insert([
+            ['nome' => 'São Paulo', 'uf' => 'SP', 'pais_id' => 1],
+            ['nome' => 'Rio de Janeiro', 'uf' => 'RJ', 'pais_id' => 1],
+        ]);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Query Scopes -->
+            <section class="card" id="scopes">
+                <div class="card-header">
+                    <h2 class="card-title">🔍 Query Scopes</h2>
+                    <p class="card-description">Reutilização de consultas comuns</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Local Scopes</h4>
+                        <div class="code-block">
+                            <pre>
+class Membro extends Model
+{
+    // Scope para membros ativos
+    public function scopeAtivos($query) {
+        return $query->where('ativo', true);
+    }
+    
+    // Scope por sexo
+    public function scopePorSexo($query, $sexo) {
+        return $query->where('sexo', $sexo);
+    }
+    
+    // Scope por faixa etária
+    public function scopePorIdade($query, $min, $max) {
+        return $query->whereBetween('data_nascimento', [
+            now()->subYears($max),
+            now()->subYears($min)
+        ]);
+    }
+}
+
+// Uso dos scopes
+$membros = Membro::ativos()
+    ->porSexo('M')
+    ->porIdade(18, 65)
+    ->get();
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Global Scopes</h4>
+                        <div class="code-block">
+                            <pre>
+// Scope global para filtrar por congregação
+class CongregacaoScope implements Scope
+{
+    public function apply(Builder $builder, Model $model)
+    {
+        if (app()->bound('congregacao')) {
+            $congregacao = app('congregacao');
+            $builder->where('congregacao_id', $congregacao->id);
+        }
+    }
+}
+
+// Aplicar no model
+class Membro extends Model
+{
+    protected static function booted()
+    {
+        static::addGlobalScope(new CongregacaoScope);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accessors e Mutators -->
+            <section class="card" id="accessors-mutators">
+                <div class="card-header">
+                    <h2 class="card-title">🔄 Accessors & Mutators</h2>
+                    <p class="card-description">Transformação de dados nos Models</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Accessors (Get)</h4>
+                        <div class="code-block">
+                            <pre>
+class Membro extends Model
+{
+    // Nome completo
+    public function getNomeCompletoAttribute()
+    {
+        return $this->primeiro_nome . ' ' . $this->sobrenome;
+    }
+    
+    // Idade calculada
+    public function getIdadeAttribute()
+    {
+        return $this->data_nascimento
+            ? $this->data_nascimento->age
+            : null;
+    }
+    
+    // Avatar padrão
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar 
+            ? Storage::url($this->avatar)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($this->nome_completo);
+    }
+}
+
+// Uso
+echo $membro->nome_completo;
+echo $membro->idade;
+echo $membro->avatar_url;
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Mutators (Set)</h4>
+                        <div class="code-block">
+                            <pre>
+class User extends Model
+{
+    // Hash automático da senha
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
+    
+    // Normalização de email
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
+}
+
+class Membro extends Model
+{
+    // Formatação de telefone
+    public function setTelefoneAttribute($value)
+    {
+        $this->attributes['telefone'] = preg_replace('/\D/', '', $value);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

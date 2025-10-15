@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Técnico - Sistema Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Guia Técnico do Sistema Kleros</h1>
+                <p class="page-subtitle">
+                    Documentação técnica completa do sistema de gestão eclesiástica Kleros. 
+                    Este guia abrange arquitetura, tecnologias, fluxos de dados e implementação.
+                </p>
+            </div>
+
+            <!-- Sistema Overview -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Visão Geral do Sistema</h2>
+                    <p class="card-description">O Kleros é um sistema completo de gestão eclesiástica</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h3>Funcionalidades Principais</h3>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">👥</span>
+                                <span>Gestão de Membros e Visitantes</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">⛪</span>
+                                <span>Controle de Congregações</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📅</span>
+                                <span>Agenda e Eventos</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">💰</span>
+                                <span>Gestão Financeira</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📊</span>
+                                <span>Relatórios e Dashboards</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🎓</span>
+                                <span>Sistema de Cursos</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3>Características Técnicas</h3>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">🏗️</span>
+                                <span>Arquitetura Multi-tenant</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🧩</span>
+                                <span>Sistema Modular</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔐</span>
+                                <span>Autenticação Baseada em Roles</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📱</span>
+                                <span>Interface Responsiva</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">⚡</span>
+                                <span>Performance Otimizada</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🛡️</span>
+                                <span>Segurança Robusta</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stack Tecnológico -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🛠️ Stack Tecnológico</h2>
+                    <p class="card-description">Tecnologias e ferramentas utilizadas no desenvolvimento</p>
+                </div>
+                
+                <div class="grid grid-3">
+                    <div>
+                        <h4>Backend</h4>
+                        <div style="margin-top: 1rem;">
+                            <span class="badge badge-primary">Laravel 11.31</span>
+                            <span class="badge badge-primary">PHP 8.2+</span>
+                            <span class="badge badge-primary">MySQL/SQLite</span>
+                            <span class="badge badge-primary">Eloquent ORM</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Frontend</h4>
+                        <div style="margin-top: 1rem;">
+                            <span class="badge badge-success">Blade Templates</span>
+                            <span class="badge badge-success">TailwindCSS</span>
+                            <span class="badge badge-success">Alpine.js</span>
+                            <span class="badge badge-success">Vite</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Bibliotecas</h4>
+                        <div style="margin-top: 1rem;">
+                            <span class="badge badge-warning">Spatie Permission</span>
+                            <span class="badge badge-warning">Carbon</span>
+                            <span class="badge badge-warning">Larapex Charts</span>
+                            <span class="badge badge-warning">DomPDF</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estrutura de Domínios -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🌐 Estrutura Multi-Domain</h2>
+                    <p class="card-description">Sistema de domínios para multi-tenancy</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Domínio</th>
+                                <th>Propósito</th>
+                                <th>Middleware</th>
+                                <th>Acesso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>kleros.local</code></td>
+                                <td>Site institucional e registro</td>
+                                <td>setlocale</td>
+                                <td>Público</td>
+                            </tr>
+                            <tr>
+                                <td><code>admin.local</code></td>
+                                <td>Painel administrativo</td>
+                                <td>setlocale, auth</td>
+                                <td>Admins/Kleros</td>
+                            </tr>
+                            <tr>
+                                <td><code>{congregacao}.local</code></td>
+                                <td>Sistema da congregação específica</td>
+                                <td>dominio, auth, member.activity</td>
+                                <td>Membros da congregação</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Fluxo de Autenticação -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔑 Fluxo de Autenticação</h2>
+                    <p class="card-description">Como funciona o sistema de autenticação e autorização</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+// Middleware de autenticação por domínio
+AcessarCongregacaoPeloDominio.php
+├── Identifica congregação pelo subdomínio
+├── Injeta congregação no container (app('congregacao'))
+├── Configura contexto da sessão
+└── Redireciona se congregação inativa
+
+// Roles do sistema
+Spatie Permission
+├── 'kleros'  → Acesso administrativo total
+├── 'admin'   → Gestão denominacional  
+└── 'gestor'  → Gestão congregacional
+</pre>
+                </div>
+            </section>
+
+            <!-- Quick Links -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚀 Links Rápidos</h2>
+                    <p class="card-description">Acesse rapidamente as seções mais importantes</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Para Desenvolvedores</h4>
+                        <ul class="list">
+                            <li class="list-item">
+                                <a href="models.html" style="color: var(--primary-light); text-decoration: none;">
+                                    📊 Estrutura do Banco de Dados
+                                </a>
+                            </li>
+                            <li class="list-item">
+                                <a href="controllers.html" style="color: var(--primary-light); text-decoration: none;">
+                                    🎛️ Controllers e Lógica de Negócio
+                                </a>
+                            </li>
+                            <li class="list-item">
+                                <a href="routes.html" style="color: var(--primary-light); text-decoration: none;">
+                                    🛣️ Mapeamento de Rotas
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Para Arquitetos</h4>
+                        <ul class="list">
+                            <li class="list-item">
+                                <a href="arquitetura.html" style="color: var(--primary-light); text-decoration: none;">
+                                    🏗️ Visão Arquitetural
+                                </a>
+                            </li>
+                            <li class="list-item">
+                                <a href="multitenancy.html" style="color: var(--primary-light); text-decoration: none;">
+                                    🏢 Estratégia Multi-tenant
+                                </a>
+                            </li>
+                            <li class="list-item">
+                                <a href="modulos.html" style="color: var(--primary-light); text-decoration: none;">
+                                    🧩 Sistema Modular
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

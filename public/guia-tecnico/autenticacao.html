@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação e Autorização - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link active">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🔐 Autenticação e Autorização</h1>
+                <p class="page-subtitle">
+                    Sistema completo de autenticação, permissões baseadas em papéis e controle de acesso granular.
+                </p>
+            </div>
+
+            <!-- Visão Geral -->
+            <section class="card" id="overview">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Visão Geral do Sistema</h2>
+                    <p class="card-description">Como funciona a segurança no Kleros</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Componentes Principais</h4>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">🔐</span>
+                                <span><strong>Autenticação:</strong> Laravel Breeze + Sanctum</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🎭</span>
+                                <span><strong>Autorização:</strong> Spatie Laravel Permission</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🛡️</span>
+                                <span><strong>Middleware:</strong> Controle de acesso por rota</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🏢</span>
+                                <span><strong>Multi-tenancy:</strong> Isolamento por congregação</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔑</span>
+                                <span><strong>Recuperação:</strong> Códigos temporários via email</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Fluxo de Autenticação</h4>
+                        <div class="code-block">
+                            <pre>
+1. Usuário acessa {congregacao}.kleros.app
+2. Middleware 'dominio' identifica congregação
+3. Se não autenticado → redirecionado para /login
+4. Formulário de login validado
+5. Credenciais verificadas no banco
+6. Sessão criada com dados do usuário
+7. Permissões carregadas via Spatie
+8. Redirecionamento para dashboard
+
+Middleware Stack:
+- web (sessões, CSRF)
+- dominio (multi-tenancy)
+- auth (autenticação)
+- verified (email verificado)
+- role:gestor (permissão específica)
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Models de Segurança -->
+            <section class="card" id="security-models">
+                <div class="card-header">
+                    <h2 class="card-title">🗃️ Models de Segurança</h2>
+                    <p class="card-description">Estrutura de dados para autenticação e autorização</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Model User</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasApiTokens, Notifiable, HasRoles;
+
+    protected $fillable = [
+        'membro_id',
+        'email',
+        'password',
+        'email_verified_at',
+        'last_login_at',
+        'is_active'
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean'
+    ];
+
+    /**
+     * Relacionamento com membro
+     */
+    public function membro()
+    {
+        return $this->belongsTo(Membro::class);
+    }
+
+    /**
+     * Congregação do usuário via membro
+     */
+    public function congregacao()
+    {
+        return $this->membro?->congregacao;
+    }
+
+    /**
+     * Verificar se pode acessar congregação
+     */
+    public function podeAcessarCongregacao(Congregacao $congregacao): bool
+    {
+        return $this->congregacao()?->id === $congregacao->id;
+    }
+
+    /**
+     * Scope para usuários ativos
+     */
+    public function scopeAtivos($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Códigos de recuperação
+     */
+    public function codigosRecuperacao()
+    {
+        return $this->hasMany(CodigoRecuperacao::class);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Model CodigoRecuperacao</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class CodigoRecuperacao extends Model
+{
+    protected $table = 'codigos_recuperacao';
+    
+    protected $fillable = [
+        'user_id',
+        'codigo',
+        'tipo',
+        'expires_at',
+        'usado_em'
+    ];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
+        'usado_em' => 'datetime'
+    ];
+
+    const TIPO_RESET_SENHA = 'reset_password';
+    const TIPO_VERIFICACAO_EMAIL = 'email_verification';
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Verificar se código ainda é válido
+     */
+    public function isValido(): bool
+    {
+        return $this->usado_em === null 
+            && $this->expires_at->isFuture();
+    }
+
+    /**
+     * Marcar código como usado
+     */
+    public function marcarComoUsado()
+    {
+        $this->update(['usado_em' => now()]);
+    }
+
+    /**
+     * Scope para códigos válidos
+     */
+    public function scopeValidos($query)
+    {
+        return $query->whereNull('usado_em')
+                    ->where('expires_at', '>', now());
+    }
+
+    /**
+     * Gerar código único
+     */
+    public static function gerarCodigo(): string
+    {
+        do {
+            $codigo = sprintf('%06d', mt_rand(100000, 999999));
+        } while (static::where('codigo', $codigo)->validos()->exists());
+
+        return $codigo;
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sistema de Papéis -->
+            <section class="card" id="roles-permissions">
+                <div class="card-header">
+                    <h2 class="card-title">🎭 Sistema de Papéis e Permissões</h2>
+                    <p class="card-description">Controle granular de acesso usando Spatie Permission</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Configuração Inicial</h4>
+                        <div class="code-block">
+                            <pre>
+// config/permission.php
+return [
+    'models' => [
+        'permission' => Spatie\Permission\Models\Permission::class,
+        'role' => Spatie\Permission\Models\Role::class,
+    ],
+
+    'table_names' => [
+        'roles' => 'roles',
+        'permissions' => 'permissions',
+        'model_has_permissions' => 'model_has_permissions',
+        'model_has_roles' => 'model_has_roles',
+        'role_has_permissions' => 'role_has_permissions',
+    ],
+
+    'column_names' => [
+        'role_pivot_key' => null,
+        'permission_pivot_key' => null,
+        'model_morph_key' => 'model_id',
+        'team_foreign_key' => 'team_id',
+    ],
+
+    'register_permission_check_method' => true,
+    'teams' => false, // Usamos congregacao_id customizado
+    'use_passport_client_credentials' => false,
+    'display_permission_in_exception' => false,
+    'display_role_in_exception' => false,
+    'enable_wildcard_permission' => false,
+    'cache' => [
+        'expiration_time' => \DateInterval::createFromDateString('24 hours'),
+        'key' => 'spatie.permission.cache',
+        'store' => 'default',
+    ],
+];
+
+// Seeder: PermissoesSeeder
+class PermissoesSeeder extends Seeder
+{
+    public function run()
+    {
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Criar permissões
+        $permissions = [
+            // Membros
+            'membros.view', 'membros.create', 'membros.edit', 'membros.delete',
+            
+            // Financeiro
+            'financeiro.view', 'financeiro.create', 'financeiro.edit', 'financeiro.delete',
+            
+            // Cultos
+            'cultos.view', 'cultos.create', 'cultos.edit', 'cultos.delete',
+            
+            // Escalas
+            'escalas.view', 'escalas.create', 'escalas.edit', 'escalas.delete',
+            
+            // Relatórios
+            'relatorios.view', 'relatorios.export',
+            
+            // Configurações
+            'configuracoes.view', 'configuracoes.edit',
+            
+            // Usuários
+            'usuarios.view', 'usuarios.create', 'usuarios.edit', 'usuarios.delete',
+            
+            // Módulos
+            'modulos.view', 'modulos.activate',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+
+        // Criar papéis
+        $superAdmin = Role::create(['name' => 'super-admin']);
+        $gestor = Role::create(['name' => 'gestor']);
+        $secretario = Role::create(['name' => 'secretario']);
+        $tesoureiro = Role::create(['name' => 'tesoureiro']);
+        $usuario = Role::create(['name' => 'usuario']);
+
+        // Atribuir permissões
+        $superAdmin->givePermissionTo(Permission::all());
+        
+        $gestor->givePermissionTo([
+            'membros.view', 'membros.create', 'membros.edit',
+            'cultos.view', 'cultos.create', 'cultos.edit',
+            'escalas.view', 'escalas.create', 'escalas.edit',
+            'relatorios.view', 'relatorios.export',
+            'configuracoes.view', 'configuracoes.edit',
+            'usuarios.view', 'usuarios.create', 'usuarios.edit',
+            'modulos.view', 'modulos.activate'
+        ]);
+
+        $secretario->givePermissionTo([
+            'membros.view', 'membros.create', 'membros.edit',
+            'cultos.view', 'cultos.create', 'cultos.edit',
+            'escalas.view', 'escalas.create', 'escalas.edit',
+            'relatorios.view'
+        ]);
+
+        $tesoureiro->givePermissionTo([
+            'membros.view',
+            'financeiro.view', 'financeiro.create', 'financeiro.edit',
+            'relatorios.view', 'relatorios.export'
+        ]);
+
+        $usuario->givePermissionTo([
+            'membros.view',
+            'cultos.view',
+            'escalas.view'
+        ]);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Uso em Controllers</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class MembrosController extends Controller
+{
+    public function __construct()
+    {
+        // Middleware de permissão aplicado a todas as actions
+        $this->middleware('permission:membros.view')->only(['index', 'show']);
+        $this->middleware('permission:membros.create')->only(['create', 'store']);
+        $this->middleware('permission:membros.edit')->only(['edit', 'update']);
+        $this->middleware('permission:membros.delete')->only(['destroy']);
+    }
+
+    public function index()
+    {
+        // Verificação adicional programática
+        if (!auth()->user()->can('membros.view')) {
+            abort(403, 'Sem permissão para visualizar membros.');
+        }
+
+        $congregacao = app('congregacao');
+        $membros = $congregacao->membros()->paginate(20);
+
+        return view('membros.index', compact('membros'));
+    }
+
+    public function create()
+    {
+        // Gate personalizado
+        $this->authorize('create-membro');
+
+        return view('membros.create');
+    }
+
+    public function store(Request $request)
+    {
+        // Validação de permissão inline
+        abort_unless(auth()->user()->can('membros.create'), 403);
+
+        // ... lógica de criação
+    }
+}
+
+// AuthServiceProvider - Gates personalizados
+class AuthServiceProvider extends ServiceProvider
+{
+    public function boot()
+    {
+        $this->registerPolicies();
+
+        // Gate para criação de membros com lógica customizada
+        Gate::define('create-membro', function (User $user) {
+            // Além da permissão, verificar regras de negócio
+            if (!$user->can('membros.create')) {
+                return false;
+            }
+
+            // Limite de membros por congregação (exemplo)
+            $congregacao = $user->congregacao();
+            if ($congregacao && $congregacao->membros()->count() >= $congregacao->limite_membros) {
+                return false;
+            }
+
+            return true;
+        });
+
+        // Gate para edição própria
+        Gate::define('edit-own-profile', function (User $user, Membro $membro) {
+            return $user->membro_id === $membro->id;
+        });
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autenticação -->
+            <section class="card" id="authentication">
+                <div class="card-header">
+                    <h2 class="card-title">🔑 Sistema de Autenticação</h2>
+                    <p class="card-description">Login, logout e recuperação de senha</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>AuthController</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\CodigoRecuperacao;
+use App\Mail\CodigoRecuperacaoMail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
+
+class AuthController extends Controller
+{
+    /**
+     * Mostrar formulário de login
+     */
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Processar login
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        // Rate limiting
+        $throttleKey = $request->ip() . '|' . $request->email;
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'email' => "Muitas tentativas. Tente novamente em {$seconds} segundos."
+            ]);
+        }
+
+        $credentials = $request->only('email', 'password');
+
+        // Verificar se usuário existe e está ativo
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if (!$user || !$user->is_active) {
+            RateLimiter::hit($throttleKey);
+            return back()->withErrors([
+                'email' => 'Credenciais inválidas ou usuário inativo.'
+            ]);
+        }
+
+        // Verificar se pode acessar esta congregação
+        $congregacao = app('congregacao');
+        if (!$user->podeAcessarCongregacao($congregacao)) {
+            RateLimiter::hit($throttleKey);
+            return back()->withErrors([
+                'email' => 'Usuário não tem acesso a esta congregação.'
+            ]);
+        }
+
+        // Tentar autenticar
+        if (auth()->attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            
+            // Atualizar último login
+            $user->update(['last_login_at' => now()]);
+            
+            RateLimiter::clear($throttleKey);
+            
+            return redirect()->intended('/dashboard');
+        }
+
+        RateLimiter::hit($throttleKey);
+        
+        return back()->withErrors([
+            'email' => 'Credenciais inválidas.'
+        ]);
+    }
+
+    /**
+     * Logout
+     */
+    public function logout(Request $request)
+    {
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/login');
+    }
+
+    /**
+     * Solicitar recuperação de senha
+     */
+    public function solicitarRecuperacao(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        $congregacao = app('congregacao');
+
+        // Verificar se usuário pertence a esta congregação
+        if (!$user->podeAcessarCongregacao($congregacao)) {
+            return back()->withErrors([
+                'email' => 'Email não encontrado nesta congregação.'
+            ]);
+        }
+
+        // Invalidar códigos anteriores
+        $user->codigosRecuperacao()
+             ->where('tipo', CodigoRecuperacao::TIPO_RESET_SENHA)
+             ->validos()
+             ->update(['usado_em' => now()]);
+
+        // Criar novo código
+        $codigo = CodigoRecuperacao::create([
+            'user_id' => $user->id,
+            'codigo' => CodigoRecuperacao::gerarCodigo(),
+            'tipo' => CodigoRecuperacao::TIPO_RESET_SENHA,
+            'expires_at' => now()->addMinutes(30)
+        ]);
+
+        // Enviar email
+        Mail::to($user->email)->send(new CodigoRecuperacaoMail($codigo));
+
+        return back()->with('status', 'Código de recuperação enviado por email.');
+    }
+
+    /**
+     * Redefinir senha com código
+     */
+    public function redefinirSenha(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'codigo' => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email não encontrado.']);
+        }
+
+        $codigoModel = $user->codigosRecuperacao()
+                           ->where('codigo', $request->codigo)
+                           ->where('tipo', CodigoRecuperacao::TIPO_RESET_SENHA)
+                           ->validos()
+                           ->first();
+
+        if (!$codigoModel) {
+            return back()->withErrors(['codigo' => 'Código inválido ou expirado.']);
+        }
+
+        // Atualizar senha
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Marcar código como usado
+        $codigoModel->marcarComoUsado();
+
+        return redirect()->route('login')->with('status', 'Senha redefinida com sucesso!');
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Formulários de Login</h4>
+                        <div class="code-block">
+                            <pre>
+{{-- resources/views/auth/login.blade.php --}}
+@extends('layouts.guest')
+
+@section('title', 'Login')
+
+@section('content')
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-indigo-100">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Faça login na sua conta
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Sistema Kleros - {{ app('congregacao')->nome }}
+            </p>
+        </div>
+        
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('login') }}">
+            @csrf
+            
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label for="email" class="sr-only">Email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm @error('email') border-red-300 @enderror" 
+                           placeholder="Endereço de email" 
+                           value="{{ old('email') }}">
+                    @error('email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="password" class="sr-only">Senha</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm @error('password') border-red-300 @enderror" 
+                           placeholder="Senha">
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="remember" name="remember" type="checkbox" 
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="remember" class="ml-2 block text-sm text-gray-900">
+                        Lembrar de mim
+                    </label>
+                </div>
+
+                <div class="text-sm">
+                    <a href="{{ route('password.request') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Esqueceu sua senha?
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                    Entrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middleware de Autorização -->
+            <section class="card" id="middleware">
+                <div class="card-header">
+                    <h2 class="card-title">🛡️ Middleware de Autorização</h2>
+                    <p class="card-description">Controle de acesso em nível de rota</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>PermissionMiddleware</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Spatie\Permission\Exceptions\UnauthorizedException;
+
+class PermissionMiddleware
+{
+    public function handle(Request $request, Closure $next, $permission, $guard = null)
+    {
+        $authGuard = app('auth')->guard($guard);
+
+        if ($authGuard->guest()) {
+            throw UnauthorizedException::notLoggedIn();
+        }
+
+        $user = $authGuard->user();
+
+        // Verificar se o usuário tem a permissão
+        if (!$user->can($permission)) {
+            throw UnauthorizedException::forPermissions([$permission]);
+        }
+
+        return $next($request);
+    }
+}
+
+// RoleMiddleware
+class RoleMiddleware
+{
+    public function handle(Request $request, Closure $next, $role, $guard = null)
+    {
+        $authGuard = app('auth')->guard($guard);
+
+        if ($authGuard->guest()) {
+            throw UnauthorizedException::notLoggedIn();
+        }
+
+        $roles = is_array($role)
+            ? $role
+            : explode('|', $role);
+
+        if (!$authGuard->user()->hasAnyRole($roles)) {
+            throw UnauthorizedException::forRoles($roles);
+        }
+
+        return $next($request);
+    }
+}
+
+// Registrar middleware - app/Http/Kernel.php
+protected $routeMiddleware = [
+    // ...
+    'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+    'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+    'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+];
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Uso em Rotas</h4>
+                        <div class="code-block">
+                            <pre>
+// routes/web.php
+
+// Rotas básicas (somente autenticado)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
+});
+
+// Rotas para gestores
+Route::middleware(['auth', 'role:gestor'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::resource('usuarios', UsuariosController::class);
+    Route::resource('configuracoes', ConfiguracoesController::class);
+});
+
+// Rotas com permissões específicas
+Route::middleware(['auth', 'permission:membros.view'])->group(function () {
+    Route::get('/membros', [MembrosController::class, 'index'])->name('membros.index');
+    Route::get('/membros/{membro}', [MembrosController::class, 'show'])->name('membros.show');
+});
+
+Route::middleware(['auth', 'permission:membros.create'])->group(function () {
+    Route::get('/membros/create', [MembrosController::class, 'create'])->name('membros.create');
+    Route::post('/membros', [MembrosController::class, 'store'])->name('membros.store');
+});
+
+// Múltiplas permissões (OR)
+Route::middleware(['auth', 'role_or_permission:gestor|financeiro.view'])->group(function () {
+    Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
+});
+
+// Permissões complexas usando Gates
+Route::middleware(['auth'])->group(function () {
+    Route::get('/membros/{membro}/edit', [MembrosController::class, 'edit'])
+         ->name('membros.edit')
+         ->middleware('can:edit-membro,membro');
+});
+
+// Múltiplos middleware
+Route::middleware(['auth', 'verified', 'role:gestor', 'permission:configuracoes.edit'])
+     ->get('/configuracoes/avancadas', [ConfiguracoesController::class, 'avancadas'])
+     ->name('configuracoes.avancadas');
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Blade Templates -->
+            <section class="card" id="blade-auth">
+                <div class="card-header">
+                    <h2 class="card-title">🎨 Autorização em Blade</h2>
+                    <p class="card-description">Controle de exibição baseado em permissões</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+{{-- Verificar autenticação --}}
+@auth
+    <p>Usuário logado: {{ auth()->user()->membro->nome }}</p>
+@else
+    <a href="{{ route('login') }}">Fazer Login</a>
+@endauth
+
+{{-- Verificar guest --}}
+@guest
+    <div class="alert alert-info">
+        Você precisa estar logado para acessar esta funcionalidade.
+    </div>
+@endguest
+
+{{-- Verificar papéis --}}
+@role('gestor')
+    <div class="admin-panel">
+        <h3>Painel Administrativo</h3>
+        <!-- Conteúdo apenas para gestores -->
+    </div>
+@endrole
+
+@hasrole('gestor|secretario')
+    <a href="{{ route('membros.create') }}" class="btn btn-primary">
+        Novo Membro
+    </a>
+@endhasrole
+
+{{-- Verificar permissões --}}
+@can('membros.create')
+    <button onclick="criarMembro()">Adicionar Membro</button>
+@endcan
+
+@cannot('membros.delete')
+    <p class="text-muted">Você não tem permissão para excluir membros.</p>
+@endcannot
+
+{{-- Verificar múltiplas permissões --}}
+@canany(['membros.edit', 'membros.delete'])
+    <div class="actions">
+        @can('membros.edit')
+            <a href="{{ route('membros.edit', $membro) }}">Editar</a>
+        @endcan
+        
+        @can('membros.delete')
+            <form method="POST" action="{{ route('membros.destroy', $membro) }}">
+                @csrf @method('DELETE')
+                <button type="submit" onclick="return confirm('Confirma exclusão?')">
+                    Excluir
+                </button>
+            </form>
+        @endcan
+    </div>
+@endcanany
+
+{{-- Gates personalizados --}}
+@can('edit-own-profile', $membro)
+    <a href="{{ route('membros.edit', $membro) }}">Editar meu perfil</a>
+@endcan
+
+{{-- Verificar com modelo específico --}}
+@can('update', $post)
+    <a href="{{ route('posts.edit', $post) }}">Editar Post</a>
+@endcan
+
+{{-- Condicionais complexas --}}
+@if(auth()->user()->hasRole('gestor') && auth()->user()->can('configuracoes.view'))
+    <!-- Menu de configurações -->
+    <li class="nav-item">
+        <a href="{{ route('configuracoes.index') }}" class="nav-link">
+            ⚙️ Configurações
+        </a>
+    </li>
+@endif
+
+{{-- Helper personalizado --}}
+@if(user_can_access_module('celulas'))
+    <li class="nav-item">
+        <a href="{{ route('celulas.painel') }}" class="nav-link">
+            👥 Células
+        </a>
+    </li>
+@endif
+
+{{-- Menu dinâmico baseado em permissões --}}
+<nav class="sidebar">
+    @can('membros.view')
+        <a href="{{ route('membros.index') }}" class="nav-link">
+            👤 Membros
+        </a>
+    @endcan
+    
+    @can('financeiro.view')
+        <a href="{{ route('financeiro.index') }}" class="nav-link">
+            💰 Financeiro
+        </a>
+    @endcan
+    
+    @can('relatorios.view')
+        <a href="{{ route('relatorios.index') }}" class="nav-link">
+            📊 Relatórios
+        </a>
+    @endcan
+    
+    @role('gestor')
+        <a href="{{ route('admin.index') }}" class="nav-link">
+            🔧 Administração
+        </a>
+    @endrole
+</nav>
+</pre>
+                </div>
+            </section>
+
+            <!-- API Authentication -->
+            <section class="card" id="api-auth">
+                <div class="card-header">
+                    <h2 class="card-title">🔌 Autenticação API</h2>
+                    <p class="card-description">Sanctum para APIs e SPAs</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Configuração Sanctum</h4>
+                        <div class="code-block">
+                            <pre>
+// config/sanctum.php
+return [
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+        '%s%s',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        Sanctum::currentApplicationUrlWithPort()
+    ))),
+
+    'guard' => ['web'],
+    'expiration' => null,
+    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+
+    'middleware' => [
+        'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
+        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+        'validate_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
+    ],
+];
+
+// API Controller
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+
+class AuthController extends Controller
+{
+    /**
+     * Login e geração de token
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Credenciais incorretas.'],
+            ]);
+        }
+
+        // Verificar se está ativo
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Usuário inativo.'],
+            ]);
+        }
+
+        $token = $user->createToken($request->device_name)->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user->load('membro.congregacao')
+        ]);
+    }
+
+    /**
+     * Logout
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out']);
+    }
+
+    /**
+     * Revogar todos os tokens
+     */
+    public function revokeAll(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'All tokens revoked']);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Uso da API</h4>
+                        <div class="code-block">
+                            <pre>
+// routes/api.php
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout-all', [AuthController::class, 'revokeAll']);
+    
+    // Rotas protegidas
+    Route::get('/user', function (Request $request) {
+        return $request->user()->load('membro.congregacao');
+    });
+    
+    // API com permissões
+    Route::middleware('permission:membros.view')->group(function () {
+        Route::get('/membros', [MembrosApiController::class, 'index']);
+        Route::get('/membros/{membro}', [MembrosApiController::class, 'show']);
+    });
+    
+    Route::middleware('permission:membros.create')->group(function () {
+        Route::post('/membros', [MembrosApiController::class, 'store']);
+    });
+});
+
+// Cliente JavaScript
+class KlerosAPI {
+    constructor(baseURL) {
+        this.baseURL = baseURL;
+        this.token = localStorage.getItem('auth_token');
+    }
+
+    async login(email, password, deviceName = 'Web Browser') {
+        const response = await fetch(`${this.baseURL}/api/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                password,
+                device_name: deviceName
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            this.token = data.access_token;
+            localStorage.setItem('auth_token', this.token);
+            return data;
+        }
+
+        throw new Error('Login failed');
+    }
+
+    async logout() {
+        await this.makeRequest('/api/logout', 'POST');
+        this.token = null;
+        localStorage.removeItem('auth_token');
+    }
+
+    async makeRequest(endpoint, method = 'GET', body = null) {
+        const headers = {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+        };
+
+        if (body) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        const response = await fetch(`${this.baseURL}${endpoint}`, {
+            method,
+            headers,
+            body: body ? JSON.stringify(body) : null
+        });
+
+        if (response.status === 401) {
+            this.token = null;
+            localStorage.removeItem('auth_token');
+            throw new Error('Unauthorized');
+        }
+
+        return response.json();
+    }
+
+    async getMembros() {
+        return this.makeRequest('/api/membros');
+    }
+}
+
+// Uso
+const api = new KlerosAPI('https://congregacao.kleros.app');
+
+// Login
+api.login('user@example.com', 'password')
+   .then(data => console.log('Logged in:', data))
+   .catch(err => console.error('Login error:', err));
+
+// Usar API
+api.getMembros()
+   .then(membros => console.log('Membros:', membros))
+   .catch(err => console.error('Error:', err));
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Segurança -->
+            <section class="card" id="security">
+                <div class="card-header">
+                    <h2 class="card-title">🔒 Medidas de Segurança</h2>
+                    <p class="card-description">Boas práticas e proteções implementadas</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Proteção</th>
+                                <th>Implementação</th>
+                                <th>Configuração</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Rate Limiting</strong></td>
+                                <td>Limite de tentativas de login</td>
+                                <td>5 tentativas por IP/email, bloqueio temporário</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CSRF Protection</strong></td>
+                                <td>Tokens CSRF em formulários</td>
+                                <td>@csrf em todas as forms, middleware VerifyCsrfToken</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Password Hashing</strong></td>
+                                <td>Bcrypt para senhas</td>
+                                <td>Hash::make(), verificação com Hash::check()</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Session Security</strong></td>
+                                <td>Regeneração de sessão</td>
+                                <td>session()->regenerate() após login</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HTTPS Enforcement</strong></td>
+                                <td>Redirecionamento forçado</td>
+                                <td>TrustProxies middleware, FORCE_HTTPS=true</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Input Validation</strong></td>
+                                <td>Form Requests e Rules</td>
+                                <td>Validação rigorosa em todos os endpoints</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SQL Injection</strong></td>
+                                <td>Eloquent ORM e Prepared Statements</td>
+                                <td>Evitar SQL raw, usar Query Builder</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XSS Protection</strong></td>
+                                <td>Escape automático no Blade</td>
+                                <td>{{ }} para output, {!! !!} apenas quando necessário</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

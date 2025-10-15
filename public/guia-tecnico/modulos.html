@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Modular - Guia Técnico Kleros</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>📖 Guia Técnico</h1>
+                <p>Sistema Kleros v2.0</p>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Visão Geral</div>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-link-icon">🏠</span>
+                    Início
+                </a>
+                <a href="arquitetura.html" class="nav-link">
+                    <span class="nav-link-icon">🏗️</span>
+                    Arquitetura
+                </a>
+                <a href="tecnologias.html" class="nav-link">
+                    <span class="nav-link-icon">⚙️</span>
+                    Tecnologias
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Backend</div>
+                <a href="models.html" class="nav-link">
+                    <span class="nav-link-icon">🗃️</span>
+                    Models & Database
+                </a>
+                <a href="controllers.html" class="nav-link">
+                    <span class="nav-link-icon">🎛️</span>
+                    Controllers
+                </a>
+                <a href="middleware.html" class="nav-link">
+                    <span class="nav-link-icon">🛡️</span>
+                    Middleware
+                </a>
+                <a href="routes.html" class="nav-link">
+                    <span class="nav-link-icon">🛣️</span>
+                    Rotas
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Frontend</div>
+                <a href="views.html" class="nav-link">
+                    <span class="nav-link-icon">🎨</span>
+                    Views & Templates
+                </a>
+                <a href="assets.html" class="nav-link">
+                    <span class="nav-link-icon">📦</span>
+                    Assets & Build
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Módulos</div>
+                <a href="modulos.html" class="nav-link active">
+                    <span class="nav-link-icon">🧩</span>
+                    Sistema Modular
+                </a>
+                <a href="celulas.html" class="nav-link">
+                    <span class="nav-link-icon">👥</span>
+                    Células
+                </a>
+                <a href="cursos.html" class="nav-link">
+                    <span class="nav-link-icon">📚</span>
+                    Cursos
+                </a>
+                <a href="drive.html" class="nav-link">
+                    <span class="nav-link-icon">💾</span>
+                    Drive
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <a href="autenticacao.html" class="nav-link">
+                    <span class="nav-link-icon">🔐</span>
+                    Autenticação
+                </a>
+                <a href="multitenancy.html" class="nav-link">
+                    <span class="nav-link-icon">🏢</span>
+                    Multi-tenancy
+                </a>
+                <a href="api.html" class="nav-link">
+                    <span class="nav-link-icon">🔌</span>
+                    APIs
+                </a>
+                <a href="deploy.html" class="nav-link">
+                    <span class="nav-link-icon">🚀</span>
+                    Deploy
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🧩 Sistema Modular</h1>
+                <p class="page-subtitle">
+                    Arquitetura extensível que permite adicionar funcionalidades específicas através de módulos independentes.
+                </p>
+            </div>
+
+            <!-- Conceito -->
+            <section class="card" id="concept">
+                <div class="card-header">
+                    <h2 class="card-title">💡 Conceito e Arquitetura</h2>
+                    <p class="card-description">Como funciona o sistema modular do Kleros</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>O que são Módulos?</h4>
+                        <p>Módulos são extensões funcionais independentes que podem ser ativadas ou desativadas por congregação.</p>
+                        
+                        <h5>Características:</h5>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="list-item-icon">🔧</span>
+                                <span>Auto-contidos (MVC próprio)</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🎛️</span>
+                                <span>Ativação por congregação</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">🔌</span>
+                                <span>Service Providers próprios</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="list-item-icon">📊</span>
+                                <span>Migrations independentes</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>Estrutura do Sistema</h4>
+                        <div class="code-block">
+                            <pre>
+modules/
+├── Celulas/                # Gestão de células
+├── Cursos/                 # EAD/Treinamentos
+├── Drive/                  # Gestão de arquivos
+├── Projetos/               # Gestão de projetos
+├── Recados/                # Sistema de recados
+└── Biblia/                 # Módulo bíblico
+
+Cada módulo contém:
+├── Http/Controllers/       # Controllers específicos
+├── routes/web.php         # Rotas do módulo
+├── resources/views/       # Views específicas
+├── database/migrations/   # Migrações do módulo
+├── Providers/             # Service Provider
+├── config.php            # Configurações
+└── module.json           # Manifesto
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estrutura de Módulo -->
+            <section class="card" id="module-structure">
+                <div class="card-header">
+                    <h2 class="card-title">📁 Estrutura de um Módulo</h2>
+                    <p class="card-description">Anatomia completa de um módulo Kleros</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+modules/Celulas/
+├── Http/
+│   └── Controllers/
+│       └── CelulaController.php       # Controller principal
+├── routes/
+│   └── web.php                        # Rotas do módulo
+├── resources/
+│   └── views/
+│       ├── painel.blade.php           # Dashboard do módulo
+│       ├── create.blade.php           # Formulário criação
+│       ├── edit.blade.php             # Formulário edição
+│       └── includes/                  # Componentes
+├── database/
+│   └── migrations/
+│       ├── create_celulas_table.php   # Tabelas específicas
+│       └── create_membro_celula_table.php
+├── Providers/
+│   └── CelulasServiceProvider.php     # Registra o módulo
+├── config.php                         # Configurações padrão
+└── module.json                        # Manifesto do módulo
+</pre>
+                </div>
+            </section>
+
+            <!-- Manifesto do Módulo -->
+            <section class="card" id="manifest">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Manifesto do Módulo</h2>
+                    <p class="card-description">Arquivo module.json com metadados e configurações</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Exemplo: module.json</h4>
+                        <div class="code-block">
+                            <pre>
+{
+    "name": "Células",
+    "slug": "celulas",
+    "description": "Sistema de gestão de células e grupos pequenos",
+    "version": "2.1.0",
+    "author": "Kleros Team",
+    "license": "MIT",
+    "homepage": "https://kleros.app/modules/celulas",
+    "keywords": ["células", "grupos", "discipulado"],
+    
+    "requires": {
+        "laravel": "^11.0",
+        "php": "^8.2"
+    },
+    
+    "autoload": {
+        "psr-4": {
+            "Modules\\Celulas\\": ""
+        }
+    },
+    
+    "providers": [
+        "Modules\\Celulas\\Providers\\CelulasServiceProvider"
+    ],
+    
+    "config": {
+        "default_enabled": true,
+        "menu_icon": "👥",
+        "menu_order": 10,
+        "permissions": [
+            "celulas.view",
+            "celulas.create",
+            "celulas.edit",
+            "celulas.delete"
+        ]
+    },
+    
+    "dependencies": [],
+    "conflicts": []
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Validação e Carregamento</h4>
+                        <div class="code-block">
+                            <pre>
+// ExtensoesController.php
+class ExtensoesController extends Controller
+{
+    public function index()
+    {
+        $modulesPath = base_path('modules');
+        $congregacaoId = app('congregacao')->id;
+        
+        // Estados do banco
+        $databaseStates = Extensao::where('congregacao_id', $congregacaoId)
+            ->get()
+            ->keyBy('module');
+        
+        // Scan de módulos no filesystem
+        $modules = collect(File::directories($modulesPath))
+            ->map(function ($directory) use ($databaseStates) {
+                $manifest = $this->loadManifest($directory);
+                $moduleKey = strtolower(basename($directory));
+                
+                return [
+                    'name' => $manifest['name'] ?? 'Módulo',
+                    'slug' => $moduleKey,
+                    'description' => $manifest['description'] ?? '',
+                    'version' => $manifest['version'] ?? '1.0.0',
+                    'enabled' => $databaseStates->get($moduleKey)?->enabled ?? false,
+                    'config' => $manifest['config'] ?? []
+                ];
+            });
+            
+        return view('extensoes.index', compact('modules'));
+    }
+    
+    private function loadManifest($directory)
+    {
+        $manifestPath = $directory . '/module.json';
+        
+        if (!File::exists($manifestPath)) {
+            return [];
+        }
+        
+        return json_decode(File::get($manifestPath), true) ?? [];
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Provider -->
+            <section class="card" id="service-provider">
+                <div class="card-header">
+                    <h2 class="card-title">🔧 Service Provider</h2>
+                    <p class="card-description">Registra e configura o módulo no Laravel</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+<?php
+
+namespace Modules\Celulas\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class CelulasServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services.
+     */
+    public function register(): void
+    {
+        // Merge configurações do módulo
+        $this->mergeConfigFrom(__DIR__ . '/../config.php', 'modules.celulas');
+        
+        // Bind de services específicos
+        $this->app->singleton('celulas.service', function () {
+            return new \Modules\Celulas\Services\CelulaService();
+        });
+    }
+
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
+    {
+        // Carregar rotas do módulo
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        
+        // Carregar views com namespace
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'celulas');
+        
+        // Carregar migrations
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        
+        // Publicar assets (opcional)
+        $this->publishes([
+            __DIR__ . '/../resources/assets' => public_path('modules/celulas'),
+        ], 'celulas-assets');
+        
+        // Publicar configurações (opcional)
+        $this->publishes([
+            __DIR__ . '/../config.php' => config_path('modules/celulas.php'),
+        ], 'celulas-config');
+        
+        // Registrar comandos Artisan (se houver)
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                // Commands específicos do módulo
+            ]);
+        }
+    }
+}
+</pre>
+                </div>
+            </section>
+
+            <!-- Rotas de Módulo -->
+            <section class="card" id="routes">
+                <div class="card-header">
+                    <h2 class="card-title">🛣️ Rotas de Módulo</h2>
+                    <p class="card-description">Definição de rotas específicas do módulo</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>routes/web.php</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Modules\Celulas\Http\Controllers\CelulaController;
+
+// Todas as rotas do módulo usam middleware padrão
+Route::middleware(['web', 'dominio'])->group(function () {
+    
+    // Rotas públicas (se houver)
+    Route::get('/celulas/publico', [CelulaController::class, 'publico'])
+        ->name('celulas.publico');
+    
+    // Rotas autenticadas
+    Route::middleware(['auth'])->group(function () {
+        
+        // Dashboard do módulo
+        Route::get('/celulas', [CelulaController::class, 'painel'])
+            ->name('celulas.painel');
+        
+        // API/AJAX endpoints
+        Route::post('/celulas/search', [CelulaController::class, 'search'])
+            ->name('celulas.search');
+        
+        // Rotas para gestores
+        Route::middleware(['role:gestor'])->group(function () {
+            
+            // CRUD das células
+            Route::get('/celulas/novo', [CelulaController::class, 'form_criar'])
+                ->name('celulas.form_criar');
+            Route::post('/celulas', [CelulaController::class, 'store'])
+                ->name('celulas.store');
+            Route::get('/celulas/editar/{id}', [CelulaController::class, 'form_editar'])
+                ->name('celulas.form_editar');
+            Route::put('/celulas/{id}', [CelulaController::class, 'update'])
+                ->name('celulas.update');
+            Route::delete('/celulas/{id}', [CelulaController::class, 'destroy'])
+                ->name('celulas.destroy');
+            
+            // Gestão de integrantes
+            Route::get('/celulas/integrantes/{id}', [CelulaController::class, 'integrantes'])
+                ->name('celulas.integrantes');
+            Route::post('/celulas/integrantes', [CelulaController::class, 'addIntegrante'])
+                ->name('celulas.integrantes.add');
+            Route::delete('/celulas/integrantes/{celula}/{membro}', [CelulaController::class, 'removeIntegrante'])
+                ->name('celulas.integrantes.remove');
+                
+            // Relatórios
+            Route::get('/celulas/relatorio/{data}', [CelulaController::class, 'relatorio'])
+                ->name('celulas.relatorio');
+        });
+    });
+});
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Controller do Módulo</h4>
+                        <div class="code-block">
+                            <pre>
+<?php
+
+namespace Modules\Celulas\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\Celula;
+use App\Models\Membro;
+use Illuminate\Http\Request;
+
+class CelulaController extends Controller
+{
+    /**
+     * Dashboard do módulo
+     */
+    public function painel()
+    {
+        $congregacao = app('congregacao');
+        
+        $celulas = $congregacao->celulas()
+            ->withCount('membros')
+            ->orderBy('nome')
+            ->get();
+            
+        $stats = [
+            'total_celulas' => $celulas->count(),
+            'celulas_ativas' => $celulas->where('ativa', true)->count(),
+            'total_membros' => $celulas->sum('membros_count'),
+            'media_membros' => $celulas->avg('membros_count')
+        ];
+        
+        return view('celulas::painel', compact('celulas', 'stats'));
+    }
+    
+    /**
+     * Criar nova célula
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nome' => 'required|string|max:255',
+            'endereco' => 'nullable|string',
+            'dia_semana' => 'required|integer|between:0,6',
+            'horario' => 'required|date_format:H:i',
+            'lider_id' => 'required|exists:membros,id',
+            'ativa' => 'boolean'
+        ]);
+        
+        $validated['congregacao_id'] = app('congregacao')->id;
+        
+        $celula = Celula::create($validated);
+        
+        // Adicionar líder automaticamente
+        $celula->membros()->attach($validated['lider_id'], [
+            'funcao' => 'lider',
+            'data_ingresso' => now()
+        ]);
+        
+        return redirect()->route('celulas.painel')
+            ->with('success', 'Célula criada com sucesso!');
+    }
+    
+    /**
+     * Busca AJAX
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+        $congregacao = app('congregacao');
+        
+        $celulas = $congregacao->celulas()
+            ->where('nome', 'like', "%{$query}%")
+            ->where('ativa', true)
+            ->select('id', 'nome', 'endereco')
+            ->limit(10)
+            ->get();
+            
+        return response()->json($celulas);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Views de Módulo -->
+            <section class="card" id="views">
+                <div class="card-header">
+                    <h2 class="card-title">🎨 Views de Módulo</h2>
+                    <p class="card-description">Templates Blade específicos do módulo</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Layout Principal</h4>
+                        <div class="code-block">
+                            <pre>
+{{-- resources/views/painel.blade.php --}}
+@extends('layouts.app')
+
+@section('title', 'Células')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    
+    {{-- Header do módulo --}}
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                👥 Células
+            </h1>
+            <p class="text-gray-600 mt-2">
+                Gestão de células e grupos pequenos
+            </p>
+        </div>
+        
+        @can('celulas.create')
+        <a href="{{ route('celulas.form_criar') }}" 
+           class="btn btn-primary">
+            ➕ Nova Célula
+        </a>
+        @endcan
+    </div>
+    
+    {{-- Estatísticas --}}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600">...</svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total</p>
+                    <p class="text-2xl font-semibold">{{ $stats['total_celulas'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600">...</svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Ativas</p>
+                    <p class="text-2xl font-semibold">{{ $stats['celulas_ativas'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600">...</svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Membros</p>
+                    <p class="text-2xl font-semibold">{{ $stats['total_membros'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-orange-100 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600">...</svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Média</p>
+                    <p class="text-2xl font-semibold">{{ number_format($stats['media_membros'], 1) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{-- Lista de células --}}
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h2 class="text-lg font-semibold mb-4">Células Cadastradas</h2>
+            
+            @if($celulas->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Endereço</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Membros</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($celulas as $celula)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-gray-900">{{ $celula->nome }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $celula->endereco ?? '—' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $celula->membros_count }} membros
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($celula->ativa)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Ativa
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Inativa
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('celulas.integrantes', $celula->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                        Ver Integrantes
+                                    </a>
+                                    @can('celulas.edit')
+                                    <a href="{{ route('celulas.form_editar', $celula->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                        Editar
+                                    </a>
+                                    @endcan
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma célula cadastrada</h3>
+                    <p class="mt-1 text-sm text-gray-500">Comece criando sua primeira célula.</p>
+                    @can('celulas.create')
+                    <div class="mt-6">
+                        <a href="{{ route('celulas.form_criar') }}" class="btn btn-primary">
+                            ➕ Criar Primeira Célula
+                        </a>
+                    </div>
+                    @endcan
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+@endsection
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Namespace de Views</h4>
+                        <div class="code-block">
+                            <pre>
+// Service Provider registra namespace
+$this->loadViewsFrom(__DIR__ . '/../resources/views', 'celulas');
+
+// Uso nas views
+@extends('layouts.app')
+
+// Incluir partials do módulo
+@include('celulas::partials.stats')
+@include('celulas::partials.search-form')
+
+// Controllers referenciam views do módulo
+class CelulaController extends Controller
+{
+    public function painel()
+    {
+        // ...
+        return view('celulas::painel', compact('celulas', 'stats'));
+    }
+    
+    public function form_criar()
+    {
+        return view('celulas::create');
+    }
+    
+    public function form_editar($id)
+    {
+        $celula = Celula::findOrFail($id);
+        return view('celulas::edit', compact('celula'));
+    }
+}
+
+// Blade pode referenciar views de outros módulos
+{{-- Em qualquer view do sistema --}}
+@if(Module::isEnabled('celulas'))
+    @include('celulas::widgets.resumo')
+@endif
+
+// Helper para verificar módulos
+// AppServiceProvider.php
+if (!function_exists('module_enabled')) {
+    function module_enabled($module) {
+        $congregacao = app('congregacao');
+        
+        return \App\Models\Extensao::where('congregacao_id', $congregacao->id)
+            ->where('module', $module)
+            ->where('enabled', true)
+            ->exists();
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ativação/Desativação -->
+            <section class="card" id="activation">
+                <div class="card-header">
+                    <h2 class="card-title">🎛️ Sistema de Ativação</h2>
+                    <p class="card-description">Como congregações ativam/desativam módulos</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Model Extensao</h4>
+                        <div class="code-block">
+                            <pre>
+// Migration: create_extensoes_table
+Schema::create('extensoes', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('congregacao_id')
+          ->constrained('congregacoes')
+          ->onDelete('cascade');
+    $table->string('module');
+    $table->boolean('enabled')->default(false);
+    $table->json('config')->nullable();
+    $table->timestamps();
+    
+    $table->unique(['congregacao_id', 'module']);
+    $table->index(['congregacao_id', 'enabled']);
+});
+
+// Model
+class Extensao extends Model
+{
+    protected $fillable = [
+        'congregacao_id', 'module', 'enabled', 'config'
+    ];
+    
+    protected $casts = [
+        'enabled' => 'boolean',
+        'config' => 'array'
+    ];
+    
+    public function congregacao()
+    {
+        return $this->belongsTo(Congregacao::class);
+    }
+    
+    // Scope para módulos ativos
+    public function scopeEnabled($query)
+    {
+        return $query->where('enabled', true);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Controller de Extensões</h4>
+                        <div class="code-block">
+                            <pre>
+class ExtensoesController extends Controller
+{
+    /**
+     * Ativar/desativar módulo
+     */
+    public function update(Request $request, $module)
+    {
+        $request->validate([
+            'enabled' => 'required|boolean',
+            'config' => 'nullable|array'
+        ]);
+        
+        $congregacao = app('congregacao');
+        
+        // Atualizar ou criar registro
+        Extensao::updateOrCreate(
+            [
+                'congregacao_id' => $congregacao->id,
+                'module' => $module
+            ],
+            [
+                'enabled' => $request->enabled,
+                'config' => $request->config ?? []
+            ]
+        );
+        
+        // Log da atividade
+        Log::info('Módulo ' . ($request->enabled ? 'ativado' : 'desativado'), [
+            'module' => $module,
+            'congregacao' => $congregacao->identificacao,
+            'user' => auth()->user()->name
+        ]);
+        
+        return redirect()->route('extensoes.painel')
+            ->with('success', 'Módulo atualizado com sucesso!');
+    }
+    
+    /**
+     * Verificar se módulo está ativo
+     */
+    public static function isModuleEnabled($module)
+    {
+        if (!app()->bound('congregacao')) {
+            return false;
+        }
+        
+        $congregacao = app('congregacao');
+        
+        return Extensao::where('congregacao_id', $congregacao->id)
+            ->where('module', $module)
+            ->where('enabled', true)
+            ->exists();
+    }
+}
+
+// Middleware para proteger rotas de módulos
+class ModuleEnabled
+{
+    public function handle($request, Closure $next, $module)
+    {
+        if (!ExtensoesController::isModuleEnabled($module)) {
+            abort(404, 'Módulo não está ativo para esta congregação.');
+        }
+        
+        return $next($request);
+    }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Módulos Disponíveis -->
+            <section class="card" id="available-modules">
+                <div class="card-header">
+                    <h2 class="card-title">📦 Módulos Disponíveis</h2>
+                    <p class="card-description">Catálogo de módulos do sistema Kleros</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Módulo</th>
+                                <th>Descrição</th>
+                                <th>Versão</th>
+                                <th>Funcionalidades</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">👥</span>
+                                        <strong>Células</strong>
+                                    </div>
+                                </td>
+                                <td>Gestão de células e grupos pequenos</td>
+                                <td><span class="badge badge-success">v2.1.0</span></td>
+                                <td>
+                                    <ul class="text-sm">
+                                        <li>• Cadastro de células</li>
+                                        <li>• Gestão de integrantes</li>
+                                        <li>• Relatórios de frequência</li>
+                                        <li>• Agenda de encontros</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">📚</span>
+                                        <strong>Cursos</strong>
+                                    </div>
+                                </td>
+                                <td>Sistema EAD para treinamentos</td>
+                                <td><span class="badge badge-success">v1.8.3</span></td>
+                                <td>
+                                    <ul class="text-sm">
+                                        <li>• Criação de cursos</li>
+                                        <li>• Módulos e lições</li>
+                                        <li>• Exercícios e avaliações</li>
+                                        <li>• Certificados</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">💾</span>
+                                        <strong>Drive</strong>
+                                    </div>
+                                </td>
+                                <td>Gestão de arquivos e documentos</td>
+                                <td><span class="badge badge-success">v1.5.2</span></td>
+                                <td>
+                                    <ul class="text-sm">
+                                        <li>• Upload de arquivos</li>
+                                        <li>• Organização em pastas</li>
+                                        <li>• Controle de acesso</li>
+                                        <li>• Versionamento</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">📋</span>
+                                        <strong>Projetos</strong>
+                                    </div>
+                                </td>
+                                <td>Gestão de projetos e tarefas</td>
+                                <td><span class="badge badge-warning">v0.9.1</span></td>
+                                <td>
+                                    <ul class="text-sm">
+                                        <li>• Projetos e etapas</li>
+                                        <li>• Atribuição de tarefas</li>
+                                        <li>• Timeline e marcos</li>
+                                        <li>• Relatórios de progresso</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">📢</span>
+                                        <strong>Recados</strong>
+                                    </div>
+                                </td>
+                                <td>Sistema de comunicação interna</td>
+                                <td><span class="badge badge-success">v1.2.0</span></td>
+                                <td>
+                                    <ul class="text-sm">
+                                        <li>• Avisos e comunicados</li>
+                                        <li>• Segmentação por grupo</li>
+                                        <li>• Confirmação de leitura</li>
+                                        <li>• Notificações</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Desenvolvimento de Módulos -->
+            <section class="card" id="development">
+                <div class="card-header">
+                    <h2 class="card-title">🛠️ Desenvolvendo Módulos</h2>
+                    <p class="card-description">Guia para criar novos módulos</p>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# 1. CRIAR ESTRUTURA DO MÓDULO
+mkdir -p modules/MeuModulo/{Http/Controllers,routes,resources/views,database/migrations,Providers}
+
+# 2. CRIAR MANIFESTO
+cat > modules/MeuModulo/module.json << 'EOF'
+{
+    "name": "Meu Módulo",
+    "slug": "meumodulo",
+    "description": "Descrição do módulo",
+    "version": "1.0.0",
+    "author": "Seu Nome",
+    "providers": [
+        "Modules\\MeuModulo\\Providers\\MeuModuloServiceProvider"
+    ]
+}
+EOF
+
+# 3. CRIAR SERVICE PROVIDER
+php artisan make:provider MeuModuloServiceProvider
+
+# 4. REGISTRAR NO CONFIG/APP.PHP
+'providers' => [
+    // ...
+    Modules\MeuModulo\Providers\MeuModuloServiceProvider::class,
+],
+
+# 5. CRIAR MIGRATION
+php artisan make:migration create_meumodulo_table
+
+# 6. EXECUTAR MIGRAÇÃO
+php artisan migrate
+
+# 7. TESTAR MÓDULO
+- Acessar painel de extensões
+- Ativar o módulo
+- Testar funcionalidades
+</pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-to-top">↑</button>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>
