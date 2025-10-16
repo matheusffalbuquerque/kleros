@@ -7,6 +7,7 @@ use App\Models\Evento;
 use App\Models\EncontroCelula;
 use App\Models\Reuniao;
 use App\Models\Feed;
+use App\Services\ExtensaoCatalogoSyncService;
 use App\Services\MemberActivityLogger;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MemberActivityLogger::class, fn () => new MemberActivityLogger());
+        $this->app->singleton(ExtensaoCatalogoSyncService::class, fn () => new ExtensaoCatalogoSyncService());
     }
 
     /**

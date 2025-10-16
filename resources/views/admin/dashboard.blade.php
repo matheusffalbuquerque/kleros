@@ -63,6 +63,7 @@
                     <li><a href="{{ route('congregacoes.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Ver congregações</a></li>
                     <li><a href="{{ route('denominacoes.create') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Nova denominação</a></li>
                     <li><a href="{{ route('congregacoes.cadastro') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Check-in de congregação</a></li>
+                    <li><a href="{{ route('admin.extensions.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Gestão de extensões</a></li>
                     @role('kleros')
                     <li class="pt-2 border-t border-white/10">
                         <a href="/guia-tecnico/" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600/20 border border-emerald-600/40 hover:bg-emerald-600/30 transition-colors">

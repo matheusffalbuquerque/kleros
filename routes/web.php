@@ -36,6 +36,7 @@ use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\ProgramacaoController;
 use App\Http\Middleware\CheckAdminRole;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ExtensaoCatalogoController;
 
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
@@ -77,6 +78,9 @@ Route::domain('admin.local')->middleware('setlocale')->group(function () {
 
     Route::middleware(['auth', CheckAdminRole::class])->group(function () {
         Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/extensoes', [ExtensaoCatalogoController::class, 'index'])->name('admin.extensions.index');
+        Route::post('/extensoes/sync', [ExtensaoCatalogoController::class, 'sync'])->name('admin.extensions.sync');
+        Route::put('/extensoes/{extensaoCatalogo}', [ExtensaoCatalogoController::class, 'update'])->name('admin.extensions.update');
         
         Route::get('/guia-tecnico/{file?}', function ($file = null) {
             if ($file === null) { $file = 'index.html'; }
