@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
+use App\Models\Livro;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +24,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'congregacao_id',
+        'denominacao_id',
+        'membro_id',
     ];
 
     /**
@@ -56,5 +61,10 @@ class User extends Authenticatable
     public function membro()
     {
         return $this->belongsTo(Membro::class);
+    }
+
+    public function livros()
+    {
+        return $this->belongsToMany(Livro::class, 'livro_usuario')->withTimestamps()->withPivot('adquirido_em');
     }
 }

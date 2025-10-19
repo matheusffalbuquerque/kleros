@@ -268,6 +268,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::put('/setores/{id}', [SetorController::class, 'update'])->name('setores.update');
         Route::delete('/setores/{id}', [SetorController::class, 'destroy'])->name('setores.destroy');
 
+        Route::get('/denominacoes/configuracoes', [DenominacaoController::class, 'configuracoes'])->name('denominacoes.configuracoes');
         Route::put('/denominacoes/{id}', [DenominacaoController::class, 'update'])->name('denominacoes.update');
         });
         
@@ -279,9 +280,14 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
         Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index')->middleware('auth');
         Route::get('/agenda/eventos', [AgendaController::class, 'eventosJson'])->name('agenda.eventos.json')->middleware('auth');
+        Route::get('/agenda/leitura', [AgendaController::class, 'read'])->name('agenda.read')->middleware('auth');
+        Route::get('/agenda/proximos/eventos', [AgendaController::class, 'proximosEventos'])->name('agenda.proximos.eventos')->middleware('auth');
+        Route::get('/agenda/proximos/cultos', [AgendaController::class, 'proximosCultos'])->name('agenda.proximos.cultos')->middleware('auth');
+        Route::get('/agenda/proximos/reunioes', [AgendaController::class, 'proximasReunioes'])->name('agenda.proximas.reunioes')->middleware('auth');
+        Route::get('/agenda/detalhes/{tipo}/{id}', [AgendaController::class, 'detalhes'])->name('agenda.detalhes')->middleware('auth');
 
-        Route::get('/livraria', [LivrariaController::class, 'index'])->name('livraria.index')->middleware(['auth','gestor']);
-        Route::post('/livraria/search', [LivrariaController::class, 'search'])->name('livraria.search')->middleware(['auth','gestor']);
+        Route::get('/livraria', [LivrariaController::class, 'index'])->name('livraria.index')->middleware(['auth']);
+        Route::post('/livraria/search', [LivrariaController::class, 'search'])->name('livraria.search')->middleware(['auth']);
 
         Route::get('/reunioes', [ReuniaoController::class, 'create'])->name('reunioes.create')->middleware(['auth','gestor']);
         Route::get('/reunioes/painel', [ReuniaoController::class, 'index'])->name('reunioes.painel')->middleware(['auth','gestor']);

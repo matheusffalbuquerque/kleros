@@ -60,6 +60,13 @@
                 <h2 class="text-lg font-semibold">Atalhos rápidos</h2>
                 <ul class="space-y-2 text-sm text-white/70">
                     <li><a href="{{ route('denominacoes.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#6449a2]/20 border border-[#6449a2]/40 hover:bg-[#6449a2]/30">Gerenciar denominações</a></li>
+                    <li>
+                        @if ($denominacoes->isNotEmpty())
+                            <a href="{{ route('denominacoes.configuracoes', ['denominacao' => $denominacoes->first()->id]) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30 hover:bg-white/15">Configurações da denominação</a>
+                        @else
+                            <span class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/40">Configurações da denominação</span>
+                        @endif
+                    </li>
                     <li><a href="{{ route('congregacoes.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Ver congregações</a></li>
                     <li><a href="{{ route('denominacoes.create') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Nova denominação</a></li>
                     <li><a href="{{ route('congregacoes.cadastro') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/15 hover:border-white/30">Check-in de congregação</a></li>

@@ -1,0 +1,132 @@
+@extends('layouts.main')
+
+@section('title', $congregacao->nome_curto . ' | ' . $appName)
+
+@section('content')
+@php
+    $agenda = trans('agenda');
+    $views = $agenda['views'];
+    $schedule = $agenda['schedule'];
+    $eventsLang = $agenda['events'];
+    $localeJs = str_replace('_', '-', app()->getLocale());
+@endphp
+
+<div class="container">
+    <h1>{{ $agenda['title'] }}</h1>
+    <div class="info">
+        <h3>{{ $agenda['overview'] }}</h3>
+        <div class="control-btn">
+            <div class="control-btn-group">
+                <h4>{{ $views['change'] }}</h4>
+                <button class="btn" id="btnVisaoAnual">{{ $views['annual'] }}</button>
+                <button class="btn" id="btnVisaoMensal">{{ $views['monthly'] }}</button>
+            </div>
+
+            <div class="control-btn-group">
+                <h4>Próximas programações</h4>
+                <button onclick="abrirJanelaModal('{{ route('agenda.proximos.eventos') }}')" class="btn" id="btnProximosEventos">
+                    <i class="bi bi-calendar-event"></i> {{ $schedule['event'] }}
+                </button>
+                <button onclick="abrirJanelaModal('{{ route('agenda.proximos.cultos') }}')" class="btn" id="btnProximosCultos">
+                    <i class="bi bi-bell"></i> {{ $schedule['service'] }}
+                </button>
+                <button onclick="abrirJanelaModal('{{ route('agenda.proximas.reunioes') }}')" class="btn" id="btnProximasReunioes">
+                    <i class="bi bi-people"></i> {{ $schedule['meeting'] }}
+                </button>
+            </div>
+        </div>
+        <div id="calendar"></div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+        if (!calendarEl) {
+            return;
+        }
+
+        const locale = @json($localeJs);
+        const buttonText = {
+            today: @json($views['today']),
+            month: @json($views['month_label']),
+            week: @json($views['week_label']),
+            day: @json($views['day_label']),
+        };
+        const eventLabels = {
+            alertTitle: @json($eventsLang['alert_title']),
+            alertStart: @json($eventsLang['alert_start']),
+        };
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: locale,
+            timeZone: 'local',
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            buttonText: buttonText,
+            views: {
+                multiMonthYear: {
+                    type: 'multiMonth',
+                    duration: { months: 12 },
+                    buttonText: @json($views['year_label'])
+                }
+            },
+            events: "{{ route('agenda.eventos.json') }}",
+            eventDidMount: function(info) {
+                const titleEl = info.el.querySelector('.fc-event-title');
+                if (!titleEl) {
+                    return;
+                }
+
+                const type = info.event.extendedProps ? info.event.extendedProps.type : null;
+                const iconMap = {
+                    culto: 'bi-bell',
+                    evento: 'bi-calendar-event',
+                    reuniao: 'bi-people-fill',
+                    aniversario: 'bi-cake2',
+                };
+
+                let titleHtml = info.event.title;
+                const iconClass = iconMap[type];
+
+                if (iconClass && !/^<i\b/i.test(titleHtml.trim())) {
+                    titleHtml = '<i class="bi ' + iconClass + '"></i> ' + titleHtml;
+                }
+
+                titleEl.innerHTML = titleHtml;
+            },
+            eventClick: function(info) {
+                info.jsEvent.preventDefault();
+
+                const props = info.event.extendedProps || {};
+                const detailUrl = props.detailUrl || null;
+
+                if (detailUrl) {
+                    abrirJanelaModal(detailUrl);
+                    return;
+                }
+
+                const plainTitle = info.event.title.replace(/<[^>]+>/g, '');
+                const start = info.event.start ? info.event.start.toLocaleString(locale) : '';
+                alert(eventLabels.alertTitle + ': ' + plainTitle + '\n' + eventLabels.alertStart + ': ' + start);
+            }
+        });
+
+        calendar.render();
+
+        document.getElementById('btnVisaoMensal')?.addEventListener('click', function () {
+            calendar.changeView('dayGridMonth');
+        });
+
+        document.getElementById('btnVisaoAnual')?.addEventListener('click', function () {
+            calendar.changeView('multiMonthYear');
+        });
+    });
+</script>
+@endpush
+@endsection

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Congregacao;
 use App\Models\Dominio;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,6 +28,17 @@ class AcessarCongregacaoPeloDominio
             app()->instance('congregacao', null);
             Auth::shouldUse('web'); // garante sessão padrão
             return $next($request);
+        }
+
+        if ($host === '192.168.1.7') {
+            $congregacao = Congregacao::with('config')->find(2);
+            if ($congregacao) {
+                $request->attributes->set('congregacao', $congregacao);
+                app()->instance('congregacao', $congregacao);
+                app()->instance('modo_admin', false);
+                app()->instance('site_publico', false);
+                return $next($request);
+            }
         }
 
         // Verifica se o host é um domínio válido

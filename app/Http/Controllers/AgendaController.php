@@ -43,6 +43,7 @@ class AgendaController extends Controller
                     'extendedProps' => [
                         'type' => 'reuniao',
                         'editUrl' => route('reunioes.form_editar', $reuniao->id),
+                        'detailUrl' => route('agenda.detalhes', ['tipo' => 'reuniao', 'id' => $reuniao->id]),
                     ],
                 ];
             });
@@ -68,6 +69,7 @@ class AgendaController extends Controller
                     'extendedProps' => [
                         'type' => 'culto',
                         'editUrl' => route('cultos.form_editar', $culto->id),
+                        'detailUrl' => route('agenda.detalhes', ['tipo' => 'culto', 'id' => $culto->id]),
                     ],
                 ];
             });
@@ -128,6 +130,7 @@ class AgendaController extends Controller
                 'extendedProps' => [
                     'type' => 'evento',
                     'editUrl' => route('eventos.form_editar', $evento->id),
+                    'detailUrl' => route('agenda.detalhes', ['tipo' => 'evento', 'id' => $evento->id]),
                 ],
             ];
         });
@@ -139,5 +142,103 @@ class AgendaController extends Controller
             ->values();
 
         return response()->json($todosEventos);
+    }
+
+    public function read()
+    {
+        $congregacao = app('congregacao');
+
+        return view('agenda.read', compact('congregacao'));
+    }
+
+    public function proximosEventos()
+    {
+        $congregacao = app('congregacao');
+        abort_unless($congregacao, 404);
+
+        $agora = Carbon::now();
+
+        $eventos = Evento::query()
+            ->where('congregacao_id', $congregacao->id)
+            ->whereNotNull('data_inicio')
+            ->where(function ($query) use ($agora) {
+                $query->whereDate('data_inicio', '>=', $agora->toDateString())
+                    ->orWhere(function ($inner) use ($agora) {
+                        $inner->whereDate('data_inicio', '<', $agora->toDateString())
+                            ->whereNotNull('data_encerramento')
+                            ->whereDate('data_encerramento', '>=', $agora->toDateString());
+                    });
+            })
+            ->orderBy('data_inicio')
+            ->limit(12)
+            ->get();
+
+        return view('agenda.includes.proximos_eventos', compact('eventos'));
+    }
+
+    public function proximosCultos()
+    {
+        $congregacao = app('congregacao');
+        abort_unless($congregacao, 404);
+
+        $agora = Carbon::now();
+
+        $cultos = Culto::query()
+            ->where('congregacao_id', $congregacao->id)
+            ->whereNotNull('data_culto')
+            ->where('data_culto', '>=', $agora)
+            ->orderBy('data_culto')
+            ->limit(12)
+            ->get();
+
+        return view('agenda.includes.proximos_cultos', compact('cultos'));
+    }
+
+    public function proximasReunioes()
+    {
+        $congregacao = app('congregacao');
+        abort_unless($congregacao, 404);
+
+        $agora = Carbon::now();
+
+        $reunioes = Reuniao::query()
+            ->where('congregacao_id', $congregacao->id)
+            ->whereNotNull('data_inicio')
+            ->where('data_inicio', '>=', $agora)
+            ->orderBy('data_inicio')
+            ->limit(12)
+            ->get();
+
+        return view('agenda.includes.proximas_reunioes', compact('reunioes'));
+    }
+
+    public function detalhes(string $tipo, int $id)
+    {
+        $congregacao = app('congregacao');
+        abort_unless($congregacao, 404);
+
+        $tipo = strtolower($tipo);
+
+        if ($tipo === 'evento') {
+            $evento = Evento::where('congregacao_id', $congregacao->id)->findOrFail($id);
+            $evento->loadMissing('grupo');
+
+            return view('programacoes.includes.evento_detalhes', compact('evento'));
+        }
+
+        if ($tipo === 'culto') {
+            $culto = Culto::where('congregacao_id', $congregacao->id)->findOrFail($id);
+            $culto->loadMissing('evento');
+
+            return view('programacoes.includes.culto_detalhes', compact('culto'));
+        }
+
+        if ($tipo === 'reuniao') {
+            $reuniao = Reuniao::where('congregacao_id', $congregacao->id)->findOrFail($id);
+
+            return view('programacoes.includes.reuniao_detalhes', compact('reuniao'));
+        }
+
+        abort(404);
     }
 }

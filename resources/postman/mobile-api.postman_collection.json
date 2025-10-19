@@ -1,0 +1,318 @@
+{
+  "info": {
+    "name": "Kleros Mobile API",
+    "description": "Coleção para testar a API móvel multitenant do Kleros.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "4f4fd7f6-8f1d-4b5f-a9a2-collection"
+  },
+  "variable": [
+    {"key": "api_url", "value": "http://localhost:8000"},
+    {"key": "token", "value": ""},
+    {"key": "noticia_id", "value": "1"},
+    {"key": "podcast_id", "value": "1"},
+    {"key": "livro_id", "value": "1"}
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/login",
+              "host": ["{{api_url}}"],
+              "path": ["api", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@kleros.com\",\n  \"password\": \"password\",\n  \"device_name\": \"postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/registro",
+              "host": ["{{api_url}}"],
+              "path": ["api", "registro"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Membro Mobile\",\n  \"email\": \"mobile@example.com\",\n  \"password\": \"password\",\n  \"telefone\": \"(11)90000-0000\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/logout",
+              "host": ["{{api_url}}"],
+              "path": ["api", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configuração",
+      "item": [
+        {
+          "name": "Buscar Configuração",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/configuracao/1",
+              "host": ["{{api_url}}"],
+              "path": ["api", "configuracao", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notícias",
+      "item": [
+        {
+          "name": "Listar Notícias",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/noticias",
+              "host": ["{{api_url}}"],
+              "path": ["api", "noticias"]
+            }
+          }
+        },
+        {
+          "name": "Detalhes da Notícia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/noticias/{{noticia_id}}",
+              "host": ["{{api_url}}"],
+              "path": ["api", "noticias", "{{noticia_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Podcasts",
+      "item": [
+        {
+          "name": "Listar Podcasts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/podcasts",
+              "host": ["{{api_url}}"],
+              "path": ["api", "podcasts"]
+            }
+          }
+        },
+        {
+          "name": "Detalhes do Podcast",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/podcasts/{{podcast_id}}",
+              "host": ["{{api_url}}"],
+              "path": ["api", "podcasts", "{{podcast_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mensagens",
+      "item": [
+        {
+          "name": "Listar Mensagens",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/mensagens",
+              "host": ["{{api_url}}"],
+              "path": ["api", "mensagens"]
+            }
+          }
+        },
+        {
+          "name": "Enviar Mensagem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/mensagens",
+              "host": ["{{api_url}}"],
+              "path": ["api", "mensagens"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Dúvida sobre culto\",\n  \"mensagem\": \"Poderiam informar o horário do culto de jovens?\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Livraria",
+      "item": [
+        {
+          "name": "Listar Livros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/livraria",
+              "host": ["{{api_url}}"],
+              "path": ["api", "livraria"]
+            }
+          }
+        },
+        {
+          "name": "Detalhes do Livro",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/livraria/{{livro_id}}",
+              "host": ["{{api_url}}"],
+              "path": ["api", "livraria", "{{livro_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Comprar Livro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/livraria/{{livro_id}}/comprar",
+              "host": ["{{api_url}}"],
+              "path": ["api", "livraria", "{{livro_id}}", "comprar"]
+            }
+          }
+        },
+        {
+          "name": "Meus Livros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/livraria/meus-livros",
+              "host": ["{{api_url}}"],
+              "path": ["api", "livraria", "meus-livros"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notificação",
+      "item": [
+        {
+          "name": "Enviar Notificação",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/notificacao/teste",
+              "host": ["{{api_url}}"],
+              "path": ["api", "notificacao", "teste"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expo_token\": \"ExpoPushToken[xxxxxxxxxxxxxxxxxxxxxx]\",\n  \"titulo\": \"Notificação de teste\",\n  \"mensagem\": \"Mensagem enviada pelo Postman\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sincronização",
+      "item": [
+        {
+          "name": "Delta de dados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "X-Congregacao-Codigo", "value": "1"}
+            ],
+            "url": {
+              "raw": "{{api_url}}/api/sincronizar?lastSync=1970-01-01T00:00:00Z",
+              "host": ["{{api_url}}"],
+              "path": ["api", "sincronizar"],
+              "query": [
+                {"key": "lastSync", "value": "1970-01-01T00:00:00Z"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

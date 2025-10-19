@@ -88,14 +88,26 @@
                                 <a href="{{ route('programacoes.painel') }}"><li><i class="bi bi-collection"></i> Programações</li></a>
                             @else
                                 <a href="{{ route('index') }}"><li><i class="bi bi-kanban"></i> Controle</li></a>
-                                <a href="{{ route('agenda.index') }}"><li><i class="bi bi-calendar3"></i> Agenda</li></a>
+                                <a href="{{ route('agenda.read') }}"><li><i class="bi bi-calendar3"></i> Agenda</li></a>
                                 <a href="{{ route('noticias.painel') }}"><li><i class="bi bi-newspaper"></i> Notícias</li></a>
                                 <a href="{{ route('programacoes.painel') }}"><li><i class="bi bi-collection"></i> Programações</li></a>
                             @endif
                         </ul>
                     </div>
                     <div class="login_info">
-                        <a href="/logout" title="Sair"><p><i class="bi bi-box-arrow-right"></i></p></a>
+                        <div class="menu-mobile-container">
+                            <button class="menu-mobile-btn" id="menuMobileBtn" title="Menu" aria-controls="menuMobileDropdown" aria-expanded="false">
+                                <i class="bi bi-grid"></i>
+                            </button>
+                            <div class="menu-mobile-dropdown" id="menuMobileDropdown" role="menu" aria-label="Menu rápido">
+                                <nav class="menu-mobile-content">
+                                    <ul id="menuMobileList"></ul>
+                                    <ul class="menu-mobile-extra">
+                                        <li class="menu-mobile-logout"><a href="/logout"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
                         
                         <div class="notificacao-container">
                             <!-- Botão -->
@@ -207,10 +219,11 @@
                                 <a href="{{ $driveUrl }}"><li><span title="Drive"><i class="bi bi-hdd"></i></span><span>Drive</span></li></a>
                             @endif
                         @else
-                            <a href="{{route('agenda.index')}}"><li><span title="Agenda"><i class="bi bi-calendar3"></i></span><span>Agenda</span></li></a>
+                            <a href="{{route('agenda.read')}}"><li><span title="Agenda"><i class="bi bi-calendar3"></i></span><span>Agenda</span></li></a>
                             <a href="{{route('noticias.painel')}}"><li><span title="Notícias"><i class="bi bi-newspaper"></i></span><span>Notícias</span></li></a>
                             <a href="{{ route('avisos.painel') }}"><li><span title="Avisos"><i class="bi bi-megaphone"></i></span><span>Avisos</span></li></a>
                             <a href="{{route('podcasts.painel')}}"><li><span title="Podcasts"><i class="bi bi-mic-fill"></i></span><span>Podcasts</span></li></a>
+                            <a href="{{route('livraria.index')}}"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
                             @if(module_enabled('biblia'))
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
                             @endif
@@ -604,29 +617,116 @@
             const notificacaoBtn = document.getElementById('notificacaoBtn');
             const notificacaoDropdown = document.getElementById('notificacaoDropdown');
 
-            function closeAll() {
-                profileDropdown.classList.remove('show');
-                notificacaoDropdown.classList.remove('show');
+            const menuMobileBtn = document.getElementById('menuMobileBtn');
+            const menuMobileDropdown = document.getElementById('menuMobileDropdown');
+            const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+            const mobileNavPanel = document.getElementById('mobileNavPanel');
+            const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+            const mobileNavClose = document.getElementById('mobileNavClose');
+            const mobileNavList = document.getElementById('mobileNavList') || document.getElementById('menuMobileList');
+            const desktopMenu = document.getElementById('menu-express');
+
+            if (desktopMenu && mobileNavList && mobileNavList.children.length === 0) {
+                const links = desktopMenu.querySelectorAll('a');
+                links.forEach((link) => {
+                    const item = document.createElement('li');
+                    const anchor = document.createElement('a');
+                    anchor.href = link.href;
+
+                    const sourceLi = link.querySelector('li');
+                    anchor.innerHTML = sourceLi ? sourceLi.innerHTML : link.innerHTML;
+
+                    item.appendChild(anchor);
+                    mobileNavList.appendChild(item);
+                });
             }
 
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // alterna perfil e fecha notificações
-                const willShow = !profileDropdown.classList.contains('show');
-                closeAll();
-                if (willShow) profileDropdown.classList.add('show');
-                profileBtn.classList.add("selected");
-            });
+            const DROPDOWN_PADDING = 20;
 
-            notificacaoBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // evita navegar para "/"
-                e.stopPropagation();
-                // alterna notificações e fecha perfil
-                const willShow = !notificacaoDropdown.classList.contains('show');
-                closeAll();
-                if (willShow) notificacaoDropdown.classList.add('show');
-                notificacaoBtn.classList.add("selected");
-            });
+            function resetAdjust(dropdown) {
+                if (!dropdown) {
+                    return;
+                }
+                dropdown.style.setProperty('--menu-adjust', '0px');
+                dropdown.style.removeProperty('transform');
+            }
+
+            function adjustDropdown(dropdown) {
+                if (!dropdown) {
+                    return;
+                }
+
+                resetAdjust(dropdown);
+
+                requestAnimationFrame(() => {
+                    const rect = dropdown.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+                    let adjust = 0;
+                    if (rect.left < DROPDOWN_PADDING) {
+                        adjust = DROPDOWN_PADDING - rect.left;
+                    } else if (rect.right > viewportWidth - DROPDOWN_PADDING) {
+                        adjust = (viewportWidth - DROPDOWN_PADDING) - rect.right;
+                    }
+
+                    dropdown.style.setProperty('--menu-adjust', `${adjust}px`);
+                });
+            }
+
+            function closeMenuMobile() {
+                if (!menuMobileDropdown || !menuMobileBtn) {
+                    return;
+                }
+                menuMobileDropdown.classList.remove('show');
+                menuMobileBtn.classList.remove('selected');
+                menuMobileBtn.setAttribute('aria-expanded', 'false');
+                resetAdjust(menuMobileDropdown);
+            }
+
+            function closeAll() {
+                if (profileDropdown) {
+                    profileDropdown.classList.remove('show');
+                    resetAdjust(profileDropdown);
+                    if (profileBtn) {
+                        profileBtn.classList.remove('selected');
+                    }
+                }
+                if (notificacaoDropdown) {
+                    notificacaoDropdown.classList.remove('show');
+                    resetAdjust(notificacaoDropdown);
+                    if (notificacaoBtn) {
+                        notificacaoBtn.classList.remove('selected');
+                    }
+                }
+                closeMenuMobile();
+            }
+
+            if (profileBtn && profileDropdown) {
+                profileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const willShow = !profileDropdown.classList.contains('show');
+                    closeAll();
+                    if (willShow) {
+                        profileDropdown.classList.add('show');
+                        adjustDropdown(profileDropdown);
+                        profileBtn.classList.add('selected');
+                    }
+                });
+            }
+
+            if (notificacaoBtn && notificacaoDropdown) {
+                notificacaoBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const willShow = !notificacaoDropdown.classList.contains('show');
+                    closeAll();
+                    if (willShow) {
+                        notificacaoDropdown.classList.add('show');
+                        adjustDropdown(notificacaoDropdown);
+                        notificacaoBtn.classList.add('selected');
+                    }
+                });
+            }
 
             // fechar ao clicar fora
             document.addEventListener('click', () => closeAll());
@@ -634,6 +734,45 @@
             // opcional: fechar com ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeAll();
+            });
+
+            if (menuMobileBtn && menuMobileDropdown) {
+                menuMobileBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const willShow = !menuMobileDropdown.classList.contains('show');
+                    closeAll();
+                    if (willShow) {
+                        menuMobileDropdown.classList.add('show');
+                        menuMobileBtn.classList.add('selected');
+                        menuMobileBtn.setAttribute('aria-expanded', 'true');
+                        adjustDropdown(menuMobileDropdown);
+                    }
+                });
+
+                menuMobileDropdown.addEventListener('click', (event) => {
+                    if (event.target.closest('a')) {
+                        closeMenuMobile();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', () => {
+                if (profileDropdown && profileDropdown.classList.contains('show')) {
+                    adjustDropdown(profileDropdown);
+                }
+
+                if (notificacaoDropdown && notificacaoDropdown.classList.contains('show')) {
+                    adjustDropdown(notificacaoDropdown);
+                }
+
+                if (menuMobileDropdown && menuMobileDropdown.classList.contains('show')) {
+                    adjustDropdown(menuMobileDropdown);
+                }
+
+                if (window.innerWidth > 500) {
+                    closeMenuMobile();
+                }
             });
         </script>
 

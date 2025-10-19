@@ -29,7 +29,7 @@ header {
     backdrop-filter: blur(12px);
 }
 
-header nav {
+header .main-navbar {
     display: flex;
     width: 100%;
     align-items: center;
@@ -77,6 +77,26 @@ header nav .nav-menu ul a {
 header nav .nav-menu ul li:hover {
     cursor: pointer;
     color: var(--secondary-color);
+}
+
+@media (max-width: 750px) {
+    header .main-navbar {
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+    }
+
+    header nav .nav-menu {
+        display: none !important;
+    }
+
+    header .main-navbar .login_info {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 }
 
 /* Body */
@@ -861,24 +881,6 @@ footer {
       display: none;
     }
   }
-
-@media screen and (max-width:500px) {
-    
-    header nav {
-        display: flex;
-        flex-direction:column;
-    }
-
-    header nav .nav-menu {
-        margin-top: -20px;
-        margin-bottom: 20px;
-    }
-
-    .limit-80 {
-        max-width: 100%;
-    }
-
-}
 
 
 //lista alternatina

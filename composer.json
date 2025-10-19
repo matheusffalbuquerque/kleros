@@ -11,6 +11,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "blade-ui-kit/blade-icons": "^1.8",
         "guzzlehttp/guzzle": "^7.9",
+        "laravel/sanctum": "^4.0",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "php-feed-io/feed-io": "^6.0",

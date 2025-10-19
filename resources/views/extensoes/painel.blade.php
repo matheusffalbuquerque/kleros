@@ -56,7 +56,7 @@
                 border: 1px solid rgba(10, 25, 41, 0.12);
                 border-radius: 12px;
                 padding: 1.5rem;
-                background: #fff;
+                background: rgba(238, 238, 238, 0.3);
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
