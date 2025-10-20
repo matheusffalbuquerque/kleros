@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Pesquisa;
 use App\Models\Membro;
 use App\Models\Pergunta;
+use App\Models\Resposta;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,7 +39,8 @@ class PesquisaController extends Controller
 
     public function form_editar(int $id): View
     {
-        $congregacaoId = app('congregacao')->id;
+        $congregacao = app('congregacao');
+        $congregacaoId = $congregacao->id;
 
         $pesquisa = Pesquisa::forCongregacao($congregacaoId)
             ->with(['perguntas' => fn ($query) => $query->with('opcoes')->orderBy('created_at')])
@@ -65,7 +68,8 @@ class PesquisaController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        $congregacaoId = app('congregacao')->id;
+        $congregacao = app('congregacao');
+        $congregacaoId = $congregacao->id;
 
         $pesquisa = Pesquisa::forCongregacao($congregacaoId)->findOrFail($id);
 
@@ -236,5 +240,52 @@ class PesquisaController extends Controller
         ];
 
         return $request->validate($rules);
+    }
+
+    public function verRespostas(Request $request, int $id): View
+    {
+        $congregacaoId = app('congregacao')->id;
+
+        $pesquisa = Pesquisa::forCongregacao($congregacaoId)
+            ->with(['perguntas' => fn ($query) => $query->orderBy('created_at')])
+            ->findOrFail($id);
+
+        $perguntaId = $request->query('pergunta');
+        $membroId = $request->query('membro');
+
+        $respostasQuery = Resposta::with(['pergunta', 'membro', 'opcoes.opcao'])
+            ->where('pesquisa_id', $pesquisa->id);
+
+        if ($perguntaId) {
+            $respostasQuery->where('pergunta_id', $perguntaId);
+        }
+
+        if ($membroId) {
+            $respostasQuery->where('membro_id', $membroId);
+        }
+
+        /** @var LengthAwarePaginator $respostas */
+        $respostas = $respostasQuery
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        $membroOptions = Membro::whereIn(
+            'id',
+            Resposta::where('pesquisa_id', $pesquisa->id)->pluck('membro_id')->unique()
+        )
+            ->orderBy('nome')
+            ->get();
+
+        $perguntas = $pesquisa->perguntas;
+
+        return view('pesquisas.verRespostas', [
+            'pesquisa' => $pesquisa,
+            'respostas' => $respostas,
+            'membros' => $membroOptions,
+            'perguntas' => $perguntas,
+            'perguntaId' => $perguntaId,
+            'membroId' => $membroId,
+        ]);
     }
 }

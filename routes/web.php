@@ -26,6 +26,7 @@ use App\Http\Controllers\EscalaController;
 use App\Http\Controllers\LocalizacaoController;
 use App\Http\Controllers\ExtensoesController;
 use App\Http\Controllers\PesquisaController;
+use App\Http\Controllers\PesquisaRespostaController;
 use App\Http\Controllers\SetorController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\NotificacaoController;
@@ -247,6 +248,9 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::put('/departamentos/{id}', [DepartamentoController::class, 'update'])->name('departamentos.update');
         Route::get('/departamentos/novo', [DepartamentoController::class, 'form_criar'])->name('departamentos.form_criar');
         Route::get('/departamentos/editar/{id}', [DepartamentoController::class, 'form_editar'])->name('departamentos.form_editar');
+        Route::get('/departamentos/integrantes/{id}', [DepartamentoController::class, 'show'])->name('departamentos.integrantes');
+        Route::post('/departamentos/integrantes', [DepartamentoController::class, 'addMember'])->name('departamentos.integrantes.adicionar');
+        Route::delete('/departamentos/integrantes/{departamento}/{membro}', [DepartamentoController::class, 'removeMember'])->name('departamentos.integrantes.remover');
         Route::delete('/departamentos/{id}', [DepartamentoController::class, 'destroy'])->name('departamentos.destroy');
 
         Route::get('/escalas/novo/{culto?}', [EscalaController::class, 'form_criar'])->name('escalas.form_criar');
@@ -307,6 +311,10 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::post('/pesquisas/{pesquisa}/perguntas', [PesquisaController::class, 'storePergunta'])->name('pesquisas.perguntas.store')->middleware(['auth','gestor']);
         Route::put('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'updatePergunta'])->name('pesquisas.perguntas.update')->middleware(['auth','gestor']);
         Route::delete('/pesquisas/{pesquisa}/perguntas/{pergunta}', [PesquisaController::class, 'destroyPergunta'])->name('pesquisas.perguntas.destroy')->middleware(['auth','gestor']);
+        Route::get('/pesquisas/{pesquisa}/respostas', [PesquisaController::class, 'verRespostas'])->name('pesquisas.respostas')->middleware(['auth','gestor']);
+        Route::get('/pesquisas/replies', [PesquisaRespostaController::class, 'index'])->name('pesquisas.replies.index')->middleware('auth');
+        Route::get('/pesquisas/replies/{pesquisa}', [PesquisaRespostaController::class, 'show'])->name('pesquisas.replies.show')->middleware('auth');
+        Route::post('/pesquisas/replies/{pesquisa}', [PesquisaRespostaController::class, 'submit'])->name('pesquisas.replies.submit')->middleware('auth');
 
         Route::get('/avisos/admin', [AvisoController::class, 'index'])->name('avisos.admin')->middleware(['auth','gestor']);
         Route::get('/avisos', [AvisoController::class, 'avisosDoMembro'])->name('avisos.painel')->middleware('auth');

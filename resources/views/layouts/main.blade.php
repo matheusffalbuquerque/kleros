@@ -205,7 +205,7 @@
                             @endif
                             <a href="{{route('livraria.index')}}"><li><span title="Ação Social"><i class="bi bi-box2-heart"></i></span><span>Ação Social</span></li></a>
                             <a href="{{route('assinaturas.index')}}"><li><span title="Assinaturas"><i class="bi bi-journal-plus"></i></span><span>Assinaturas</span></li></a>
-                            <a href="{{route('pesquisas.painel')}}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
+                            <a href="{{route('pesquisas.replies.index')}}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
                             @if(module_enabled('biblia'))
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
                             @endif
@@ -228,6 +228,7 @@
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
                             @endif
                             <a href="{{ route('perfil') }}"><li><span title="Perfil"><i class="bi bi-person-badge"></i></span><span>Perfil</span></li></a>
+                            <a href="{{ route('pesquisas.replies.index') }}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
                         @endif
                     </ul>
                 </nav>

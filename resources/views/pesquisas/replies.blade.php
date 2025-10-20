@@ -5,15 +5,18 @@
 @section('content')
 <div class="container">
     <div class="nao-imprimir">
-        <h1>Painel de Pesquisas</h1>
+        <h1>Pesquisas Disponíveis</h1>
         <div class="info">
-            <h3>Pesquisas Ativas</h3>
-            <div class="form-options">
-                <button type="button" class="btn" onclick="abrirJanelaModal('{{ route('pesquisas.form_criar') }}')">
-                    <i class="bi bi-plus-circle"></i> Nova pesquisa
+            <h3>Responda as pesquisas da congregação</h3>
+            <div class="form-options filter-toggle">
+                @php
+                    $statusAtual = $status ?? 'nao-respondidas';
+                @endphp
+                <button class="btn {{ $statusAtual === 'nao-respondidas' ? 'active' : '' }}" onclick="window.location='{{ route('pesquisas.replies.index', ['status' => 'nao-respondidas']) }}'">
+                    <i class="bi bi-question-circle"></i> Não respondidas
                 </button>
-                <button class="btn imprimir" type="button">
-                    <i class="bi bi-printer"></i> Imprimir
+                <button class="btn {{ $statusAtual === 'respondidas' ? 'active' : '' }}" onclick="window.location='{{ route('pesquisas.replies.index', ['status' => 'respondidas']) }}'">
+                    <i class="bi bi-check-circle"></i> Respondidas
                 </button>
             </div>
         </div>
@@ -31,7 +34,7 @@
                 <b>Status</b>
             </div>
             <div class="item-1">
-                <b>Criada por</b>
+                <b>Participação</b>
             </div>
         </div>
         <div id="content">
@@ -40,45 +43,46 @@
                     $inicio = optional($pesquisa->data_inicio)?->format('d/m/Y');
                     $fim = optional($pesquisa->data_fim)?->format('d/m/Y');
                     $hoje = now();
-                    $status = 'Sem período';
+                    $statusPeriodo = 'Sem período';
 
                     if ($pesquisa->data_inicio && $pesquisa->data_fim) {
                         if ($hoje->lt($pesquisa->data_inicio)) {
-                            $status = 'Agendada';
+                            $statusPeriodo = 'Agendada';
                         } elseif ($hoje->between($pesquisa->data_inicio, $pesquisa->data_fim)) {
-                            $status = 'Em andamento';
+                            $statusPeriodo = 'Em andamento';
                         } else {
-                            $status = 'Encerrada';
+                            $statusPeriodo = 'Encerrada';
                         }
                     } elseif ($pesquisa->data_inicio) {
-                        $status = $hoje->lt($pesquisa->data_inicio) ? 'Agendada' : 'Em andamento';
+                        $statusPeriodo = $hoje->lt($pesquisa->data_inicio) ? 'Agendada' : 'Em andamento';
                     }
+
+                    $respondida = ($pesquisa->respostas_do_membro ?? 0) > 0;
                 @endphp
-                <div class="list-item taggable-item" title="{{ $pesquisa->descricao }}" onclick="abrirJanelaModal('{{ route('pesquisas.form_editar', $pesquisa->id) }}')">
+                <div class="list-item" title="{{ $pesquisa->descricao }}" onclick="window.location='{{ route('pesquisas.replies.show', ['pesquisa' => $pesquisa->id, 'status' => $statusAtual]) }}'">
                     <div class="item item-2">
                         <p class="with-description">
                             <span class="title"><i class="bi bi-bar-chart"></i> {{ $pesquisa->titulo }}</span>
+                            @if($pesquisa->descricao)
+                                <small>{{ \Illuminate\Support\Str::limit($pesquisa->descricao, 120) }}</small>
+                            @endif
                         </p>
                     </div>
                     <div class="item item-1">
                         <p>{{ $inicio ? $inicio : '—' }} @if($fim) até {{ $fim }} @endif</p>
                     </div>
                     <div class="item item-1">
-                        <p>{{ $status }}</p>
+                        <p>{{ $statusPeriodo }}</p>
                     </div>
                     <div class="item item-1">
-                        <p>{{ optional($pesquisa->criador)->nome ?? 'N/D' }}</p>
-                    </div>
-                    <div class="taggable-actions nao-imprimir">
-                        <button type="button" title="Ver respostas"
-                            onclick="event.stopPropagation(); window.location='{{ route('pesquisas.respostas', $pesquisa->id) }}'">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                        <p class="{{ $respondida ? 'text-success' : 'text-danger' }}">
+                            {{ $respondida ? 'Respondida' : 'Pendente' }}
+                        </p>
                     </div>
                 </div>
             @empty
                 <div class="card">
-                    <p><i class="bi bi-exclamation-triangle"></i> Nenhuma pesquisa cadastrada até o momento.</p>
+                    <p><i class="bi bi-info-circle"></i> Nenhuma pesquisa encontrada para este filtro.</p>
                 </div>
             @endforelse
 
@@ -91,14 +95,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    $(document).ready(function(){
-        $('.imprimir').click(function(event) {
-            event.preventDefault();
-            window.print();
-        });
-    });
-</script>
-@endpush

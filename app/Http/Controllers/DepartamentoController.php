@@ -72,8 +72,30 @@ class DepartamentoController extends Controller
 
     public function show($id)
     {
-        // Lógica para exibir um departamento específico
-        return view('departamentos.show', ['id' => $id]);
+        $congregacao = app('congregacao');
+
+        $departamento = Agrupamento::where('id', $id)
+            ->where('tipo', 'departamento')
+            ->where('congregacao_id', $congregacao->id)
+            ->firstOrFail();
+
+        $integrantes = $departamento->integrantes()
+            ->orderBy('nome')
+            ->paginate(10);
+
+        $membros = Membro::DaCongregacao()
+            ->whereDoesntHave('agrupamentos', function ($query) use ($departamento) {
+                $query->where('agrupamento_id', $departamento->id);
+            })
+            ->orderBy('nome')
+            ->get();
+
+        return view('departamentos.integrantes', [
+            'congregacao' => $congregacao,
+            'departamento' => $departamento,
+            'integrantes' => $integrantes,
+            'membros' => $membros,
+        ]);
     }
 
     public function form_criar()
@@ -203,5 +225,53 @@ class DepartamentoController extends Controller
         }
 
         return redirect('/cadastros#departamentos')->with('msg', 'Departamento excluído com sucesso!');
+    }
+
+    public function addMember(Request $request)
+    {
+        $congregacao = app('congregacao');
+        $congregacaoId = $congregacao->id;
+
+        $data = $request->validate([
+            'departamento' => [
+                'required',
+                'integer',
+                Rule::exists('agrupamentos', 'id')->where(function ($query) use ($congregacaoId) {
+                    $query->where('tipo', 'departamento')
+                        ->where('congregacao_id', $congregacaoId);
+                }),
+            ],
+            'membro' => [
+                'required',
+                'integer',
+                Rule::exists('membros', 'id')->where(function ($query) use ($congregacaoId) {
+                    $query->where('congregacao_id', $congregacaoId);
+                }),
+            ],
+        ]);
+
+        $departamento = Agrupamento::findOrFail($data['departamento']);
+
+        $departamento->integrantes()->syncWithoutDetaching([
+            $data['membro'] => ['congregacao_id' => $congregacaoId],
+        ]);
+
+        return redirect()
+            ->route('departamentos.integrantes', $departamento->id)
+            ->with('msg', 'Membro adicionado ao departamento.');
+    }
+
+    public function removeMember($departamentoId, $membroId)
+    {
+        $departamento = Agrupamento::where('id', $departamentoId)
+            ->where('tipo', 'departamento')
+            ->where('congregacao_id', app('congregacao')->id)
+            ->firstOrFail();
+
+        $departamento->integrantes()->detach($membroId);
+
+        return redirect()
+            ->route('departamentos.integrantes', $departamento->id)
+            ->with('msg', 'Membro removido do departamento.');
     }
 }

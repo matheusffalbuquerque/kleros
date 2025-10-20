@@ -192,9 +192,21 @@
                         <div class="card-title">{{ $item->titulo }}</div>
                         <div class="card-date">
                             <i class="bi bi-calendar-event"></i>
-                            @if ($item->data_fim)
-                                <span>{{ $common['until'] }} {{ $item->data_fim?->format('d/m/Y') }}</span>
-                            @endif
+                            @php
+                                $dataInicio = optional($item->data_inicio)->format('d/m/Y');
+                                $dataFim = optional($item->data_fim)->format('d/m/Y');
+                            @endphp
+                            <span>
+                                @if ($dataInicio && $dataFim)
+                                    {{ $dataInicio }} {{ $common['until'] }} {{ $dataFim }}
+                                @elseif ($dataInicio)
+                                    Início em {{ $dataInicio }}
+                                @elseif ($dataFim)
+                                    {{ $common['until'] }} {{ $dataFim }}
+                                @else
+                                    Sem prazo definido
+                                @endif
+                            </span>
                         </div>
                         <div class="card-meta"><b>{{ $common['editor'] }}: </b>{{ optional($item->criador)->nome ?? $sections['research']['messages']['no_responsible'] }}</div>
                     </div>
@@ -300,7 +312,7 @@
                             </div>
                         </div>
                         <div class="item-15">
-                            <a href="{{ url('/departamentos/integrantes/' . $item->id) }}">
+                            <a href="{{ route('departamentos.integrantes', $item->id) }}">
                                 <button type="button" class="btn-options"><i class="bi bi-eye"></i> {{ $sections['departments']['buttons']['team'] }}</button>
                             </a>
                             <button type="button" class="btn-options" onclick="abrirJanelaModal('{{ route('departamentos.form_editar', $item->id) }}')">
