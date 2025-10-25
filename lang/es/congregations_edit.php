@@ -43,7 +43,7 @@ return [
                 'logo_hint' => 'Selecciona un archivo PNG o SVG',
                 'banner' => 'Banner para la pantalla de inicio de sesión',
                 'banner_hint' => 'Imagen horizontal (JPG o PNG)',
-                'upload' => 'Subir archivo',
+                'upload' => 'Subir',
                 'current_logo' => 'Logo actual',
                 'current_banner' => 'Banner actual',
             ],

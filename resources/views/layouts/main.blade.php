@@ -872,18 +872,18 @@
         @stack('scripts')
         <script>
             $(document).ready(function() {
-    function fetchNotifications() {
-        $.ajax({
-            url: '{{ route('notificacoes.index') }}',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                updateNotificationUI(data);
-            },
-            error: function(error) {
+                function fetchNotifications() {
+                $.ajax({
+                url: '{{ route('notificacoes.index') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    updateNotificationUI(data);
+                },
+                error: function(error) {
                 console.error('Error fetching notifications:', error);
             }
-        });
+        }); 
     }
 
     function formatTimeAgo(dateString) {

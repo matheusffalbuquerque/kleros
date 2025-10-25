@@ -397,17 +397,15 @@ class CongregacaoController extends Controller
 
 
         } else if ($request->logo_acervo) {
-            // Se o campo logo não for um arquivo, mas uma string (ex: caminho antigo)
-            $url = $request->logo_acervo;
-
-            $pos = strpos($url, 'congregacoes/');
-            if ($pos !== false) {
-                $url = substr($url, $pos); // pega a partir de "congregacoes/"
+            // Se o usuário selecionou uma imagem do acervo (Drive)
+            $arquivoId = $request->logo_acervo;
+            $arquivo = Arquivo::find($arquivoId);
+            
+            if ($arquivo) {
+                $congregacao->config->update([
+                    'logo_caminho' => $arquivo->caminho,
+                ]);
             }
-
-            $congregacao->config->update([
-                'logo_caminho' => $url,
-            ]);
         }
 
         if ($request->hasFile('banner')) {
@@ -427,18 +425,15 @@ class CongregacaoController extends Controller
             $arquivo->save();
 
         } else if ($request->banner_acervo) {
-            // Se o campo logo não for um arquivo, mas uma string (ex: caminho antigo)
-            $url = $request->banner_acervo;
-
-            $pos = strpos($url, 'congregacoes/');
-            if ($pos !== false) {
-                $url = substr($url, $pos); // pega a partir de "congregacoes/"
-            }
-
-            $congregacao->config->update([
-                'banner_caminho' => $url
-            ]);
+            // Se o usuário selecionou uma imagem do acervo (Drive)
+            $arquivoId = $request->banner_acervo;
+            $arquivo = Arquivo::find($arquivoId);
             
+            if ($arquivo) {
+                $congregacao->config->update([
+                    'banner_caminho' => $arquivo->caminho,
+                ]);
+            }
         }
         
          // Atualiza as configurações gerais

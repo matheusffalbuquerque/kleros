@@ -587,4 +587,70 @@ export function initModalScripts(container) {
     if (typeof window !== 'undefined' && typeof window.initOptionsMenus === 'function') {
         window.initOptionsMenus(container || document);
     }
+
+    // --- Gestor de Imagens ---
+    const gestorImagens = container.querySelector('#form-gestor-imagens');
+    if (gestorImagens && !gestorImagens.dataset.gestorInitialized) {
+        gestorImagens.dataset.gestorInitialized = 'true';
+
+        let selectedCard = null;
+        const btnSelecionar = gestorImagens.querySelector('#btn-selecionar-imagem');
+        const acervo = gestorImagens.querySelector('#acervo-imagens');
+
+        if (acervo && btnSelecionar) {
+            // Adiciona evento de clique nos cards
+            acervo.addEventListener('click', (e) => {
+                const card = e.target.closest('.card-arquivo');
+                if (!card) return;
+
+                // Evita selecionar ao clicar no botão de delete
+                if (e.target.closest('.delete-img')) {
+                    return;
+                }
+
+                // Remove seleção anterior
+                if (selectedCard) {
+                    selectedCard.classList.remove('selected');
+                }
+
+                // Se clicar no mesmo card, desseleciona
+                if (selectedCard === card) {
+                    selectedCard = null;
+                    btnSelecionar.classList.add('inactive');
+                    btnSelecionar.disabled = true;
+                } else {
+                    // Seleciona o novo card
+                    card.classList.add('selected');
+                    selectedCard = card;
+                    btnSelecionar.classList.remove('inactive');
+                    btnSelecionar.disabled = false;
+                }
+            });
+
+            // Evento do botão selecionar
+            btnSelecionar.addEventListener('click', () => {
+                if (selectedCard) {
+                    const arquivoId = selectedCard.dataset.arquivoId;
+                    const arquivoUrl = selectedCard.dataset.arquivoUrl;
+
+                    console.log('Arquivo selecionado:', { id: arquivoId, url: arquivoUrl });
+
+                    // Dispara evento na janela principal
+                    window.top.postMessage({
+                        type: 'imagemSelecionada',
+                        arquivoId: arquivoId,
+                        arquivoUrl: arquivoUrl
+                    }, '*');
+
+                    // Fecha o modal
+                    if (typeof window.fecharJanelaModal === 'function') {
+                        window.fecharJanelaModal();
+                    } else if (typeof window.top.fecharJanelaModal === 'function') {
+                        window.top.fecharJanelaModal();
+                    }
+                }
+            });
+        }
+    }
 }
+

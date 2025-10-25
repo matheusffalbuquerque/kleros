@@ -120,7 +120,12 @@
                                 </div>
                                 <div class="logo">
                                     <span id="file-logo" data-preview-filename="logo" data-placeholder="{{ $scripts['no_file'] }}">{{ $scripts['no_file'] }}</span>
-                                    <label for="logo" class="btn-options"><i class="bi bi-upload"></i> {{ $sections['visual']['files']['upload'] }}</label>
+                                    <div style="display: flex; gap: 1px; align-items: center;flex-wrap: wrap;">
+                                        <label for="logo" class="btn-line"><i class="bi bi-upload"></i> {{ $sections['visual']['files']['upload'] }}</label>
+                                        @if(module_enabled('drive'))
+                                        <label onclick="abrirModalImagem('logo')" class="btn-line"><i class="bi bi-hdd"></i> Drive</label>
+                                        @endif
+                                    </div>
                                     <input type="file" name="logo" id="logo" url="" accept="image/*" data-preview-input="logo">
                                     <input type="hidden" name="logo_acervo" id="logo_acervo">
                                 </div>
@@ -144,7 +149,12 @@
                                 </div>
                                 <div class="banner">
                                     <span id="file-banner" data-preview-filename="banner" data-placeholder="{{ $scripts['no_file'] }}">{{ $scripts['no_file'] }}</span>
-                                    <label for="banner" class="btn-options"><i class="bi bi-upload"></i> {{ $sections['visual']['files']['upload'] }}</label>
+                                    <div style="display: flex; gap: 1px; align-items: center;flex-wrap: wrap;">
+                                        <label for="banner" class="btn-line"><i class="bi bi-upload"></i> {{ $sections['visual']['files']['upload'] }}</label>
+                                        @if(module_enabled('drive'))
+                                        <label onclick="abrirModalImagem('banner')" class="btn-line"><i class="bi bi-hdd"></i> Drive</label>
+                                        @endif
+                                    </div>
                                     <input type="file" name="banner" id="banner" url="" accept="image/*" data-preview-input="banner">
                                     <input type="hidden" name="banner_acervo" id="banner_acervo">
                                 </div>
@@ -508,6 +518,54 @@
                 });
         }
     });
+
+    // Gerenciamento de seleção de imagem do Drive para logo ou banner
+    let campoImagemAtual = null;
+
+    function abrirModalImagem(campo) {
+        campoImagemAtual = campo;
+        abrirJanelaModal('{{ route('arquivos.imagens') }}');
+    }
+
+    // Recebe a imagem selecionada do gestor de imagens (modal)
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'imagemSelecionada' && campoImagemAtual) {
+            const { arquivoId, arquivoUrl } = event.data;
+            const campo = campoImagemAtual;
+            
+            // Atualiza a preview da imagem
+            const previewImage = document.querySelector(`[data-preview-container="${campo}"] [data-preview-image]`);
+            const placeholder = document.querySelector(`[data-preview-container="${campo}"] [data-preview-placeholder]`);
+            const filenameLabel = document.querySelector(`[data-preview-filename="${campo}"]`);
+            const hiddenInput = document.getElementById(`${campo}_acervo`);
+            
+            if (previewImage) {
+                previewImage.src = arquivoUrl;
+                previewImage.classList.remove('is-hidden');
+            }
+            
+            if (placeholder) {
+                placeholder.classList.add('is-hidden');
+            }
+            
+            if (filenameLabel) {
+                // Extrai o nome do arquivo da URL
+                const nomeArquivo = arquivoUrl.split('/').pop();
+                filenameLabel.textContent = nomeArquivo;
+            }
+            
+            // Armazena o ID do arquivo no campo hidden
+            if (hiddenInput) {
+                hiddenInput.value = arquivoId;
+            }
+            
+            console.log(`Imagem do Drive selecionada para ${campo}:`, { id: arquivoId, url: arquivoUrl });
+            
+            // Reseta o campo atual
+            campoImagemAtual = null;
+        }
+    });
 </script>
 @endpush
 @endsection
+
