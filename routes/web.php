@@ -360,5 +360,19 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/assinaturas', [AssinaturaController::class, 'index'])->name('assinaturas.index')->middleware(['auth','gestor']);
         Route::get('/assinaturas/novo', [AssinaturaController::class, 'form_criar'])->name('assinaturas.form_criar')->middleware(['auth','gestor']);
 
+        // Rota de teste para Livewire
+        Route::get('/teste-livewire', function () {
+            return view('teste-livewire');
+        })->name('teste.livewire')->middleware('auth');
+
+        // Gestor de imagens com Livewire (para modais)
+        Route::get('/arquivos/imagens-livewire', [ArquivoController::class, 'gestorImagensLivewire'])
+            ->name('arquivos.imagens.livewire')->middleware('auth');
+
+        // Debug Livewire
+        Route::get('/debug-livewire', function () {
+            return view('debug-livewire');
+        })->name('debug.livewire')->middleware('auth');
+
     });
 });

@@ -64,6 +64,7 @@
         }
         </style>
         @stack('styles')
+        @livewireStyles
     </head>
     <body>
         <div class="layout-wrapper">
@@ -212,6 +213,9 @@
                             @if(module_enabled('recados') && Route::has('recados.historico'))
                                 <a href="{{ route('recados.historico') }}"><li><span title="Recados"><i class="bi bi-chat-left-dots"></i></span><span>Recados</span></li></a>
                             @endif
+                            @if(module_enabled('futcristao') && Route::has('futcristao.index'))
+                                <a href="{{ route('futcristao.index') }}"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
+                            @endif
                             <a href="{{route('tutoriais.index')}}"><li><span title="Tutoriais"><i class="bi bi-question-octagon"></i></span><span>Tutoriais</span></li></a>
                             <a href="{{route('extensoes.painel')}}"><li><span title="Extensões"><i class="bi bi-nut"></i></span><span>Extensões</span></li></a>
                             @if(module_enabled('drive'))
@@ -229,6 +233,9 @@
                             @endif
                             <a href="{{ route('perfil') }}"><li><span title="Perfil"><i class="bi bi-person-badge"></i></span><span>Perfil</span></li></a>
                             <a href="{{ route('pesquisas.replies.index') }}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
+                            @if(module_enabled('futcristao') && Route::has('futcristao.index'))
+                                <a href="{{ route('futcristao.index') }}"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
+                            @endif
                         @endif
                     </ul>
                 </nav>
@@ -966,5 +973,6 @@
     setInterval(fetchNotifications, 60000);
 });
         </script>
+        @livewireScripts
     </body>
 </html>

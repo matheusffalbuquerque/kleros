@@ -524,7 +524,7 @@
 
     function abrirModalImagem(campo) {
         campoImagemAtual = campo;
-        abrirJanelaModal('{{ route('arquivos.imagens') }}');
+        abrirJanelaModal('{{ route('arquivos.imagens.livewire') }}');
     }
 
     // Recebe a imagem selecionada do gestor de imagens (modal)

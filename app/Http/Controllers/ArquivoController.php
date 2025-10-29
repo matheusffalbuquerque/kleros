@@ -15,6 +15,14 @@ class ArquivoController extends Controller
         return view('arquivos.includes.form_imagens', ['arquivos' => $arquivos]);
     }
 
+    public function gestorImagensLivewire()
+    {
+        // Retorna apenas o HTML do componente Livewire, sem layout
+        return view('components.livewire-modal-wrapper', [
+            'component' => 'gestor-imagens'
+        ]);
+    }
+
     public function store(Request $request)
     {
         if ($request->hasFile('upload')) {

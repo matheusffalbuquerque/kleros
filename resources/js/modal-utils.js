@@ -652,5 +652,20 @@ export function initModalScripts(container) {
             });
         }
     }
+
+    // --- Inicialização do Livewire em componentes carregados dinamicamente ---
+    const livewireComponents = container.querySelectorAll('[wire\\:id]');
+    if (livewireComponents.length > 0 && typeof window.Livewire !== 'undefined') {
+        // Recarrega os componentes Livewire no container
+        livewireComponents.forEach(component => {
+            try {
+                if (window.Livewire && window.Livewire.rescan) {
+                    window.Livewire.rescan();
+                }
+            } catch (error) {
+                console.error('Erro ao inicializar componente Livewire:', error);
+            }
+        });
+    }
 }
 

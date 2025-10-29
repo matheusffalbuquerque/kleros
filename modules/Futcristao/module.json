@@ -1,0 +1,6 @@
+{
+    "name": "Futcristao",
+    "description": "Gestão de grupos e partidas do Futcristão dentro da congregação.",
+    "provider": "Modules\\Futcristao\\Providers\\FutcristaoServiceProvider",
+    "enabled": true
+}
