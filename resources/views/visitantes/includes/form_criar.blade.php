@@ -9,6 +9,7 @@
     <h3>{{ $page['section'] }}</h3>
     <form action="{{ route('visitantes.store') }}" method="post">
         @csrf
+        <input type="hidden" name="return_to" value="{{ old('return_to', $returnTo ?? request('return_to')) }}">
         <div class="form-control">
             <div class="form-item">
                 <label for="visitante-nome">{{ $common['fields']['name'] }}</label>
@@ -43,9 +44,6 @@
         </div>
     </form>
 
-    @if (module_enabled('recados'))
-        <a href="{{ url('/recados/adicionar') }}" class="float-btn" title="Recados"><i class="bi bi-chat-left-dots"></i></a>
-    @endif
 
     <div class="clear"></div>
 </div>

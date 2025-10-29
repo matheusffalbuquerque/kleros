@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Culto;
 use App\Models\Evento;
+use App\Models\SituacaoVisitante;
+use App\Models\Visitante;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -188,5 +190,64 @@ class CultoController extends Controller
         $culto->delete();
 
         return redirect()->to(url()->previous())->with('msg', 'Registro de culto excluído com sucesso.');
+    }
+
+    public function painel(Request $request)
+    {
+        $congregacao = app('congregacao');
+        $selectedDateInput = $request->input('data');
+
+        try {
+            $selectedDate = $selectedDateInput
+                ? Carbon::parse($selectedDateInput)->format('Y-m-d')
+                : Carbon::today()->format('Y-m-d');
+        } catch (\Throwable $exception) {
+            $selectedDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $culto = Culto::where('congregacao_id', $congregacao->id)
+            ->whereDate('data_culto', $selectedDate)
+            ->orderByDesc('data_culto')
+            ->first();
+
+        $eventos = Evento::where('congregacao_id', $congregacao->id)
+            ->orderBy('titulo')
+            ->get();
+
+        $situacoesVisitantes = SituacaoVisitante::orderBy('titulo')->get();
+
+        $visitantesDia = Visitante::with('sit_visitante')
+            ->where('congregacao_id', $congregacao->id)
+            ->whereDate('data_visita', $selectedDate)
+            ->orderBy('nome')
+            ->get();
+
+        $dashboard = trans('dashboard');
+        $dashboardCards = data_get($dashboard, 'general.cards', []);
+        $dashboardDays = data_get($dashboard, 'days', []);
+        $carbonLocale = str_replace('-', '_', app()->getLocale());
+        Carbon::setLocale($carbonLocale);
+
+        $selectedCarbon = Carbon::parse($selectedDate);
+        $horarioInicio = $culto ? Carbon::parse($culto->data_culto)->format('H:i') : '';
+        $dataCulto = $culto ? Carbon::parse($culto->data_culto)->format('Y-m-d') : $selectedDate;
+        $selectedDateFull = $selectedCarbon->format('d/m/Y');
+        $dashboardDayName = $dashboardDays[$selectedCarbon->dayOfWeek] ?? $selectedCarbon->translatedFormat('l');
+        $panelUrl = route('cultos.painel', ['data' => $selectedDate]);
+
+        return view('cultos/painel', [
+            'culto' => $culto,
+            'eventos' => $eventos,
+            'situacoesVisitantes' => $situacoesVisitantes,
+            'visitantesDia' => $visitantesDia,
+            'selectedDate' => $selectedDate,
+            'horarioInicio' => $horarioInicio,
+            'dataCulto' => $dataCulto,
+            'panelUrl' => $panelUrl,
+            'congregacao' => $congregacao,
+            'dashboardCards' => $dashboardCards,
+            'dashboardDayName' => $dashboardDayName,
+            'selectedDateFull' => $selectedDateFull,
+        ]);
     }
 }

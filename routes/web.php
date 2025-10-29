@@ -189,9 +189,12 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
         Route::post('/visitantes', [VisitanteController::class, 'store'])->name('visitantes.store');
         Route::get('/visitantes/adicionar', [VisitanteController::class, 'create'])->name('visitantes.adicionar');
+        Route::get('/visitantes/novo/modal', [VisitanteController::class, 'form_criar'])->name('visitantes.form_criar');
         Route::get('/visitantes/historico', [VisitanteController::class, 'historico'])->name('visitantes.historico');
         Route::get('/visitantes/export', [VisitanteController::class, 'export'])->name('visitantes.export');
         Route::post('/visitantes/search', [VisitanteController::class, 'search'])->name('visitantes.search');
+        Route::get('/visitantes/quick-search', [VisitanteController::class, 'quickSearch'])->name('visitantes.quick_search');
+        Route::post('/visitantes/registrar-presenca', [VisitanteController::class, 'registrarPresenca'])->name('visitantes.registrar_presenca');
         Route::get('/visitantes/{id}', [VisitanteController::class, 'exibir'])->name('visitantes.exibir');
         Route::get('/visitantes/editar/{id}', [VisitanteController::class, 'form_editar'])->name('visitantes.form_editar');
         Route::put('/visitantes/{id}', [VisitanteController::class, 'update'])->name('visitantes.update');
@@ -222,6 +225,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         
         Route::post('/cultos', [CultoController::class, 'store'])->name('cultos.store');
         Route::get('/cultos/agenda', [CultoController::class, 'agenda'])->name('cultos.agenda');
+        Route::get('/cultos/painel', [CultoController::class, 'painel'])->name('cultos.painel');
         Route::get('/cultos/historico', [CultoController::class, 'index'])->name('cultos.historico');
         Route::post('cultos/search', [CultoController::class, 'search'])->name('cultos.search');
         Route::get('/cultos/agendamento', [CultoController::class, 'create'])->name('cultos.create');

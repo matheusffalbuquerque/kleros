@@ -4,9 +4,12 @@
     $editTexts = $visitors['edit'];
 @endphp
 
-<form action="{{ route('visitantes.update', $visitante->id) }}" method="post">
+<form action="{{ route('visitantes.update', $visitante->id) }}" method="post"
+    class="painel-visitante-editar-form"
+    data-visitante-id="{{ $visitante->id }}">
     @csrf
     @method('PUT')
+    <input type="hidden" name="return_to" value="{{ old('return_to', $returnTo ?? request('return_to')) }}">
 
     @if ($errors->any())
         <div class="alert alert-danger">

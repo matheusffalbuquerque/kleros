@@ -85,7 +85,7 @@
                                 <a href="{{ route('index') }}"><li><i class="bi bi-kanban"></i> Controle</li></a>
                                 <a href="{{ route('membros.painel') }}"><li><i class="bi bi-people"></i> Membros</li></a>
                                 <a href="{{ route('cadastros.index') }}"><li><i class="bi bi-journals"></i> Cadastros</li></a>
-                                <a href="{{ route('visitantes.adicionar') }}"><li><i class="bi bi-people-fill"></i> Visitantes</li></a>
+                                <a href="{{ route('cultos.painel') }}"><li><i class="bi bi-bell"></i> Culto do dia</li></a>
                                 <a href="{{ route('programacoes.painel') }}"><li><i class="bi bi-collection"></i> Programações</li></a>
                             @else
                                 <a href="{{ route('index') }}"><li><i class="bi bi-kanban"></i> Controle</li></a>
@@ -185,7 +185,7 @@
                             <a href="{{route('membros.painel')}}"><li><span title="Membros"><i class="bi bi-people"></i></span><span>Membros</span></li></a>
                             <a href="{{route('agenda.index')}}"><li><span title="Agenda"><i class="bi bi-calendar3"></i></span><span>Agenda</span></li></a>
                             <a href="{{route('eventos.agenda')}}"><li><span title="Eventos"><i class="bi bi-calendar-event"></i></span><span>Eventos</span></li></a>
-                            <a href="{{route('cultos.agenda')}}"><li><span title="Cultos"><i class="bi bi-bell"></i></span><span>Cultos</span></li></a>
+                            <a href="{{route('cultos.painel')}}"><li><span title="Cultos"><i class="bi bi-bell"></i></span><span>Cultos</span></li></a>
                             <a href="{{route('reunioes.painel')}}"><li><span title="Reuniões"><i class="bi bi-people-fill"></i></span><span>Reuniões</span></li></a>
                             <a href="{{route('avisos.painel')}}"><li><span title="Mensagens"><i class="bi bi-envelope"></i></span><span>Mensagens</span></li></a>
                             <a href="{{route('visitantes.historico')}}"><li><span title="Visitantes"><i class="bi bi-person-raised-hand"></i></span><span>Visitantes</span></li></a>
@@ -240,6 +240,12 @@
                     </ul>
                 </nav>
                 @yield('content')
+
+                @if (module_enabled('recados'))
+                    <a href="{{ url('/recados/adicionar') }}" class="float-btn nao-imprimir" title="Recados">
+                        <i class="bi bi-chat-left-dots"></i>
+                    </a>
+                @endif
 
                 
             </main>
