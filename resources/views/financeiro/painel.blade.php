@@ -102,9 +102,12 @@
             </div>
         </div>
     </div>
+
+    {{-- Componente Livewire da Calculadora --}}
+    @livewire('calculadora')
+    
 </div>
 @endsection
-
 @push('scripts')
 <script>
     $(document).ready(function () {
@@ -189,4 +192,5 @@
         });
     });
 </script>
+        
 @endpush

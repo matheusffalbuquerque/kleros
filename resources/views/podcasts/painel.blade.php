@@ -16,7 +16,7 @@
                         <div class="noticia-card">
                             <img src="{{ $item['imagem'] ?? asset('images/podcast.png') }}" alt="{{ $item['titulo'] }}" class="noticia-img">
                             @if(!empty($item['has_audio']) && $item['has_audio'])
-                                <button class="play-central" data-audio="{{ $item['media_url'] }}" data-title="{{ $item['titulo'] }}">
+                                <button class="play-central" onclick="window.dispatchEvent(new CustomEvent('playAudio', { detail: { audioUrl: '{{ $item['media_url'] }}', title: '{{ addslashes($item['titulo']) }}' } }))">
                                     <i class="bi bi-play-circle"></i> Ouvir no player
                                 </button>
                             @endif
@@ -43,43 +43,9 @@
         </div>
     </div>
 </div>
-<div class="podcast-menu-bar">
-  <div class="podcast-player-container">
-    <audio id="podcast-player" class="js-podcast-player" controls></audio>
-    <span id="podcast-title" class="podcast-title">Selecione um episódio...</span>
-  </div>
 
-  <!-- Menu -->
-  <ul class="podcast-menu">
-    <li><a href="#teologia" class="play-btn" data-audio="URL_PODCAST_1" data-title="BTCast #101"><i class="bi bi-share"></i></a></li>
-    <li><a href="#teologia" class="play-btn" data-audio="URL_PODCAST_1" data-title="BTCast #101"><i class="bi bi-heart"></i></a></li>
-  </ul>
-</div>
 @endsection
 
 @push('scripts')
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const player = new Plyr('#podcast-player');
-  const titleEl = document.getElementById('podcast-title');
-
-  document.querySelectorAll('[data-audio]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      const audioUrl = btn.getAttribute('data-audio');
-      const audioTitle = btn.getAttribute('data-title') ?? 'Tocando...';
-
-      player.source = {
-        type: 'audio',
-        sources: [{ src: audioUrl, type: 'audio/mp3' }]
-      };
-
-      titleEl.textContent = audioTitle;
-      player.play();
-    });
-  });
-});
-</script>
-
+{{-- Scripts adicionais se necessário --}}
 @endpush

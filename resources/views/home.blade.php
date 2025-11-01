@@ -109,6 +109,160 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* Previne overflow horizontal global */
+    .container {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+    
+    .info {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+    /* Estilos da Galeria de Aniversariantes */
+    .aniversariantes-container,
+    .visitantes-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden; /* Evita scroll horizontal */
+    }
+
+    .galeria-viewport {
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+        padding: 10px 0;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    .galeria-track {
+        display: flex;
+        gap: 15px;
+        padding: 0 15px; /* Padding interno para não cortar cards */
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+        box-sizing: border-box;
+    }
+
+    .galeria-item {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        min-width: 220px;
+        max-width: 280px;
+        box-sizing: border-box;
+    }
+
+    .galeria-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s ease;
+        font-size: 1.3rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .galeria-nav:hover:not(:disabled) {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .galeria-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        border-color: #ccc;
+        color: #ccc;
+    }
+
+    .galeria-prev {
+        left: 5px;
+    }
+
+    .galeria-next {
+        right: 5px;
+    }
+
+    .galeria-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .galeria-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        border: 2px solid var(--primary-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .galeria-indicator.active {
+        background: var(--primary-color);
+        transform: scale(1.2);
+    }
+
+    /* Responsividade da Galeria */
+    @media (max-width: 768px) {
+        .galeria-item {
+            min-width: 200px;
+            max-width: 240px;
+        }
+        
+        .galeria-nav {
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+        }
+        
+        .galeria-prev {
+            left: -10px;
+        }
+        
+        .galeria-next {
+            right: -10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .galeria-item {
+            min-width: 180px;
+            max-width: 220px;
+        }
+        
+        .galeria-nav {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+        
+        .galeria-prev {
+            left: -5px;
+        }
+        
+        .galeria-next {
+            right: -5px;
+        }
+    }
 </style>
 @endpush
 
@@ -280,22 +434,33 @@
 
     <div class="info">
         <h3>{{ $dashboard['birthdays']['heading'] }}</h3>
-        <div class="card-container">
+        <div id="aniversariantes-galeria" class="aniversariantes-container">
             @if ($aniversariantes && $aniversariantes->count())
-                @foreach ($aniversariantes as $item)
-                    @php $birthDate = new DateTime($item->data_nascimento); @endphp
-                    <div class="card">
-                        <div class="card-date"><i class="bi bi-cake2"></i> {{ $birthDate->format('d/m') }}</div>
-                        <div class="card-title">{{ $item->nome }}</div>
-                        <div class="card-owner">
-                            @if ($item->ministerio)
-                                {{ $item->ministerio->titulo }}
-                            @else
-                                {{ $dashboard['birthdays']['no_ministry'] }}
-                            @endif
-                        </div>
+                <button class="galeria-nav galeria-prev" aria-label="Anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="galeria-viewport">
+                    <div class="galeria-track">
+                        @foreach ($aniversariantes as $item)
+                            @php $birthDate = new DateTime($item->data_nascimento); @endphp
+                            <div class="card galeria-item">
+                                <div class="card-date"><i class="bi bi-cake2"></i> {{ $birthDate->format('d/m') }}</div>
+                                <div class="card-title">{{ $item->nome }}</div>
+                                <div class="card-owner">
+                                    @if ($item->ministerio)
+                                        {{ $item->ministerio->titulo }}
+                                    @else
+                                        {{ $dashboard['birthdays']['no_ministry'] }}
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
+                <button class="galeria-nav galeria-next" aria-label="Próximo">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <div class="galeria-indicators"></div>
             @else
                 <div class="card">
                     <p><i class="bi bi-cake2"></i> {{ $dashboard['birthdays']['empty'] }}</p>
@@ -306,15 +471,26 @@
 
     <div class="info">
         <h3>{{ $dashboard['visitors']['heading'] }}</h3>
-        <div class="card-container">
+        <div id="visitantes-galeria" class="visitantes-container">
             @if ($visitantes && $visitantes->count())
-                @foreach ($visitantes as $visitante)
-                    <div class="info_item">
-                        <div class="card-title"><i class="bi bi-person-raised-hand"></i> {{ $visitante->nome }}</div>
-                        <div class="card-owner">{{ optional($visitante->sit_visitante)->titulo }}</div>
-                        <div class="card-description">{{ $visitante->observacoes }}</div>
+                <button class="galeria-nav galeria-prev" aria-label="Anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="galeria-viewport">
+                    <div class="galeria-track">
+                        @foreach ($visitantes as $visitante)
+                            <div class="card galeria-item">
+                                <div class="card-title"><i class="bi bi-person-raised-hand"></i> {{ $visitante->nome }}</div>
+                                <div class="card-owner">{{ optional($visitante->sit_visitante)->titulo }}</div>
+                                <div class="card-description">{{ $visitante->observacoes }}</div>
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
+                <button class="galeria-nav galeria-next" aria-label="Próximo">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <div class="galeria-indicators"></div>
             @else
                 <div class="card">
                     <p><i class="bi bi-exclamation-triangle"></i> {{ $dashboard['visitors']['empty'] }}</p>
@@ -327,39 +503,287 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Gráfico de Grupos
         const chartEl = document.getElementById('groupsDashboardChart');
-        if (!chartEl) {
-            return;
+        if (chartEl) {
+            let data = [];
+            try {
+                data = JSON.parse(chartEl.dataset.chart || '[]');
+            } catch (error) {
+                console.warn('Chart data parse error.', error);
+            }
+
+            if (!Array.isArray(data) || data.length === 0) {
+                chartEl.innerHTML = `<p class="hint">{{ $dashboard['chart']['empty'] }}</p>`;
+            } else {
+                const formatter = new Intl.NumberFormat(@json($intlLocale));
+                const maxValue = data.reduce((max, item) => Math.max(max, Number(item.value) || 0), 0) || 1;
+
+                chartEl.innerHTML = data.map((item) => {
+                    const absolute = Number(item.value) || 0;
+                    const width = Math.max(8, Math.round((absolute / maxValue) * 100));
+                    return `
+                        <div class="chart-item">
+                            <header>
+                                <span>${item.label}</span>
+                                <span class="value">${formatter.format(absolute)}</span>
+                            </header>
+                            <div class="chart-bar"><span style="width: ${width}%;"></span></div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
-        let data = [];
-        try {
-            data = JSON.parse(chartEl.dataset.chart || '[]');
-        } catch (error) {
-            console.warn('Chart data parse error.', error);
+        // Galeria de Aniversariantes
+        const galeriaContainer = document.getElementById('aniversariantes-galeria');
+        if (galeriaContainer) {
+            const track = galeriaContainer.querySelector('.galeria-track');
+            const prevBtn = galeriaContainer.querySelector('.galeria-prev');
+            const nextBtn = galeriaContainer.querySelector('.galeria-next');
+            const indicators = galeriaContainer.querySelector('.galeria-indicators');
+            const items = galeriaContainer.querySelectorAll('.galeria-item');
+
+            if (track && items.length > 0) {
+                let currentPage = 0;
+                let itemsPerPage = 1;
+
+                // Calcula quantos items completos cabem na tela
+                function calculateItemsPerPage() {
+                    const viewport = galeriaContainer.querySelector('.galeria-viewport');
+                    const viewportWidth = viewport.offsetWidth;
+                    const itemWidth = items[0].offsetWidth;
+                    const gap = 15;
+                    
+                    // Calcula quantos items completos cabem (arredonda para baixo)
+                    itemsPerPage = Math.floor(viewportWidth / (itemWidth + gap));
+                    itemsPerPage = Math.max(1, itemsPerPage); // No mínimo 1
+                    
+                    return itemsPerPage;
+                }
+
+                // Calcula total de páginas
+                function getTotalPages() {
+                    return Math.ceil(items.length / itemsPerPage);
+                }
+
+                // Atualiza a posição da galeria
+                function updateGallery() {
+                    const itemWidth = items[0].offsetWidth;
+                    const gap = 15;
+                    const trackPadding = 15; // Padding do track
+                    const offset = (currentPage * itemsPerPage * (itemWidth + gap)) + trackPadding;
+                    track.style.transform = `translateX(-${offset}px)`;
+                    
+                    // Atualiza botões
+                    prevBtn.disabled = currentPage === 0;
+                    nextBtn.disabled = currentPage >= getTotalPages() - 1;
+                    
+                    // Atualiza indicadores
+                    updateIndicators();
+                }
+
+                // Cria indicadores de página
+                function createIndicators() {
+                    const totalPages = getTotalPages();
+                    if (totalPages <= 1) {
+                        indicators.innerHTML = '';
+                        return;
+                    }
+                    
+                    indicators.innerHTML = '';
+                    for (let i = 0; i < totalPages; i++) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'galeria-indicator';
+                        if (i === currentPage) indicator.classList.add('active');
+                        indicator.addEventListener('click', () => {
+                            currentPage = i;
+                            updateGallery();
+                        });
+                        indicators.appendChild(indicator);
+                    }
+                }
+
+                // Atualiza indicadores ativos
+                function updateIndicators() {
+                    const allIndicators = indicators.querySelectorAll('.galeria-indicator');
+                    allIndicators.forEach((ind, idx) => {
+                        ind.classList.toggle('active', idx === currentPage);
+                    });
+                }
+
+                // Navegação
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        updateGallery();
+                    }
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < getTotalPages() - 1) {
+                        currentPage++;
+                        updateGallery();
+                    }
+                });
+
+                // Suporte a touch/swipe
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                track.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                });
+                
+                track.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                });
+                
+                function handleSwipe() {
+                    const swipeThreshold = 50;
+                    if (touchStartX - touchEndX > swipeThreshold) {
+                        // Swipe left (next)
+                        nextBtn.click();
+                    } else if (touchEndX - touchStartX > swipeThreshold) {
+                        // Swipe right (prev)
+                        prevBtn.click();
+                    }
+                }
+
+                // Inicialização e resize
+                function init() {
+                    calculateItemsPerPage();
+                    currentPage = 0;
+                    createIndicators();
+                    updateGallery();
+                }
+
+                init();
+                
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(init, 250);
+                });
+            }
         }
 
-        if (!Array.isArray(data) || data.length === 0) {
-            chartEl.innerHTML = `<p class="hint">{{ $dashboard['chart']['empty'] }}</p>`;
-            return;
+        // Galeria de Visitantes (mesma lógica da galeria de aniversariantes)
+        const visitantesContainer = document.getElementById('visitantes-galeria');
+        if (visitantesContainer) {
+            const track = visitantesContainer.querySelector('.galeria-track');
+            const prevBtn = visitantesContainer.querySelector('.galeria-prev');
+            const nextBtn = visitantesContainer.querySelector('.galeria-next');
+            const indicators = visitantesContainer.querySelector('.galeria-indicators');
+            const items = visitantesContainer.querySelectorAll('.galeria-item');
+
+            if (track && items.length > 0) {
+                let currentPage = 0;
+                let itemsPerPage = 1;
+
+                function calculateItemsPerPage() {
+                    const viewport = visitantesContainer.querySelector('.galeria-viewport');
+                    const viewportWidth = viewport.offsetWidth;
+                    const itemWidth = items[0].offsetWidth;
+                    const gap = 15;
+                    itemsPerPage = Math.floor(viewportWidth / (itemWidth + gap));
+                    itemsPerPage = Math.max(1, itemsPerPage);
+                    return itemsPerPage;
+                }
+
+                function getTotalPages() {
+                    return Math.ceil(items.length / itemsPerPage);
+                }
+
+                function updateGallery() {
+                    const itemWidth = items[0].offsetWidth;
+                    const gap = 15;
+                    const trackPadding = 15; // Padding do track
+                    const offset = (currentPage * itemsPerPage * (itemWidth + gap)) + trackPadding;
+                    track.style.transform = `translateX(-${offset}px)`;
+                    prevBtn.disabled = currentPage === 0;
+                    nextBtn.disabled = currentPage >= getTotalPages() - 1;
+                    updateIndicators();
+                }
+
+                function createIndicators() {
+                    const totalPages = getTotalPages();
+                    if (totalPages <= 1) {
+                        indicators.innerHTML = '';
+                        return;
+                    }
+                    indicators.innerHTML = '';
+                    for (let i = 0; i < totalPages; i++) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'galeria-indicator';
+                        if (i === currentPage) indicator.classList.add('active');
+                        indicator.addEventListener('click', () => {
+                            currentPage = i;
+                            updateGallery();
+                        });
+                        indicators.appendChild(indicator);
+                    }
+                }
+
+                function updateIndicators() {
+                    const allIndicators = indicators.querySelectorAll('.galeria-indicator');
+                    allIndicators.forEach((ind, idx) => {
+                        ind.classList.toggle('active', idx === currentPage);
+                    });
+                }
+
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        updateGallery();
+                    }
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < getTotalPages() - 1) {
+                        currentPage++;
+                        updateGallery();
+                    }
+                });
+
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                track.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                });
+                
+                track.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                });
+                
+                function handleSwipe() {
+                    const swipeThreshold = 50;
+                    if (touchStartX - touchEndX > swipeThreshold) {
+                        nextBtn.click();
+                    } else if (touchEndX - touchStartX > swipeThreshold) {
+                        prevBtn.click();
+                    }
+                }
+
+                function init() {
+                    calculateItemsPerPage();
+                    currentPage = 0;
+                    createIndicators();
+                    updateGallery();
+                }
+
+                init();
+                
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(init, 250);
+                });
+            }
         }
-
-        const formatter = new Intl.NumberFormat(@json($intlLocale));
-        const maxValue = data.reduce((max, item) => Math.max(max, Number(item.value) || 0), 0) || 1;
-
-        chartEl.innerHTML = data.map((item) => {
-            const absolute = Number(item.value) || 0;
-            const width = Math.max(8, Math.round((absolute / maxValue) * 100));
-            return `
-                <div class="chart-item">
-                    <header>
-                        <span>${item.label}</span>
-                        <span class="value">${formatter.format(absolute)}</span>
-                    </header>
-                    <div class="chart-bar"><span style="width: ${width}%;"></span></div>
-                </div>
-            `;
-        }).join('');
     });
 </script>
 @endpush

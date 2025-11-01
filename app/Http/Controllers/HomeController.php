@@ -131,7 +131,14 @@ class HomeController extends Controller
             Se não houver ele envia uma informação vazia, com mensagem sobre a ausencia de aniversariantes.
         */
 
-        $aniversariantes = Membro::DaCongregacao()->whereMonth('data_nascimento', Carbon::now()->month)->orderBy('data_nascimento', 'asc')->get();
+        // Busca aniversariantes do mês atual ordenados a partir do dia de hoje
+        $hoje = Carbon::now();
+        $diaAtual = $hoje->day;
+        
+        $aniversariantes = Membro::DaCongregacao()
+            ->whereMonth('data_nascimento', $hoje->month)
+            ->orderByRaw("DAY(data_nascimento) >= ? DESC, DAY(data_nascimento) ASC", [$diaAtual])
+            ->get();
 
         if($aniversariantes->isEmpty()) {
             $aniversariantes = '';

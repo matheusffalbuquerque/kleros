@@ -240,15 +240,12 @@
                     </ul>
                 </nav>
                 @yield('content')
-
-                @if (module_enabled('recados'))
-                    <a href="{{ url('/recados/adicionar') }}" class="float-btn nao-imprimir" title="Recados">
-                        <i class="bi bi-chat-left-dots"></i>
-                    </a>
-                @endif
-
                 
             </main>
+            
+            <!-- Audio Player Global - Fora do Livewire -->
+            @include('partials.audio-player')
+            
             <footer>
                 <p>Sistema de Gestão Interna | {{$congregacao->nome_curto}} - {{optional($congregacao->cidade)->nome}}/{{optional($congregacao->estado)->uf}}</p>
                 @if($congregacao->cnpj) <h4>CNPJ {{$congregacao->cnpj}}</h4> @endif

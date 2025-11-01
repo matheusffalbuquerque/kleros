@@ -5,48 +5,81 @@
 }
 
 #login {
-    
-    /*background-color: #9acbe7;*/
     background-position: center;
-    height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    padding: 20px; // Padding mínimo para evitar cortes nas bordas
+    box-sizing: border-box;
+    overflow-y: auto; // Permite scroll quando necessário
+    
+    // Overlay sutil para melhorar legibilidade
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+        z-index: 1;
+    }
 }
 
 #login .login-container {
-    background-color: rgba(255, 255, 255, 0.9);;
-    padding: 20px 40px 40px 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px 45px 30px 45px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 50px; // Espaço para o rodapé fixo
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
 }
 
 #login .login-container img {
     display: block;
-    margin: 0 auto;
-    width: 150px; /* Adjust as needed */
-    height: auto; /* Maintain aspect ratio */
+    margin: 0 auto 15px;
+    width: 140px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 #login .login-container h2 {
     text-align: center;
-    margin: 24px auto 5px;
-    color: #333;
+    margin: 0 auto 10px;
+    color: #1a202c;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
 
 #login .login-container .login-hint {
-    margin: 0 auto 16px;
+    margin: 0 auto 28px;
     text-align: center;
-    color: #6b7280;
+    color: #64748b;
     font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 #login .login-container label {
     display: block;
-    margin-bottom: 6px;
-    color: #555;
+    margin-bottom: 8px;
+    color: #334155;
+    font-weight: 500;
+    font-size: 0.95rem;
 }
 
 #login .login-container input[type="text"],
@@ -55,47 +88,226 @@
 #login .login-container input[type="number"],
 #login .login-container input[type="tel"] {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 18px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    font-size: 1em;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+    
+    &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 103, 123, 150), 0.1);
+    }
+    
+    &:hover:not(:focus) {
+        border-color: #cbd5e1;
+    }
 }
 
 #login .login-container .alert-error {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    color: #530b0b;
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
+    gap: 10px;
+    color: #991b1b;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #login .login-container .alert-error i {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 #login .login-container button {
     width: 100%;
     color: var(--primary-contrast);
     border: none;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     font-family: var(--text-font);
-    font-size: 18px;
-    padding: 8px;
-    min-width: 150px;
-    margin: 5px;
-    background-color: var(--primary-color);
+    font-size: 1.05rem;
+    padding: 13px 24px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border-radius: var(--border-style);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    letter-spacing: 0.3px;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    }
+    
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
 }
 
-#login .login-container button:hover {
-    cursor: pointer;
-    background-color: var(--secondary-color);
-    color: var(--secondary-contrast);
+#login .login-container .link-standard {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        color: var(--secondary-color);
+        text-decoration: underline;
+    }
+}
+
+// Faixa fixa no rodapé
+#login .login-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+// Media Queries para Responsividade
+@media (max-width: 768px) {
+    #login {
+        padding: 50px 15px;
+    }
+    
+    #login .login-container {
+        max-width: 380px;
+        padding: 30px 35px 35px 35px;
+        margin: 0;
+    }
+    
+    #login .login-container img {
+        width: 120px;
+        margin-bottom: 12px;
+    }
+    
+    #login .login-container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    #login .login-container .login-hint {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    
+    #login .login-footer {
+        font-size: 0.8rem;
+        padding: 8px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    #login {
+        padding: 40px 10px;
+    }
+    
+    #login .login-container {
+        max-width: 100%;
+        padding: 25px 25px 30px 25px;
+        margin: 0;
+        border-radius: 12px;
+    }
+    
+    #login .login-container img {
+        width: 100px;
+        margin-bottom: 10px;
+    }
+    
+    #login .login-container h2 {
+        font-size: 1.35rem;
+        margin-bottom: 6px;
+    }
+    
+    #login .login-container .login-hint {
+        font-size: 0.85rem;
+        margin-bottom: 18px;
+    }
+    
+    #login .login-container label {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+    
+    #login .login-container input[type="text"],
+    #login .login-container input[type="password"],
+    #login .login-container input[type="email"],
+    #login .login-container input[type="number"],
+    #login .login-container input[type="tel"] {
+        padding: 10px 12px;
+        margin-bottom: 16px;
+        font-size: 0.95rem;
+    }
+    
+    #login .login-container button {
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+    
+    #login .login-container .link-standard {
+        font-size: 0.9rem;
+    }
+    
+    #login .login-footer {
+        font-size: 0.7rem;
+        padding: 7px 10px;
+        letter-spacing: 0.3px;
+    }
+}
+
+@media (max-width: 360px) {
+    #login {
+        padding: 30px 8px;
+    }
+    
+    #login .login-container {
+        padding: 20px 20px 25px 20px;
+        margin: 0;
+    }
+    
+    #login .login-container img {
+        width: 90px;
+    }
+    
+    #login .login-container h2 {
+        font-size: 1.25rem;
+    }
+    
+    #login .login-footer {
+        font-size: 0.65rem;
+        padding: 6px 8px;
+    }
 }

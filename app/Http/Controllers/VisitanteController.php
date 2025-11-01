@@ -9,6 +9,7 @@ use App\Models\Visitante;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VisitanteController extends Controller
@@ -212,14 +213,37 @@ class VisitanteController extends Controller
             'data_visita.required' => __('visitors.validation.date_required'),
         ]);
 
-        $visitante->nome = $request->nome;
-        $visitante->telefone = $request->telefone;
-        $visitante->data_visita = $request->data_visita;
-        $visitante->sit_visitante_id = $request->sit_visitante;
-        $visitante->observacoes = $request->observacoes;
-        $visitante->updated_at = now();
+        $congregacaoId = app('congregacao')->id;
+        $oldName = $visitante->nome;
 
-        $visitante->save();
+        DB::transaction(function () use ($visitante, $request, $oldName, $congregacaoId) {
+            $visitante->nome = $request->nome;
+            $visitante->telefone = $request->telefone;
+            $visitante->data_visita = $request->data_visita;
+            $visitante->sit_visitante_id = $request->sit_visitante;
+            $visitante->observacoes = $request->observacoes;
+            $visitante->updated_at = now();
+            $visitante->save();
+
+            if (Str::lower($oldName) !== Str::lower($visitante->nome)) {
+                Visitante::where('congregacao_id', $congregacaoId)
+                    ->where('nome', $oldName)
+                    ->update(['nome' => $visitante->nome]);
+            }
+        });
+
+        $visitante->refresh();
+
+        $totalVisitas = Visitante::where('congregacao_id', $congregacaoId)
+            ->where('nome', $visitante->nome)
+            ->where(function ($query) use ($visitante) {
+                if ($visitante->telefone) {
+                    $query->where('telefone', $visitante->telefone);
+                } else {
+                    $query->whereNull('telefone');
+                }
+            })
+            ->count();
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -230,6 +254,7 @@ class VisitanteController extends Controller
                     'situacao' => optional($visitante->sit_visitante)->titulo,
                     'edit_url' => route('visitantes.form_editar', $visitante->id),
                     'destroy_url' => route('visitantes.destroy', $visitante->id),
+                    'visitas' => $totalVisitas,
                 ],
                 'message' => __('visitors.flash.updated', ['name' => $visitante->nome]),
             ]);
@@ -289,41 +314,93 @@ class VisitanteController extends Controller
             $selectedDate = Carbon::today()->format('Y-m-d');
         }
 
-        $visitantes = Visitante::with('sit_visitante')
-            ->where('congregacao_id', $congregacaoId)
+        $agrupados = Visitante::where('congregacao_id', $congregacaoId)
             ->where(function ($query) use ($term) {
                 $query->where('nome', 'LIKE', '%' . $term . '%')
                     ->orWhere('telefone', 'LIKE', '%' . $term . '%');
             })
-            ->orderByDesc('data_visita')
+            ->select(
+                'nome',
+                'telefone',
+                DB::raw('MAX(id) as latest_id'),
+                DB::raw('MAX(data_visita) as latest_data')
+            )
+            ->groupBy('nome', 'telefone')
+            ->orderByDesc(DB::raw('MAX(data_visita)'))
             ->limit(10)
             ->get();
+
+        $visitantesMap = collect();
+
+        if ($agrupados->isNotEmpty()) {
+            $visitantesMap = Visitante::with('sit_visitante')
+                ->whereIn('id', $agrupados->pluck('latest_id'))
+                ->get()
+                ->keyBy('id');
+        }
+
+        $countsMap = collect();
+
+        if ($agrupados->isNotEmpty()) {
+            $countsQuery = Visitante::where('congregacao_id', $congregacaoId)
+                ->select('nome', 'telefone', DB::raw('COUNT(*) as total'))
+                ->groupBy('nome', 'telefone');
+
+            $countsQuery->where(function ($query) use ($agrupados) {
+                foreach ($agrupados as $item) {
+                    $query->orWhere(function ($subQuery) use ($item) {
+                        $subQuery->where('nome', $item->nome);
+
+                        if ($item->telefone) {
+                            $subQuery->where('telefone', $item->telefone);
+                        } else {
+                            $subQuery->whereNull('telefone');
+                        }
+                    });
+                }
+            });
+
+            $countsMap = $countsQuery->get()->mapWithKeys(function ($item) {
+                $key = mb_strtolower($item->nome) . '|' . mb_strtolower($item->telefone ?? '');
+                return [$key => (int) $item->total];
+            });
+        }
 
         $registradosDoDia = Visitante::where('congregacao_id', $congregacaoId)
             ->whereDate('data_visita', $selectedDate)
             ->get();
 
-        $results = $visitantes->map(function (Visitante $visitante) use ($registradosDoDia) {
-            $visitanteNome = Str::lower($visitante->nome);
-            $visitanteTelefone = $visitante->telefone;
+        $results = $agrupados->map(function ($item) use ($visitantesMap, $registradosDoDia, $countsMap) {
+            /** @var Visitante|null $visitante */
+            $visitante = $visitantesMap[$item->latest_id] ?? null;
 
-            $alreadyRegistered = $registradosDoDia->contains(function ($item) use ($visitanteNome, $visitanteTelefone) {
-                if (Str::lower($item->nome) !== $visitanteNome) {
+            $nome = $item->nome;
+            $telefone = $item->telefone;
+
+            $visitanteNomeLower = Str::lower($nome);
+            $visitanteTelefoneLower = Str::lower($telefone ?? '');
+
+            $alreadyRegistered = $registradosDoDia->contains(function ($registro) use ($visitanteNomeLower, $telefone) {
+                if (Str::lower($registro->nome) !== $visitanteNomeLower) {
                     return false;
                 }
 
-                if (!$visitanteTelefone) {
-                    return true;
+                if (!$telefone) {
+                    return $registro->telefone === null;
                 }
 
-                return $item->telefone === $visitanteTelefone;
+                return $registro->telefone === $telefone;
             });
 
+            $key = $visitanteNomeLower . '|' . $visitanteTelefoneLower;
+            $totalVisitas = $countsMap[$key] ?? 1;
+
             return [
-                'id' => $visitante->id,
-                'nome' => $visitante->nome,
-                'telefone' => $visitante->telefone,
-                'situacao' => optional($visitante->sit_visitante)->titulo,
+                'id' => $visitante ? $visitante->id : $item->latest_id,
+                'nome' => $nome,
+                'telefone' => $telefone,
+                'situacao' => $visitante ? optional($visitante->sit_visitante)->titulo : null,
+                'visitas' => $totalVisitas,
                 'already_registered' => $alreadyRegistered,
             ];
         });
@@ -358,12 +435,27 @@ class VisitanteController extends Controller
         $jaRegistrado = Visitante::where('congregacao_id', $congregacaoId)
             ->whereDate('data_visita', $dataVisita)
             ->where('nome', $visitanteBase->nome)
-            ->where('telefone', $visitanteBase->telefone)
+            ->when($visitanteBase->telefone, function ($query, $telefone) {
+                $query->where('telefone', $telefone);
+            }, function ($query) {
+                $query->whereNull('telefone');
+            })
             ->orderByDesc('id')
             ->first();
 
         if ($jaRegistrado) {
             $jaRegistrado->loadMissing('sit_visitante');
+
+            $totalVisitas = Visitante::where('congregacao_id', $congregacaoId)
+                ->where('nome', $jaRegistrado->nome)
+                ->where(function ($query) use ($jaRegistrado) {
+                    if ($jaRegistrado->telefone) {
+                        $query->where('telefone', $jaRegistrado->telefone);
+                    } else {
+                        $query->whereNull('telefone');
+                    }
+                })
+                ->count();
 
             return response()->json([
                 'visitante' => [
@@ -373,6 +465,7 @@ class VisitanteController extends Controller
                     'situacao' => optional($jaRegistrado->sit_visitante)->titulo,
                     'edit_url' => route('visitantes.form_editar', $jaRegistrado->id),
                     'destroy_url' => route('visitantes.destroy', $jaRegistrado->id),
+                    'visitas' => $totalVisitas,
                 ],
                 'already_registered' => true,
             ]);
@@ -390,6 +483,17 @@ class VisitanteController extends Controller
         $novoVisitante->save();
         $novoVisitante->setRelation('sit_visitante', $visitanteBase->sit_visitante);
 
+        $totalVisitas = Visitante::where('congregacao_id', $congregacaoId)
+            ->where('nome', $novoVisitante->nome)
+            ->where(function ($query) use ($novoVisitante) {
+                if ($novoVisitante->telefone) {
+                    $query->where('telefone', $novoVisitante->telefone);
+                } else {
+                    $query->whereNull('telefone');
+                }
+            })
+            ->count();
+
         return response()->json([
             'visitante' => [
                 'id' => $novoVisitante->id,
@@ -398,6 +502,7 @@ class VisitanteController extends Controller
                 'situacao' => optional($novoVisitante->sit_visitante)->titulo,
                 'edit_url' => route('visitantes.form_editar', $novoVisitante->id),
                 'destroy_url' => route('visitantes.destroy', $novoVisitante->id),
+                'visitas' => $totalVisitas,
             ],
             'already_registered' => false,
         ]);

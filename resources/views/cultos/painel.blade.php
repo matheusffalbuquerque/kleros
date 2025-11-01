@@ -157,21 +157,25 @@
             @endif
             <div class="list" id="painel-visitantes-registrados-list" @if ($visitantesDia->isEmpty()) hidden @endif>
             <div class="list-title">
-                <div class="item item-2"><b>Nome</b></div>
+                <div class="item item-15"><b>Nome</b></div>
                 <div class="item item-1"><b>Telefone</b></div>
-                <div class="item item-1"><b>Situação</b></div>
+                <div class="item item-15"><b>Situação</b></div>
+                <div class="item item-05"><b>Visitas</b></div>
             </div>
             <div id="painel-visitantes-registrados-itens">
                 @foreach ($visitantesDia as $visitante)
                     <div class="list-item taggable-item" data-visitante-id="{{ $visitante->id }}">
-                        <div class="item item-2" data-visitante-field="nome">
+                        <div class="item item-15" data-visitante-field="nome">
                             <p><i class="bi bi-person-raised-hand"></i> {{ $visitante->nome }}</p>
                         </div>
                         <div class="item item-1" data-visitante-field="telefone">
                             <p>{{ $visitante->telefone }}</p>
                         </div>
-                        <div class="item item-1" data-visitante-field="situacao">
+                        <div class="item item-15" data-visitante-field="situacao">
                             <p>{{ optional($visitante->sit_visitante)->titulo ?? 'Não informado' }}</p>
+                        </div>
+                        <div class="item item-05" data-visitante-field="visitas">
+                            <p>{{ $visitante->visit_count ?? 1 }}</p>
                         </div>
                         <div class="taggable-actions nao-imprimir">
                                 <div class="taggable">
@@ -201,6 +205,13 @@
             </div>
         </div>
     </div>
+
+    @if (module_enabled('recados'))
+        <a href="{{ url('/recados/adicionar') }}" class="float-btn nao-imprimir" title="Recados">
+            <i class="bi bi-chat-left-dots"></i>
+        </a>
+    @endif
+
 </div>
 
 <style>
@@ -376,7 +387,11 @@
         opacity: 0.75;
     }
 
-    .taggable-item {
+.item-05 {
+    width: 10%;
+}
+
+.taggable-item {
         gap: 1rem;
         align-items: center;
     }
@@ -606,6 +621,9 @@
             if (data.situacao) {
                 subtitlePieces.push(data.situacao);
             }
+            if (Number.isFinite(data.visitas) || (data.visitas && !Number.isNaN(parseInt(data.visitas, 10)))) {
+                subtitlePieces.push(`${data.visitas} visitas`);
+            }
             if (data.already_registered) {
                 subtitlePieces.push('Já registrado');
             }
@@ -682,7 +700,7 @@
             linha.dataset.visitanteId = visitante.id;
 
             const nomeCol = document.createElement('div');
-            nomeCol.className = 'item item-2';
+            nomeCol.className = 'item item-15';
             nomeCol.dataset.visitanteField = 'nome';
             nomeCol.innerHTML = `<p><i class="bi bi-person-raised-hand"></i> ${visitante.nome}</p>`;
 
@@ -692,9 +710,15 @@
             telefoneCol.innerHTML = `<p>${visitante.telefone ?? '—'}</p>`;
 
             const situacaoCol = document.createElement('div');
-            situacaoCol.className = 'item item-1';
+            situacaoCol.className = 'item item-15';
             situacaoCol.dataset.visitanteField = 'situacao';
             situacaoCol.innerHTML = `<p>${visitante.situacao ?? 'Não informado'}</p>`;
+
+            const visitasCol = document.createElement('div');
+            visitasCol.className = 'item item-05';
+            visitasCol.dataset.visitanteField = 'visitas';
+            const totalVisitas = visitante.visitas ?? visitante.visit_count ?? 1;
+            visitasCol.innerHTML = `<p>${totalVisitas}</p>`;
 
             const actionsWrapper = document.createElement('div');
             actionsWrapper.className = 'taggable-actions nao-imprimir';
@@ -755,6 +779,7 @@
             linha.appendChild(nomeCol);
             linha.appendChild(telefoneCol);
             linha.appendChild(situacaoCol);
+            linha.appendChild(visitasCol);
             linha.appendChild(actionsWrapper);
 
             return linha;
@@ -819,6 +844,12 @@
                 situacaoCol.textContent = visitante.situacao ?? 'Não informado';
             }
 
+            const visitasCol = item.querySelector('[data-visitante-field="visitas"] p');
+            if (visitasCol) {
+                const totalVisitas = visitante.visitas ?? visitante.visit_count ?? visitasCol.textContent;
+                visitasCol.textContent = totalVisitas;
+            }
+
             const editButton = item.querySelector('[data-role="editar-visitante"]');
             if (editButton) {
                 let editUrl = visitante.edit_url;
@@ -878,7 +909,11 @@
                     throw new Error('Resposta inesperada do servidor');
                 }
 
-                addRegistrado(payload.visitante, payload.already_registered);
+                if (payload.row_html) {
+                    insertRowFromHtml(payload.row_html, payload.visitante.id, payload.already_registered);
+                } else {
+                    addRegistrado(payload.visitante, payload.already_registered);
+                }
 
                 if (payload.already_registered) {
                     showFeedback('Visitante já consta como registrado para este culto.', 'info');

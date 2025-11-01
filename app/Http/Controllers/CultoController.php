@@ -7,6 +7,7 @@ use App\Models\Culto;
 use App\Models\Evento;
 use App\Models\SituacaoVisitante;
 use App\Models\Visitante;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -221,6 +222,21 @@ class CultoController extends Controller
             ->whereDate('data_visita', $selectedDate)
             ->orderBy('nome')
             ->get();
+
+        $visitasPorPessoa = Visitante::where('congregacao_id', $congregacao->id)
+            ->select('nome', 'telefone', DB::raw('COUNT(*) as total'))
+            ->groupBy('nome', 'telefone')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                $key = mb_strtolower(sprintf('%s|%s', $item->nome, $item->telefone));
+                return [$key => (int) $item->total];
+            });
+
+        $visitantesDia = $visitantesDia->map(function (Visitante $visitante) use ($visitasPorPessoa) {
+            $key = mb_strtolower(sprintf('%s|%s', $visitante->nome, $visitante->telefone));
+            $visitante->visit_count = $visitasPorPessoa[$key] ?? 1;
+            return $visitante;
+        });
 
         $dashboard = trans('dashboard');
         $dashboardCards = data_get($dashboard, 'general.cards', []);

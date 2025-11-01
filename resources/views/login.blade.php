@@ -7,6 +7,8 @@
     <link rel="shortcut icon" href="{{asset('storage/'.$congregacao->config->logo_caminho)}}" type="image/x-icon">
     <!-- SCSS managed by Vite -->
     @vite(['resources/css/app.scss'])
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +68,10 @@
                 </div>
             </form>
         </div>
+    </div>
+    
+    <div class="login-footer">
+        Ecossistema Kleros - Tecnologia a serviço do Reino
     </div>
 </body>
 
