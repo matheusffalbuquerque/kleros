@@ -56,6 +56,8 @@ return new class extends Migration
             $table->foreignId('cidade_id')->nullable()->constrained('cidades')->onDelete('set null');
             $table->foreignId('estado_id')->nullable()->constrained('estados')->onDelete('set null');
             $table->foreignId('pais_id')->nullable()->constrained('paises')->onDelete('set null');
+            $table->foreignId('responsavel_principal_id')->nullable()->constrained('membros')->onDelete('set null');
+            $table->json('responsavel_financeiro')->nullable();
             $table->enum('language', ['pt', 'en', 'es'])->default('pt');
             
             $table->timestamps();

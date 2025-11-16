@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Células')
+@section('title', $congregacao->nome_curto . ' | ' . $appName)
 
 @section('content')
 
@@ -12,9 +12,10 @@
             <div class="search-panel-item">
                 <label>Membro: </label>
                 <input type="text" name="" placeholder="Nome" id="membro">
+                <button class="" id="btn_filtrar"><i class="bi bi-search"></i> Procurar</button>
             </div>
             <div class="search-panel-item">
-                <button class="" id="btn_filtrar"><i class="bi bi-search"></i> Procurar</button>
+                <button class="" onclick="window.location.href='{{ route('celulas.encontros') }}'"><i class="bi bi-calendar-event"></i> Encontros</button>
                 <button class="" onclick="abrirJanelaModal('{{route('celulas.form_criar')}}')"><i class="bi bi-plus-circle"></i> Adicionar</button>
                 <button class="" onclick="window.history.back()"><i class="bi bi-arrow-return-left"></i> Voltar</button>
             </div>

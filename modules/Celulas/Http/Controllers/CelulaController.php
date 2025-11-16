@@ -4,7 +4,10 @@ namespace Modules\Celulas\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Celula;
+use App\Models\EncontroCelula;
 use App\Models\Membro;
+use App\Models\SituacaoVisitante;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +61,122 @@ class CelulaController extends Controller
         $googleMapsMapId = config('services.google_maps.map_id');
 
         return view('celulas::painel', compact('membros', 'celulas', 'celulasMapa', 'googleMapsKey', 'googleMapsMapId'));
+    }
+
+    public function encontros(Request $request)
+    {
+        $congregacao = app('congregacao');
+
+        $celulas = Celula::where('congregacao_id', $congregacao->id)
+            ->orderBy('identificacao')
+            ->get();
+
+        $selectedCelulaId = (int) $request->input('celula_id', $celulas->first()->id ?? 0) ?: null;
+
+        $selectedDateInput = $request->input('data');
+
+        try {
+            $selectedDate = $selectedDateInput
+                ? Carbon::parse($selectedDateInput)->format('Y-m-d')
+                : Carbon::today()->format('Y-m-d');
+        } catch (\Throwable $exception) {
+            $selectedDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $baseQuery = EncontroCelula::with(['celula', 'preletor', 'presentes.membro'])
+            ->where('congregacao_id', $congregacao->id);
+
+        if ($selectedCelulaId) {
+            $baseQuery->where('celula_id', $selectedCelulaId);
+        }
+
+        $encontroDoDia = (clone $baseQuery)
+            ->whereDate('data_encontro', $selectedDate)
+            ->orderByDesc('hora_encontro')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($encontroDoDia) {
+            $encontroDoDia->loadMissing('presentes.membro');
+        }
+
+        $historicoEncontros = (clone $baseQuery)
+            ->orderByDesc('data_encontro')
+            ->orderByDesc('hora_encontro')
+            ->limit(10)
+            ->get();
+
+        $situacoesVisitante = SituacaoVisitante::orderBy('titulo')->get();
+
+        $statusOptions = [
+            'pendente' => 'Pendente',
+            'confirmado' => 'Confirmado',
+            'cancelado' => 'Cancelado',
+        ];
+
+        $selectedCelula = $celulas->firstWhere('id', $selectedCelulaId);
+        $selectedDateCarbon = Carbon::parse($selectedDate);
+
+        return view('celulas::encontros', [
+            'congregacao' => $congregacao,
+            'celulas' => $celulas,
+            'selectedCelula' => $selectedCelula,
+            'selectedCelulaId' => $selectedCelulaId,
+            'selectedDate' => $selectedDate,
+            'selectedDateCarbon' => $selectedDateCarbon,
+            'encontroDoDia' => $encontroDoDia,
+            'historicoEncontros' => $historicoEncontros,
+            'situacoesVisitante' => $situacoesVisitante,
+            'statusOptions' => $statusOptions,
+        ]);
+    }
+
+    public function modalAdicionarPresente(Request $request)
+    {
+        $congregacao = app('congregacao');
+
+        $celulaId = $request->integer('celula_id') ?: null;
+        $dataInput = $request->input('data');
+
+        try {
+            $dataEncontro = $dataInput
+                ? Carbon::parse($dataInput)->format('Y-m-d')
+                : Carbon::today()->format('Y-m-d');
+        } catch (\Throwable $exception) {
+            $dataEncontro = Carbon::today()->format('Y-m-d');
+        }
+
+        $celula = null;
+
+        if ($celulaId) {
+            $celula = Celula::where('congregacao_id', $congregacao->id)->find($celulaId);
+
+            if (! $celula) {
+                $celulaId = null;
+            }
+        }
+
+        $membros = Membro::DaCongregacao()
+            ->orderBy('nome')
+            ->get();
+
+        $situacoesVisitante = SituacaoVisitante::orderBy('titulo')->get();
+
+        $panelParams = array_filter([
+            'celula_id' => $celulaId,
+            'data' => $dataEncontro,
+        ], static fn ($value) => ! is_null($value));
+
+        $panelUrl = route('celulas.encontros', $panelParams);
+
+        return view('celulas::includes.modal_presenca', [
+            'celula' => $celula,
+            'celulaId' => $celulaId,
+            'dataEncontro' => $dataEncontro,
+            'membros' => $membros,
+            'situacoesVisitante' => $situacoesVisitante,
+            'panelUrl' => $panelUrl,
+        ]);
     }
 
     public function integrantes($celulaId)

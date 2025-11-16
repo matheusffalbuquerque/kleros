@@ -119,6 +119,140 @@ export function initModalScripts(container) {
         });
     });
 
+    // --- formulário de nova pergunta em pesquisas ---
+    const perguntaForms = container.querySelectorAll('[data-pergunta-form="nova"]');
+    perguntaForms.forEach(form => {
+        if (form.dataset.ajaxInitialized === 'true') {
+            return;
+        }
+        form.dataset.ajaxInitialized = 'true';
+
+        const context = form.closest('.tab-pane') || container;
+        const perguntasList = context.querySelector('[data-perguntas-list]');
+        const emptyState = () => context.querySelector('[data-perguntas-empty]');
+        const feedback = form.querySelector('[data-pergunta-feedback]');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+        const fields = ['texto', 'tipo', 'options'];
+
+        const toggleLoading = (isLoading) => {
+            form.dataset.submitting = isLoading ? 'true' : 'false';
+            if (submitBtn) {
+                submitBtn.disabled = isLoading;
+                submitBtn.innerHTML = isLoading
+                    ? '<i class="bi bi-hourglass-split"></i> Salvando...'
+                    : originalBtnHtml;
+            }
+        };
+
+        const setErrors = (errors = {}) => {
+            fields.forEach((field) => {
+                const target = form.querySelector(`[data-error-target="${field}"]`);
+                if (!target) {
+                    return;
+                }
+                const messages = errors[field];
+                if (messages && messages.length) {
+                    target.textContent = messages[0];
+                    target.hidden = false;
+                } else {
+                    target.textContent = '';
+                    target.hidden = true;
+                }
+            });
+        };
+
+        const showFeedback = (message, type = 'success') => {
+            if (!feedback) {
+                return;
+            }
+
+            if (!message) {
+                feedback.hidden = true;
+                feedback.textContent = '';
+                feedback.classList.remove('text-error');
+                return;
+            }
+
+            feedback.textContent = message;
+            feedback.hidden = false;
+            feedback.classList.toggle('text-error', type === 'error');
+        };
+
+        const resetForm = () => {
+            form.reset();
+            const tipoSelect = form.querySelector('#tipo-novo');
+            if (tipoSelect) {
+                tipoSelect.value = 'texto';
+                tipoSelect.dispatchEvent(new Event('change'));
+            }
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            if (form.dataset.submitting === 'true') {
+                return;
+            }
+
+            toggleLoading(true);
+            setErrors();
+            showFeedback('');
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: form.method || 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData,
+            })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        if (response.status === 422 && data.errors) {
+                            setErrors(data.errors);
+                            showFeedback('Revise os campos destacados.', 'error');
+                            return;
+                        }
+
+                        const errorMessage = data.message || 'Não foi possível salvar a pergunta.';
+                        showFeedback(errorMessage, 'error');
+                        throw new Error(errorMessage);
+                    }
+
+                    const emptyEl = emptyState();
+                    if (emptyEl) {
+                        emptyEl.remove();
+                    }
+
+                    if (perguntasList && data.html) {
+                        const tempWrapper = document.createElement('div');
+                        tempWrapper.innerHTML = data.html.trim();
+                        const newCard = tempWrapper.firstElementChild;
+                        if (newCard) {
+                            perguntasList.insertAdjacentElement('afterbegin', newCard);
+                            if (typeof initModalScripts === 'function') {
+                                initModalScripts(newCard);
+                            }
+                        }
+                    }
+
+                    resetForm();
+                    showFeedback(data.message || 'Pergunta adicionada com sucesso!');
+                })
+                .catch((error) => {
+                    console.error('Falha ao adicionar pergunta:', error);
+                })
+                .finally(() => {
+                    toggleLoading(false);
+                });
+        });
+    });
+
     // --- controle de destinatários ---
     const selectDest = container.querySelector('#destinatarios');
     const divSelecionados = container.querySelector('#selecionados');
@@ -668,4 +802,3 @@ export function initModalScripts(container) {
         });
     }
 }
-

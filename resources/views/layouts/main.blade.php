@@ -121,7 +121,6 @@
                                 <div class="notif-header">
                                 <h4>Notificações</h4>
                                 <div class="notif-actions">
-                                    <button type="button" id="markAllRead">Marcar todas como lidas</button>
                                     <button type="button" id="clearAll">Limpar</button>
                                 </div>
                                 </div>
@@ -140,6 +139,38 @@
                             </div>
                         </div>
 
+                        @php
+                            $profileBalance = null;
+                            if (auth()->check()
+                                && module_enabled('moedas')
+                                && class_exists(\Modules\Moedas\Models\Moeda::class)
+                                && class_exists(\Modules\Moedas\Models\Carteira::class)
+                            ) {
+                                $congregacaoAtual = app()->bound('congregacao') ? app('congregacao') : null;
+                                if ($congregacaoAtual) {
+                                    $moedaAtiva = \Modules\Moedas\Models\Moeda::query()
+                                        ->where('congregacao_id', $congregacaoAtual->id)
+                                        ->where('ativo', true)
+                                        ->orderBy('nome')
+                                        ->first();
+
+                                    if ($moedaAtiva) {
+                                        $carteiraUsuario = \Modules\Moedas\Models\Carteira::query()
+                                            ->where('moeda_id', $moedaAtiva->id)
+                                            ->where('usuario_id', auth()->id())
+                                            ->first();
+
+                                        $saldo = $carteiraUsuario?->saldo ?? 0;
+                                        $profileBalance = sprintf(
+                                            'Saldo (%s): %s %s',
+                                            $moedaAtiva->nome,
+                                            number_format($saldo, 2, ',', '.'),
+                                            $moedaAtiva->simbolo
+                                        );
+                                    }
+                                }
+                            }
+                        @endphp
                         <div class="profile-container">
                             <img class="avatar" id="profileBtn" src="{{ auth()->user()?->membro?->foto 
                                 ? asset('storage/'.auth()->user()->membro->foto) 
@@ -151,6 +182,11 @@
                                     </div>
                                     <p><i class="bi bi-person"></i> {{optional(auth()->user()->membro)->nome ?? 'Admin'}}</p>
                                 </div>
+                                @if($profileBalance)
+                                    <div class="profile-balance">
+                                        <i class="bi bi-coin"></i> {{ $profileBalance }}
+                                    </div>
+                                @endif
                                 <a href="/perfil"><i class="bi bi-pencil"></i> Editar perfil</a>
                                 <a href="/perfil"><i class="bi bi-bookmark"></i> Favoritos</a>
                                 <a href="/logout" title="Sair"><i class="bi bi-box-arrow-right"></i> Logout</a>
@@ -180,6 +216,17 @@
                         <span title="Menu Principal" id="btn-menu"><i class="bi bi-list"></i></span>
                     </div>
                     <ul class="menu-content">
+                        @php
+                            $usuarioLogado = auth()->user();
+                            $temRolePrincipal = $usuarioLogado?->hasRole('principal');
+                            $podeGerirAreaPastoral = $usuarioLogado && $temRolePrincipal && $usuarioLogado->hasAnyRole(['gestor', 'admin', 'kleros']);
+                            $areaPastoralRoute = null;
+                            if (Route::has('areapastoral.index')) {
+                                $areaPastoralRoute = $podeGerirAreaPastoral && Route::has('areapastoral.painel')
+                                    ? route('areapastoral.painel')
+                                    : route('areapastoral.index');
+                            }
+                        @endphp
                         <a href="{{route('index')}}"><li><span title="Controle"><i class="bi bi-kanban"></i></span><span>Controle</span></li></a>
                         @if(auth()->check() && auth()->user()->hasAnyRole(['gestor', 'admin', 'kleros']))
                             <a href="{{route('membros.painel')}}"><li><span title="Membros"><i class="bi bi-people"></i></span><span>Membros</span></li></a>
@@ -199,10 +246,16 @@
                             <a href="{{ route('financeiro.painel') }}"><li><span title="Financeiro"><i class="bi bi-currency-exchange"></i></span><span>Financeiro</span></li></a>
                             <a href="{{route('noticias.painel')}}"><li><span title="Notícias"><i class="bi bi-newspaper"></i></span><span>Notícias</span></li></a>
                             <a href="{{route('podcasts.painel')}}"><li><span title="Podcasts"><i class="bi bi-mic-fill"></i></span><span>Podcasts</span></li></a>
+                            @if($areaPastoralRoute)
+                                <a href="{{ $areaPastoralRoute }}"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
+                            @endif
                             <a href="{{route('livraria.index')}}"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
                             <a href="{{route('relatorios.painel')}}"><li><span title="Relatórios"><i class="bi bi-pie-chart"></i></span><span>Relatórios</span></li></a>
                             @if(module_enabled('projetos') && Route::has('projetos.painel'))
                                 <a href="{{ route('projetos.painel') }}"><li><span title="Projetos"><i class="bi bi-kanban"></i></span><span>Projetos</span></li></a>
+                            @endif
+                            @if(module_enabled('moedas') && Route::has('moedas.painel'))
+                                <a href="{{ route('moedas.painel') }}"><li><span title="Moeda Interna"><i class="bi bi-coin"></i></span><span>Moeda Interna</span></li></a>
                             @endif
                             <a href="{{route('livraria.index')}}"><li><span title="Ação Social"><i class="bi bi-box2-heart"></i></span><span>Ação Social</span></li></a>
                             <a href="{{route('assinaturas.index')}}"><li><span title="Assinaturas"><i class="bi bi-journal-plus"></i></span><span>Assinaturas</span></li></a>
@@ -227,6 +280,9 @@
                             <a href="{{route('noticias.painel')}}"><li><span title="Notícias"><i class="bi bi-newspaper"></i></span><span>Notícias</span></li></a>
                             <a href="{{ route('avisos.painel') }}"><li><span title="Avisos"><i class="bi bi-megaphone"></i></span><span>Avisos</span></li></a>
                             <a href="{{route('podcasts.painel')}}"><li><span title="Podcasts"><i class="bi bi-mic-fill"></i></span><span>Podcasts</span></li></a>
+                            @if($areaPastoralRoute)
+                                <a href="{{ $areaPastoralRoute }}"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
+                            @endif
                             <a href="{{route('livraria.index')}}"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
                             @if(module_enabled('biblia'))
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
@@ -516,9 +572,16 @@
         <script>
             console.log('Swiper:', typeof Swiper !== 'undefined' ? 'Loaded' : 'Not loaded');
             document.addEventListener('DOMContentLoaded', function () {
+                const swiperContainer = document.querySelector('.mySwiper');
+                
+                // Só inicializa o Swiper se o container existir
+                if (!swiperContainer) {
+                    console.log('Container .mySwiper não encontrado - Swiper não será inicializado');
+                    return;
+                }
+                
                 const destaquesLength = document.querySelectorAll('.swiper-slide').length;
-
-                console.log(destaquesLength)
+                console.log('Slides encontrados:', destaquesLength);
 
                 const swiper = new Swiper(".mySwiper", {
                     slidesPerView: 1,

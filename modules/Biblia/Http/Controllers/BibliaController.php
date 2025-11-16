@@ -56,8 +56,13 @@ class BibliaController extends Controller
             ->get();
 
         $book = DB::table('books')->where('id', $bookId)->first();
+        
+        // Buscar o número máximo de capítulos do livro
+        $maxChapter = DB::table('verses')
+            ->where('book_id', $bookId)
+            ->max('chapter');
 
-        return view('biblia::verses', compact('versiculos', 'book', 'chapter'));
+        return view('biblia::verses', compact('versiculos', 'book', 'chapter', 'maxChapter'));
     }
 
     /**

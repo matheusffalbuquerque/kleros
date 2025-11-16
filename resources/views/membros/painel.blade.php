@@ -7,6 +7,7 @@
     $members = trans('members');
     $common = $members['common'];
     $painel = $members['painel'];
+    $showingInactives = $showingInactives ?? false;
 @endphp
 
 <div class="container">
@@ -40,6 +41,11 @@
                 </div>
                 <div class="options-menu" id="membrosPainelOptions" hidden>
                     <button type="button" class="btn" data-action="print"><i class="bi bi-printer"></i> {{ $painel['options']['print'] }}</button>
+                    @if($showingInactives)
+                        <button type="button" class="btn" data-action="redirect" data-url="{{ route('membros.painel') }}"><i class="bi bi-people"></i> {{ $painel['options']['show_actives'] ?? 'Ver ativos' }}</button>
+                    @else
+                        <button type="button" class="btn" data-action="redirect" data-url="{{ route('membros.inativos') }}"><i class="bi bi-person-x"></i> {{ $painel['options']['show_inactives'] }}</button>
+                    @endif
                     <button type="button" class="btn" data-action="back"><i class="bi bi-arrow-return-left"></i> {{ $painel['options']['back'] }}</button>
                 </div>
             </form>
@@ -105,37 +111,52 @@
         const contentTarget = document.getElementById('content');
         const notInformed = @json($common['statuses']['not_informed']);
         const searchEmpty = @json($members['search']['empty']);
+        const showingInactives = @json($showingInactives);
+
+        function filtrar() {
+            
+            if (!csrfToken) {
+                return;
+            }
+
+            const filtro = filterInput.value;
+            const chave = keywordInput.value;
+
+            fetch('{{ route('membros.search') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ filtro, chave, showInactives: showingInactives }),
+            })
+            .then(response => response.json())
+            .then(({ view }) => {
+                if (view && contentTarget) {
+                    contentTarget.innerHTML = view;
+                }
+            })
+            .catch(() => {
+                if (contentTarget) {
+                    contentTarget.innerHTML = `<div class="card"><p>${searchEmpty}</p></div>`;
+                }
+            });
+        }
 
         if (filterBtn) {
             filterBtn.addEventListener('click', function (event) {
                 event.preventDefault();
-                if (!csrfToken) {
-                    return;
+                filtrar();
+            });
+        }
+
+        if (keywordInput) {
+            keywordInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    filtrar();
                 }
-
-                const filtro = filterInput.value;
-                const chave = keywordInput.value;
-
-                fetch('{{ route('membros.search') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({ filtro, chave }),
-                })
-                .then(response => response.json())
-                .then(({ view }) => {
-                    if (view && contentTarget) {
-                        contentTarget.innerHTML = view;
-                    }
-                })
-                .catch(() => {
-                    if (contentTarget) {
-                        contentTarget.innerHTML = `<div class="card"><p>${searchEmpty}</p></div>`;
-                    }
-                });
             });
         }
 

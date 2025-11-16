@@ -9,6 +9,7 @@ class Congregacao extends Model
     protected $table = 'congregacoes';
     protected $casts = [
         'gestor_notificado_em' => 'datetime',
+        'responsavel_financeiro' => 'array',
     ];
 
     public function config()
@@ -67,6 +68,11 @@ class Congregacao extends Model
     public function arquivos()
     {
         return $this->hasMany(Arquivo::class, 'congregacao_id');
+    }
+    
+    public function responsavelPrincipal()
+    {
+        return $this->belongsTo(Membro::class, 'responsavel_principal_id');
     }
 
 }

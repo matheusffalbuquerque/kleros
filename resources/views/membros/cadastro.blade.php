@@ -27,7 +27,7 @@
             <div class="form-block">
                 <h3>{{ $cadastro['sections']['basic'] }}</h3>
                 <div class="form-item">
-                    <label for="nome">{{ $common['fields']['name'] }}:</label>
+                    <label for="nome">{{ $common['fields']['name'] }}:*</label>
                     <input type="text" name="nome" id="nome" placeholder="{{ $common['placeholders']['name'] }}" value="{{ old('nome') }}">
                 </div>
                 <div class="form-item">
@@ -39,7 +39,7 @@
                     <input type="text" name="cpf" id="cpf" placeholder="{{ $common['placeholders']['cpf'] ?? $common['fields']['cpf'] }}" value="{{ old('cpf') }}">
                 </div>
                 <div class="form-item">
-                    <label for="data_nascimento">{{ $common['fields']['birthdate'] }}:</label>
+                    <label for="data_nascimento">{{ $common['fields']['birthdate'] }}:*</label>
                     <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento') }}">
                 </div>
                 <div class="form-item">
@@ -50,7 +50,7 @@
                     </select>
                 </div>
                 <div class="form-item">
-                    <label for="telefone">{{ $common['fields']['phone'] }}:</label>
+                    <label for="telefone">{{ $common['fields']['phone'] }}:*</label>
                     <input type="tel" id="telefone" name="telefone" placeholder="{{ $common['placeholders']['phone'] }}" value="{{ old('telefone') }}">
                 </div>
                 <div class="form-item">
@@ -116,6 +116,7 @@
                 <div class="form-item">
                     <label for="ministerio">{{ $common['fields']['ministry'] }}:</label>
                     <select name="ministerio" id="ministerio">
+                        <option value="">{{ $common['placeholders']['not_applicable'] ?? 'Não aplicável' }}</option>
                         @foreach ($ministerios as $item)
                             <option value="{{ $item->id }}" @selected(old('ministerio') == $item->id)>{{ $item->titulo }}</option>
                         @endforeach

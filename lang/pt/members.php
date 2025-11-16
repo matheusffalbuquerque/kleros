@@ -25,6 +25,7 @@ return [
             'father_name' => 'Nome paterno',
             'mother_name' => 'Nome materno',
             'search_keyword' => 'Palavra-chave',
+            'status' => 'Situação do Membro',
         ],
         'gender' => [
             'male' => 'Masculino',
@@ -47,6 +48,10 @@ return [
         ],
         'statuses' => [
             'not_informed' => 'Não informado',
+        ],
+        'status' => [
+            'active' => 'Ativo',
+            'inactive' => 'Desligado',
         ],
         'messages' => [
             'confirm_delete' => 'Tem certeza que deseja excluir?',
@@ -71,6 +76,7 @@ return [
             'postal_code' => '00000-000',
             'origin_denomination' => 'Denominação de origem',
             'keyword' => 'Palavra-chave',
+            'not_applicable' => 'Não aplicável',
         ],
     ],
     'cadastro' => [
@@ -88,6 +94,7 @@ return [
             'personal' => 'Dados pessoais',
             'address' => 'Endereço',
             'other' => 'Outros dados',
+            'settings' => 'Configurações',
         ],
     ],
     'view' => [
@@ -119,6 +126,8 @@ return [
         ],
         'options' => [
             'print' => 'Imprimir',
+            'show_inactives' => 'Ver inativos',
+            'show_actives' => 'Ver ativos',
             'back' => 'Voltar',
         ],
     ],

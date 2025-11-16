@@ -342,12 +342,18 @@ class CongregacaoController extends Controller
             $languageOptions[$locale] = $localeLabels[$locale] ?? strtoupper($locale);
         }
 
+        // Buscar todos os membros da congregação
+        $membros = Membro::where('congregacao_id', $congregacao->id)
+            ->orderBy('nome')
+            ->get();
+
         return view('congregacoes.edicao', [
             'config' => $config,
             'congregacao' => $congregacao,
             'paises' => $paises,
             'fontes' => $fontes,
             'languageOptions' => $languageOptions,
+            'membros' => $membros,
         ]);
     }
 
@@ -374,7 +380,12 @@ class CongregacaoController extends Controller
         $congregacao->estado_id = $request->estado;
         $congregacao->pais_id = $request->pais;
         $congregacao->language = $language;
+        $congregacao->responsavel_principal_id = $request->responsavel_principal;
+        $congregacao->responsavel_financeiro = $request->responsavel_financeiro;
         $congregacao->save();
+
+        // Alterar responsabilidades e atribuir roles
+        $this->alterarResponsabilidades($congregacao, $request->responsavel_principal, $request->responsavel_financeiro);
 
         $request->session()->put('app_locale', $language);
         app()->setLocale($language);
@@ -466,5 +477,53 @@ class CongregacaoController extends Controller
         // $congregacao->delete();
 
         //return redirect()->route('congregacoes.index')->with('success', 'Congregação excluída com sucesso.');
+    }
+
+    /**
+     * Altera as responsabilidades da congregação e atribui roles aos usuários
+     */
+    private function alterarResponsabilidades($congregacao, $responsavelPrincipalId, $responsaveisFinanceirosIds)
+    {
+        // Obter responsáveis anteriores
+        $responsavelPrincipalAnterior = $congregacao->getOriginal('responsavel_principal_id');
+
+        // Remover role 'principal' do responsável anterior se houver
+        if ($responsavelPrincipalAnterior && $responsavelPrincipalAnterior != $responsavelPrincipalId) {
+            $membroAnterior = Membro::find($responsavelPrincipalAnterior);
+            if ($membroAnterior && $membroAnterior->user) {
+                $membroAnterior->user->removeRole('principal');
+            }
+        }
+
+        // Remover role 'tesoureiro' de TODOS os membros da congregação
+        // (isso garante que apenas os selecionados terão a role)
+        $todosMembros = Membro::where('congregacao_id', $congregacao->id)->get();
+        foreach ($todosMembros as $membro) {
+            if ($membro->user && $membro->user->hasRole('tesoureiro')) {
+                $membro->user->removeRole('tesoureiro');
+            }
+        }
+
+        // Atribuir role 'principal' ao novo responsável principal
+        if ($responsavelPrincipalId) {
+            $membroPrincipal = Membro::find($responsavelPrincipalId);
+            if ($membroPrincipal && $membroPrincipal->user) {
+                if (!$membroPrincipal->user->hasRole('principal')) {
+                    $membroPrincipal->user->assignRole('principal');
+                }
+            }
+        }
+
+        // Atribuir role 'tesoureiro' aos novos responsáveis financeiros (array)
+        if ($responsaveisFinanceirosIds && is_array($responsaveisFinanceirosIds)) {
+            foreach ($responsaveisFinanceirosIds as $membroId) {
+                $membroFinanceiro = Membro::find($membroId);
+                if ($membroFinanceiro && $membroFinanceiro->user) {
+                    if (!$membroFinanceiro->user->hasRole('tesoureiro')) {
+                        $membroFinanceiro->user->assignRole('tesoureiro');
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -102,7 +103,7 @@ class PesquisaController extends Controller
             ->with('msg', 'Pesquisa excluída com sucesso!');
     }
 
-    public function storePergunta(Request $request, int $pesquisaId): RedirectResponse
+    public function storePergunta(Request $request, int $pesquisaId): RedirectResponse|JsonResponse
     {
         $pesquisa = $this->resolvePesquisa($pesquisaId);
 
@@ -121,13 +122,22 @@ class PesquisaController extends Controller
         });
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Não foi possível adicionar a pergunta.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
                 ->with('tab', 'perguntas');
         }
 
-        DB::transaction(function () use ($pesquisa, $request, $options) {
+        $pergunta = null;
+
+        DB::transaction(function () use ($pesquisa, $request, $options, &$pergunta) {
             $pergunta = $pesquisa->perguntas()->create([
                 'texto' => $request->input('texto'),
                 'tipo' => $request->input('tipo'),
@@ -135,6 +145,37 @@ class PesquisaController extends Controller
 
             $this->syncOptions($pergunta, $options);
         });
+
+        if (! $pergunta) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Não foi possível adicionar a pergunta.',
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('msg', 'Não foi possível adicionar a pergunta.')
+                ->with('tab', 'perguntas');
+        }
+
+        $pergunta->load('opcoes');
+
+        if ($request->expectsJson()) {
+            $html = view('pesquisas.includes.partials.pergunta_card', [
+                'pesquisa' => $pesquisa,
+                'pergunta' => $pergunta,
+                'isCurrent' => false,
+                'textoAnterior' => $pergunta->texto,
+                'tipoAnterior' => $pergunta->tipo,
+                'optionsAnterior' => $pergunta->opcoes->pluck('texto')->implode("\n"),
+                'showErrors' => false,
+            ])->render();
+
+            return response()->json([
+                'message' => 'Pergunta adicionada com sucesso!',
+                'html' => $html,
+            ]);
+        }
 
         return redirect()->back()->with('msg', 'Pergunta adicionada com sucesso!')->with('tab', 'perguntas');
     }

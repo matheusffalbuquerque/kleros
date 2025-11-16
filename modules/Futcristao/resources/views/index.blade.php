@@ -45,8 +45,8 @@
             <small>Participantes externos</small>
         </article>
         <article class="stat-card highlight">
-            <span class="label">Escala média</span>
-            <strong>{{ number_format($stats['mediaTime'], 1, ',', '.') }}</strong>
+            <span class="label">Escala</span>
+            <strong>{{ $stats['mediaTime']; }}</strong>
             <small>Jogadores por time</small>
         </article>
         <article class="stat-card">
@@ -449,6 +449,10 @@
         background: rgba(255, 255, 255, 0.15);
         color: inherit;
         border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .regras{
+        margin-top: 15px;
     }
 
     .regras-content {

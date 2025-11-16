@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Extensao;
 use App\Models\User;
+use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
         app()->singleton('congregacao', function () {
             return Auth::check() ? Auth::user()->congregacao : null;
         });
+
+        if (class_exists(\App\Livewire\BibliaVerseComments::class)) {
+            Livewire::component('biblia-verse-comments', \App\Livewire\BibliaVerseComments::class);
+        }
 
         app()->singleton('modo_admin', function () {
             return request()->getHost() === 'admin.local';
@@ -70,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if (class_exists(Role::class) && Schema::hasTable('roles') && Schema::hasTable('users') && Schema::hasTable('model_has_roles')) {
-            foreach (['gestor', 'membro'] as $roleName) {
+            foreach (['gestor', 'membro', 'principal'] as $roleName) {
                 Role::findOrCreate($roleName, 'web');
             }
 

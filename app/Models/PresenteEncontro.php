@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PresenteEncontro extends Model
 {
-    protected $table = 'presencas_encontros';
+    protected $table = 'presentes_encontros';
 
     public function encontro()
     {

@@ -27,7 +27,16 @@
                             <label for="nome">{{ $common['fields']['name'] }}:</label>
                             <div class="card-title">{{ $membro->nome }}</div>
                         </div>
-                        <img class="avatar_perfil" src="{{ asset('storage/' . ($membro->foto ?? 'images/newuser.png')) }}" alt="Avatar">
+                        <div class="avatar-container">
+                            <img class="avatar_perfil" id="avatarPerfil" src="{{ asset('storage/' . ($membro->foto ?? 'images/newuser.png')) }}" alt="Avatar">
+                            @if($membro->foto)
+                            <div class="avatar-dropdown" id="avatarDropdown" hidden>
+                                <button type="button" class="btn" data-action="remove-photo" data-member-id="{{ $membro->id }}">
+                                    <i class="bi bi-trash"></i> Remover foto
+                                </button>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                     <div class="field">
                         <label for="rg">{{ $common['fields']['rg'] }}:</label>
@@ -128,7 +137,9 @@
                 </a>
                 <button class="btn imprimir" type="button"><i class="bi bi-printer"></i> {{ $view['actions']['print'] }}</button>
                 <button class="btn" type="submit"><i class="bi bi-trash"></i> {{ $view['actions']['remove'] }}</button>
-                <button type="button" onclick="window.history.back()" class="btn"><i class="bi bi-arrow-return-left"></i> {{ $view['actions']['back'] }}</button>
+                <a href="{{ route('membros.painel') }}">
+                    <button type="button" class="btn"><i class="bi bi-arrow-return-left"></i> {{ $view['actions']['back'] }}</button>
+                </a>
             </div>
         </div>
     </form>
@@ -144,6 +155,62 @@
                 window.print();
             });
         });
+
+        // Dropdown do avatar
+        const avatarPerfil = document.getElementById('avatarPerfil');
+        const avatarDropdown = document.getElementById('avatarDropdown');
+
+        if (avatarPerfil && avatarDropdown) {
+            avatarPerfil.style.cursor = 'pointer';
+
+            avatarPerfil.addEventListener('click', function(event) {
+                event.stopPropagation();
+                avatarDropdown.hidden = !avatarDropdown.hidden;
+            });
+
+            // Fechar ao clicar fora
+            document.addEventListener('click', function(event) {
+                if (!avatarPerfil.contains(event.target) && !avatarDropdown.contains(event.target)) {
+                    avatarDropdown.hidden = true;
+                }
+            });
+
+            // Ação de remover foto
+            const removePhotoBtn = avatarDropdown.querySelector('[data-action="remove-photo"]');
+            if (removePhotoBtn) {
+                removePhotoBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const memberId = this.dataset.memberId;
+
+                    confirmarAcao('Tem certeza que deseja remover a foto do membro?').then((confirmed) => {
+                        if (confirmed) {
+                            fetch(`/membros/${memberId}/remover-foto`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json',
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    avatarPerfil.src = '{{ asset('storage/images/newuser.png') }}';
+                                    avatarDropdown.remove();
+                                    flashMsg(data.message || 'Foto removida com sucesso!', 'success');
+                                } else {
+                                    flashMsg(data.message || 'Erro ao remover foto.', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                flashMsg('Erro ao remover foto.', 'error');
+                                console.error('Error:', error);
+                            });
+                        }
+                    });
+                });
+            }
+        }
     });
 </script>
 @endpush

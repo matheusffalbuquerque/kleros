@@ -34,6 +34,7 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\AssinaturaController;
+use App\Http\Controllers\AreaPastoralController;
 use App\Http\Controllers\ProgramacaoController;
 use App\Http\Middleware\CheckAdminRole;
 use App\Http\Controllers\Admin\ReportController;
@@ -179,6 +180,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::post('/membros', [MembroController::class, 'store'])->name('membros.store');
         Route::get('/membros/adicionar', [MembroController::class, 'adicionar'])->name('membros.adicionar'); 
         Route::get('/membros/painel', [MembroController::class, 'painel'])->name('membros.painel');
+        Route::get('/membros/inativos', [MembroController::class, 'inativos'])->name('membros.inativos');
         Route::get('/membros/export', [MembroController::class, 'export'])->name('membros.export');
         Route::get('/membros/{id}', [MembroController::class, 'editar'])->name('membros.editar');
         Route::post('/membros/search', [MembroController::class, 'search'])->name('membros.search');
@@ -186,6 +188,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/membros/editar/{id}', [MembroController::class, 'form_editar'])->name('membros.form_editar');
         Route::put('/membros/{id}', [MembroController::class, 'update'])->name('membros.atualizar');
         Route::delete('/membros/{id}', [MembroController::class, 'destroy'])->name('membros.destroy');
+        Route::delete('/membros/{id}/remover-foto', [MembroController::class, 'removerFoto'])->name('membros.remover_foto');
 
         Route::post('/visitantes', [VisitanteController::class, 'store'])->name('visitantes.store');
         Route::get('/visitantes/adicionar', [VisitanteController::class, 'create'])->name('visitantes.adicionar');
@@ -234,6 +237,11 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/cultos/editar/{id}', [CultoController::class, 'form_editar'])->name('cultos.form_editar');
         Route::put('/cultos/{id}', [CultoController::class, 'update'])->name('cultos.update');
         Route::delete('/cultos/{id}', [CultoController::class, 'destroy'])->name('cultos.destroy');
+
+        Route::get('/area-pastoral', [AreaPastoralController::class, 'index'])->name('areapastoral.index');
+        Route::get('/area-pastoral/painel', [AreaPastoralController::class, 'painel'])->name('areapastoral.painel');
+        Route::get('/area-pastoral/novo', [AreaPastoralController::class, 'formCriar'])->name('areapastoral.form_criar');
+        Route::post('/area-pastoral', [AreaPastoralController::class, 'store'])->name('areapastoral.store');
         
         Route::post('/ministerios', [MinisterioController::class, 'store'])->name('ministerios.store');
         Route::get('/ministerios/novo', [MinisterioController::class, 'form_criar'])->name('ministerios.form_criar');

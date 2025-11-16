@@ -12,6 +12,7 @@ use App\Models\Feed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class MembroController extends Controller
 {
@@ -86,10 +87,22 @@ class MembroController extends Controller
 
         $congregacao = $this->congregacao;
         $membros = Membro::where('congregacao_id', $congregacao->id)
+            ->where('ativo', true)
             ->orderBy('nome')
             ->paginate(10);
 
-        return view('/membros/painel', ['membros' => $membros, 'congregacao' => $congregacao]);
+        return view('/membros/painel', ['membros' => $membros, 'congregacao' => $congregacao, 'showingInactives' => false]);
+    }
+
+    public function inativos() {
+
+        $congregacao = $this->congregacao;
+        $membros = Membro::where('congregacao_id', $congregacao->id)
+            ->where('ativo', false)
+            ->orderBy('nome')
+            ->paginate(10);
+
+        return view('/membros/painel', ['membros' => $membros, 'congregacao' => $congregacao, 'showingInactives' => true]);
     }
 
     public function search(Request $request) {
@@ -97,8 +110,10 @@ class MembroController extends Controller
         $allowedFilters = ['nome', 'telefone', 'email'];
         $filter = $request->input('filtro', 'nome');
         $keyword = $request->input('chave');
+        $showInactives = $request->input('showInactives', false);
 
-        $query = Membro::where('congregacao_id', app('congregacao')->id);
+        $query = Membro::where('congregacao_id', app('congregacao')->id)
+            ->where('ativo', $showInactives ? false : true);
 
         if ($keyword !== null && $keyword !== '') {
             $column = in_array($filter, $allowedFilters, true) ? $filter : 'nome';
@@ -228,16 +243,15 @@ class MembroController extends Controller
         $membro->ministerio_id = $request->ministerio;
         $membro->nome_paterno = $request->nome_paterno;
         $membro->nome_materno = $request->nome_materno;
+        $membro->ativo = $request->ativo;
 
         // Atualiza os timestamps
         $membro->updated_at = date('Y-m-d H:i:s');
 
         // Salva as alterações
         if ($membro->save()) {
-            return redirect()->route('membros.painel')->with('msg', __('members.flash.updated'));
+            return redirect()->back()->with('msg', __('members.flash.updated'));
         }
-
-        return redirect()->back()->withErrors(['msg' => __('members.flash.update_error')]);
     }
     
     public function destroy($id) {
@@ -315,6 +329,42 @@ class MembroController extends Controller
 
         } else {
             return redirect()->back()->with('msg-error', __('members.flash.profile_error'));
+        }
+    }
+
+    public function removerFoto($id)
+    {
+        try {
+            $membro = Membro::findOrFail($id);
+
+            // Verifica se o membro tem foto
+            if ($membro->foto) {
+                // Remove o arquivo físico do storage
+                $fotoPath = 'public/' . $membro->foto;
+                if (Storage::exists($fotoPath)) {
+                    Storage::delete($fotoPath);
+                }
+
+                // Atualiza o registro no banco
+                $membro->foto = null;
+                $membro->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Foto removida com sucesso!'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Membro não possui foto.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao remover foto: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

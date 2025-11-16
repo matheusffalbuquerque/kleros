@@ -51,12 +51,13 @@
                 <div class="tab-pane-content">
                     <section class="pergunta-card">
                         <h4>Nova pergunta</h4>
-                        <form action="{{ route('pesquisas.perguntas.store', $pesquisa->id) }}" method="POST">
+                        <form action="{{ route('pesquisas.perguntas.store', $pesquisa->id) }}" method="POST" data-pergunta-form="nova">
                             @csrf
                             <div class="form-control">
                                 <div class="form-item">
                                     <label for="texto-novo">Enunciado</label>
                                     <textarea name="texto" id="texto-novo" rows="3" required>{{ old('texto') }}</textarea>
+                                    <small class="hint text-error" data-error-target="texto" hidden></small>
                                     @error('texto')
                                         <small class="hint text-error">{{ $message }}</small>
                                     @enderror
@@ -71,10 +72,12 @@
                                         <option value="radio" @selected($tipoNovo === 'radio')>Escolha única</option>
                                         <option value="checkbox" @selected($tipoNovo === 'checkbox')>Múltipla escolha</option>
                                     </select>
+                                    <small class="hint text-error" data-error-target="tipo" hidden></small>
                                 </div>
                                 <div class="form-item options-box" id="options-novo" style="display: {{ in_array($tipoNovo, ['radio','checkbox']) ? 'block' : 'none' }};">
                                     <label for="options">Opções (uma por linha) <br> <small class="">As respostas serão criadas conforme as opções listadas.</small></label>
                                     <textarea name="options" id="options">{{ old('options') }}</textarea>
+                                    <small class="hint text-error" data-error-target="options" hidden></small>
                                     @error('options')
                                         <small class="hint text-error">{{ $message }}</small>
                                     @enderror
@@ -82,6 +85,7 @@
                                 <div class="form-options">
                                     <button type="submit" class="btn"><i class="bi bi-plus-circle"></i> Adicionar pergunta</button>
                                 </div>
+                                <div class="form-feedback" data-pergunta-feedback hidden></div>
                             </div>
                         </form>
                     </section>
@@ -100,87 +104,32 @@
                             $slice = $perguntas->slice(($currentPage - 1) * $perPage, $perPage)->values();
                         @endphp
 
+                        <div data-perguntas-list>
                         @forelse($slice as $pergunta)
                             @php
                                 $isCurrent = old('pergunta_id') == $pergunta->id;
                                 $textoAnterior = $isCurrent ? old('texto') : $pergunta->texto;
                                 $tipoAnterior = $isCurrent ? old('tipo') : $pergunta->tipo;
                                 $optionsAnterior = $isCurrent ? old('options') : $pergunta->opcoes->pluck('texto')->implode("\n");
-                                $tipoLabels = [
-                                    'texto' => 'Texto livre',
-                                    'radio' => 'Escolha única',
-                                    'checkbox' => 'Múltipla escolha',
-                                ];
-                                $tipoDisplay = $tipoLabels[$tipoAnterior] ?? ucfirst($tipoAnterior);
                             @endphp
-                            @php
-                                $bodyId = 'pergunta-body-' . $pergunta->id;
-                            @endphp
-                            <div class="pergunta-card pergunta-accordion {{ $isCurrent ? 'open' : '' }}" data-accordion data-open="{{ $isCurrent ? 'true' : 'false' }}">
-                                <button type="button" class="pergunta-toggle" data-accordion-toggle aria-expanded="{{ $isCurrent ? 'true' : 'false' }}" aria-controls="{{ $bodyId }}">
-                                    <div>
-                                        <span class="pergunta-title">{{ $pergunta->texto }}</span>
-                                        <small class="pergunta-meta">
-                                            <i class="bi bi-chat-left-dots"></i> {{ $tipoDisplay }}
-                                            @if(in_array($tipoAnterior, ['radio','checkbox']))
-                                                <span class="divider">•</span> {{ $pergunta->opcoes->count() }} Opções
-                                            @endif
-                                        </small>
-                                    </div>
-                                    <i class="bi bi-chevron-down"></i>
-                                </button>
-                                <div class="pergunta-body" id="{{ $bodyId }}" data-accordion-body>
-                                    <form action="{{ route('pesquisas.perguntas.update', [$pesquisa->id, $pergunta->id]) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="pergunta_id" value="{{ $pergunta->id }}">
-                                        <div class="form-control">
-                                            <div class="form-item">
-                                                <label for="texto-{{ $pergunta->id }}">Enunciado</label>
-                                                <textarea name="texto" id="texto-{{ $pergunta->id }}" rows="3" required>{{ $textoAnterior }}</textarea>
-                                                @if($isCurrent)
-                                                    @error('texto')
-                                                        <small class="hint text-error">{{ $message }}</small>
-                                                    @enderror
-                                                @endif
-                                            </div>
-                                            <div class="form-item">
-                                                <label for="tipo-{{ $pergunta->id }}">Tipo de resposta</label>
-                                                <select name="tipo" id="tipo-{{ $pergunta->id }}" data-toggle-options="#options-{{ $pergunta->id }}">
-                                                    <option value="texto" @selected($tipoAnterior === 'texto')>Texto livre</option>
-                                                    <option value="radio" @selected($tipoAnterior === 'radio')>Escolha única</option>
-                                                    <option value="checkbox" @selected($tipoAnterior === 'checkbox')>Múltipla escolha</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-item options-box" id="options-{{ $pergunta->id }}" style="display: {{ in_array($tipoAnterior, ['radio','checkbox']) ? 'block' : 'none' }};">
-                                                <label for="options">Opções (uma por linha) <br> <small class="">As respostas serão criadas conforme as opções listadas.</small></label>
-                                                <textarea name="options" id="options-{{ $pergunta->id }}-textarea">{{ $optionsAnterior }}</textarea>
-                                                @if($isCurrent)
-                                                    @error('options')
-                                                        <small class="hint text-error">{{ $message }}</small>
-                                                    @enderror
-                                                @endif
-                                            </div>
-                                            <div class="form-options">
-                                                <button type="submit" class="btn"><i class="bi bi-floppy"></i> Salvar pergunta</button>
-                                                <button type="button" class="btn danger" onclick="handleSubmit(event, document.getElementById('delete-pergunta-{{ $pergunta->id }}'), 'Deseja realmente excluir esta pergunta?')"><i class="bi bi-trash"></i> Excluir</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <form id="delete-pergunta-{{ $pergunta->id }}" action="{{ route('pesquisas.perguntas.destroy', [$pesquisa->id, $pergunta->id]) }}" method="POST" style="display:none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </div>
-                            </div>
+                            @include('pesquisas.includes.partials.pergunta_card', [
+                                'pesquisa' => $pesquisa,
+                                'pergunta' => $pergunta,
+                                'isCurrent' => $isCurrent,
+                                'textoAnterior' => $textoAnterior,
+                                'tipoAnterior' => $tipoAnterior,
+                                'optionsAnterior' => $optionsAnterior,
+                                'showErrors' => $isCurrent,
+                            ])
                         @empty
-                            <div class="card">
+                            <div class="card" data-perguntas-empty>
                                 <p><i class="bi bi-info-circle"></i> Ainda não há perguntas cadastradas para esta pesquisa.</p>
                             </div>
                         @endforelse
+                        </div>
 
                         @if($totalPages > 1)
-                            <div class="pagination">
+                            <div class="pagination pagination-compact" data-perguntas-pagination>
                                 @for($page = 1; $page <= $totalPages; $page++)
                                     <button type="button" class="page-btn {{ $page === $currentPage ? 'active' : '' }}" onclick="abrirJanelaModal('{{ route('pesquisas.form_editar', ['id' => $pesquisa->id, 'pergunta_page' => $page, 'tab' => 'perguntas']) }}')">{{ $page }}</button>
                                 @endfor
@@ -232,6 +181,9 @@
     }
     .tab-content.card {
         border-radius: 0 .75rem .75rem .75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 32px rgba(17, 24, 39, 0.16);
     }
     .tab-pane {
         display: none;
@@ -246,11 +198,12 @@
         gap: 1.5rem;
     }
     .pergunta-card {
-        border: 1px solid rgba(15, 23, 42, .1);
-        border-radius: 10px;
-        padding: 1rem;
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 1.25rem;
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 14px 30px rgba(17, 24, 39, 0.22);
+        color: var(--text-font);
     }
     .pergunta-accordion {
         padding: 0;
@@ -264,7 +217,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
+        gap: 1.25rem;
         cursor: pointer;
         font-size: 1rem;
         font-weight: 600;
@@ -273,7 +226,8 @@
     }
     .pergunta-toggle:hover,
     .pergunta-accordion.open .pergunta-toggle {
-        background: rgba(15, 23, 42, .06);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--secondary-contrast);
     }
     .pergunta-toggle i {
         transition: transform .25s ease;
@@ -281,16 +235,18 @@
     .pergunta-accordion.open .pergunta-toggle i {
         transform: rotate(180deg);
     }
-    .pergunta-title {
-        display: block;
-        margin-bottom: .25rem;
+    .pergunta-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        text-align: left;
     }
     .pergunta-meta {
         display: inline-flex;
         align-items: center;
         gap: .35rem;
         font-size: .85rem;
-        color: rgba(15, 23, 42, .6);
+        color: rgba(255, 255, 255, .7);
     }
     .pergunta-meta .divider {
         opacity: .65;
@@ -298,7 +254,7 @@
     .pergunta-body {
         display: none;
         padding: 0 1.25rem 1.25rem;
-        border-top: 1px solid rgba(15, 23, 42, .08);
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
         animation: fadeIn .25s ease;
     }
     .pergunta-accordion.open .pergunta-body {
@@ -315,9 +271,14 @@
         min-height: 120px;
         resize: vertical;
     }
+    .pergunta-card h4,
+    .pergunta-card h5 {
+        color: var(--text-font);
+    }
+
     .hint {
         font-size: .85rem;
-        color: rgba(30,41,59,.7);
+        color: rgba(255, 255, 255, .7);
     }
     .hint.text-error {
         color: #dc2626;
@@ -325,5 +286,48 @@
     .pergunta-card .form-options {
         gap: .5rem;
         flex-wrap: wrap;
+    }
+    .form-feedback {
+        margin-top: .5rem;
+        font-size: .9rem;
+        color: var(--text-font);
+    }
+    .pagination-compact {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        padding: 0.4rem 0.6rem;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0 10px 22px rgba(46, 46, 46, 0.2);
+    }
+    .pagination-compact .page-btn {
+        min-width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: var(--text-font);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pagination-compact .page-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 14px rgba(17, 24, 39, 0.18);
+    }
+    .pagination-compact .page-btn.active {
+        background: var(--secondary-color);
+        color: var(--secondary-contrast);
+        box-shadow: 0 10px 18px rgba(37, 37, 37, 0.35);
+    }
+    .pagination-compact .page-btn:focus-visible {
+        outline: 2px solid var(--secondary-color);
+        outline-offset: 3px;
     }
 </style>

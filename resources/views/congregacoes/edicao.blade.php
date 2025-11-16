@@ -247,6 +247,36 @@
                                 </select>
                             </div>
                         </div>
+
+                        <h3>Responsabilidades</h3>
+                        <div class="form-control">
+                            <div class="form-item">
+                                <label for="responsavel_principal">Responsável Principal</label>
+                                <select name="responsavel_principal" id="responsavel_principal" class="select2-membros">
+                                    <option value="">Selecione o responsável principal</option>
+                                    @foreach($membros as $membro)
+                                        <option value="{{ $membro->id }}" @selected(old('responsavel_principal', $congregacao->responsavel_principal_id ?? '') == $membro->id)>
+                                            {{ $membro->nome }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label for="responsavel_financeiro">Responsáveis Financeiros</label>
+                                <select name="responsavel_financeiro[]" id="responsavel_financeiro" class="select2-membros" multiple>
+                                    @foreach($membros as $membro)
+                                        <option value="{{ $membro->id }}" 
+                                            @if(old('responsavel_financeiro'))
+                                                @selected(in_array($membro->id, old('responsavel_financeiro')))
+                                            @elseif($congregacao->responsavel_financeiro && is_array($congregacao->responsavel_financeiro))
+                                                @selected(in_array($membro->id, $congregacao->responsavel_financeiro))
+                                            @endif>
+                                            {{ $membro->nome }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-options">
@@ -355,12 +385,47 @@
         from {opacity: 0; transform: translateY(10px);}
         to {opacity: 1; transform: translateY(0);}
     }
+
+    /* Select2 customization */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 5px 10px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 26px;
+        color: var(--text-color);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: var(--primary-color);
+    }
 </style>
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const translations = @json($scripts);
+
+        // Inicializa Select2 para os selects de membros
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('.select2-membros').select2({
+                placeholder: 'Selecione um membro',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return 'Nenhum membro encontrado';
+                    },
+                    searching: function() {
+                        return 'Buscando...';
+                    }
+                }
+            });
+        }
 
         const tabs = document.querySelectorAll('.tab-menu li');
         const panes = document.querySelectorAll('.tab-pane');

@@ -71,6 +71,7 @@ return [
             'postal_code' => '00000-000',
             'origin_denomination' => 'Denominación de origen',
             'keyword' => 'Palabra clave',
+            'not_applicable' => 'No aplicable',
         ],
     ],
     'cadastro' => [

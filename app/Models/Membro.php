@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 class Membro extends Model
@@ -81,6 +82,10 @@ class Membro extends Model
         return $this->belongsToMany(Aviso::class, 'aviso_membro', 'membro_id', 'aviso_id')
             ->withPivot('lido')
             ->withTimestamps();
+    }
+    public function assinante(): HasOne
+    {
+        return $this->hasOne(Assinante::class);
     }
 
     /**

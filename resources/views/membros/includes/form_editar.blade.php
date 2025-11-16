@@ -25,12 +25,13 @@
                 <li class="active" data-tab="membro-dados"><i class="bi bi-person-badge"></i> {{ $edit['tabs']['personal'] }}</li>
                 <li data-tab="membro-endereco"><i class="bi bi-geo-alt"></i> {{ $edit['tabs']['address'] }}</li>
                 <li data-tab="membro-outros"><i class="bi bi-people"></i> {{ $edit['tabs']['other'] }}</li>
+                <li data-tab="membro-configuracoes"><i class="bi bi-gear"></i> {{ $edit['tabs']['settings'] ?? 'Configurações' }}</li>
             </ul>
 
             <div class="tab-content card">
                 <div id="membro-dados" class="tab-pane form-control active">
                     <div class="form-item">
-                        <label for="nome">{{ $common['fields']['name'] }}:</label>
+                        <label for="nome">{{ $common['fields']['name'] }}:*</label>
                         <input type="text" name="nome" id="nome" placeholder="{{ $common['placeholders']['name'] }}" value="{{ old('nome', $membro->nome) }}" required>
                         @error('nome')
                             <div class="text-danger">{{ $message }}</div>
@@ -45,11 +46,11 @@
                         <input type="text" name="cpf" id="cpf" placeholder="{{ $common['placeholders']['cpf'] ?? $common['fields']['cpf'] }}" value="{{ old('cpf', $membro->cpf) }}">
                     </div>
                     <div class="form-item">
-                        <label for="data_nascimento">{{ $common['fields']['birthdate'] }}:</label>
-                        <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento', $membro->data_nascimento) }}" required>
+                        <label for="data_nascimento">{{ $common['fields']['birthdate'] }}:*</label>
+                        <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento', $membro->data_nascimento  ? \Carbon\Carbon::parse($membro->data_nascimento)->format('Y-m-d') : '') }}" required>
                     </div>
                     <div class="form-item">
-                        <label for="telefone">{{ $common['fields']['phone'] }}:</label>
+                        <label for="telefone">{{ $common['fields']['phone'] }}:*</label>
                         <input type="text" name="telefone" id="telefone" placeholder="{{ $common['placeholders']['phone'] }}" value="{{ old('telefone', $membro->telefone) }}" required>
                     </div>
                     <div class="form-item">
@@ -105,12 +106,17 @@
                     <div class="form-item">
                         <label for="ministerio">{{ $common['fields']['ministry'] }}:</label>
                         <select name="ministerio" id="ministerio">
+                            <option value="">{{ $common['placeholders']['not_applicable'] ?? 'Não aplicável' }}</option>
                             @foreach ($ministerios as $item)
                                 <option value="{{ $item->id }}" @selected(old('ministerio', $membro->ministerio_id) == $item->id)>
                                     {{ $item->titulo }}
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="form-item">
+                        <label for="data_consagracao">{{ $common['fields']['ordination_date'] }}:</label>
+                        <input type="date" name="data_consagracao" id="data_consagracao" value="{{ old('data_consagracao', $membro->data_consagracao ? \Carbon\Carbon::parse($membro->data_consagracao)->format('Y-m-d') : '') }}">
                     </div>
                     <div class="form-item">
                         <label for="nome_paterno">{{ $common['fields']['father_name'] }}:</label>
@@ -121,11 +127,21 @@
                         <input type="text" name="nome_materno" id="nome_materno" placeholder="{{ $common['placeholders']['mother_name'] ?? $common['fields']['mother_name'] }}" value="{{ old('nome_materno', $membro->nome_materno) }}">
                     </div>
                 </div>
+
+                <div id="membro-configuracoes" class="tab-pane form-control">
+                    <div class="form-item">
+                        <label for="ativo">{{ $common['fields']['status'] ?? 'Situação do Membro' }}:</label>
+                        <select name="ativo" id="ativo">
+                            <option value="1" @selected(old('ativo', $membro->ativo) == 1)>{{ $common['status']['active'] ?? 'Ativo' }}</option>
+                            <option value="0" @selected(old('ativo', $membro->ativo) == 0)>{{ $common['status']['inactive'] ?? 'Desligado' }}</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> {{ $common['buttons']['update_member'] }}</button>
-                <button type="button" onclick="window.history.back()" class="btn"><i class="bi bi-x-circle"></i> {{ $common['buttons']['cancel'] }}</button>
+                <button type="button" onclick="fecharJanelaModal()" class="btn"><i class="bi bi-x-circle"></i> {{ $common['buttons']['cancel'] }}</button>
             </div>
         </div>
     </form>

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             DadosFixosSeeder::class,
+            AssinaturasSeeder::class,
         ]);
 
         $congregacao1 = Congregacao::find(1);

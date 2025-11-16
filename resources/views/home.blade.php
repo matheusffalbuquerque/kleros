@@ -115,11 +115,6 @@
         overflow-x: hidden;
         max-width: 100%;
     }
-    
-    .info {
-        overflow-x: hidden;
-        max-width: 100%;
-    }
 
     /* Estilos da Galeria de Aniversariantes */
     .aniversariantes-container,
@@ -127,16 +122,13 @@
         position: relative;
         width: 100%;
         max-width: 100%;
-        overflow: hidden; /* Evita scroll horizontal */
     }
 
     .galeria-viewport {
-        overflow: hidden;
+        overflow: visible; /* Permite que box-shadow seja visível */
         width: 100%;
         max-width: 100%;
-        padding: 10px 0;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
+        padding: 20px 0; /* Aumentado para acomodar box-shadow */
         box-sizing: border-box;
     }
 
@@ -155,6 +147,24 @@
         min-width: 220px;
         max-width: 280px;
         box-sizing: border-box;
+        /* Estilos herdados de .card mas sem background/border */
+        position: relative;
+        padding: clamp(16px, 2.5vw, 22px);
+        border-radius: 20px;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    /* Override adicional com máxima especificidade */
+    #aniversariantes-galeria .galeria-item,
+    #visitantes-galeria .galeria-item,
+    .galeria-track .galeria-item {
+        background: transparent !important;
+        border: none !important;
     }
 
     .galeria-nav {
@@ -443,7 +453,7 @@
                     <div class="galeria-track">
                         @foreach ($aniversariantes as $item)
                             @php $birthDate = new DateTime($item->data_nascimento); @endphp
-                            <div class="card galeria-item">
+                            <div class="galeria-item">
                                 <div class="card-date"><i class="bi bi-cake2"></i> {{ $birthDate->format('d/m') }}</div>
                                 <div class="card-title">{{ $item->nome }}</div>
                                 <div class="card-owner">
@@ -479,7 +489,7 @@
                 <div class="galeria-viewport">
                     <div class="galeria-track">
                         @foreach ($visitantes as $visitante)
-                            <div class="card galeria-item">
+                            <div class="galeria-item">
                                 <div class="card-title"><i class="bi bi-person-raised-hand"></i> {{ $visitante->nome }}</div>
                                 <div class="card-owner">{{ optional($visitante->sit_visitante)->titulo }}</div>
                                 <div class="card-description">{{ $visitante->observacoes }}</div>

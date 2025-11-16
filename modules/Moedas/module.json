@@ -1,0 +1,6 @@
+{
+    "name": "Moedas",
+    "description": "Módulo de gestão de moeda interna das congregações.",
+    "provider": "Modules\\Moedas\\Providers\\MoedasServiceProvider",
+    "enabled": true
+}
