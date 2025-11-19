@@ -8,6 +8,7 @@ use App\Models\TipoLancamento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 class FinanceiroController extends Controller
 {
@@ -148,10 +149,15 @@ class FinanceiroController extends Controller
             'valor' => 'required|numeric|min:0.01',
             'descricao' => 'nullable|string',
             'data_lancamento' => 'nullable|date',
+            'anexo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         if (blank(Arr::get($data, 'data_lancamento'))) {
             $data['data_lancamento'] = now()->toDateString();
+        }
+
+        if ($request->hasFile('anexo')) {
+            $data['anexo'] = $request->file('anexo')->store('financeiro/comprovantes', 'public');
         }
 
         LancamentoFinanceiro::create($data);
@@ -293,13 +299,26 @@ class FinanceiroController extends Controller
             'valor' => 'required|numeric|min:0.01',
             'descricao' => 'nullable|string',
             'data_lancamento' => 'nullable|date',
+            'anexo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         if (blank(Arr::get($data, 'data_lancamento'))) {
             $data['data_lancamento'] = now()->toDateString();
         }
 
+        $anexoAnterior = $lancamento->anexo;
+
+        if ($request->hasFile('anexo')) {
+            $data['anexo'] = $request->file('anexo')->store('financeiro/comprovantes', 'public');
+        } else {
+            unset($data['anexo']);
+        }
+
         $lancamento->update($data);
+
+        if (isset($data['anexo']) && $anexoAnterior) {
+            Storage::disk('public')->delete($anexoAnterior);
+        }
 
         return redirect()->back()->with('success', 'Lançamento atualizado com sucesso!');
     }

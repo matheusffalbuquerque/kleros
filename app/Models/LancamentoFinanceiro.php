@@ -16,6 +16,7 @@ class LancamentoFinanceiro extends Model
         'valor',
         'descricao',
         'data_lancamento',
+        'anexo',
     ];
 
     protected $casts = [

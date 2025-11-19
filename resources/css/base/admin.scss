@@ -130,6 +130,32 @@ h1 {
     text-align: center;
 }
 
+.file-upload-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.file-upload-preview {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px dashed #9acbe7;
+    border-radius: 16px;
+    background-color: #f5f9ff;
+    min-height: 52px;
+    min-width: fit-content;
+    color: #495a6f;
+}
+
+.file-upload-preview i {
+    font-size: 1.5rem;
+    color: #1060a5;
+}
+
 /*Listas
 
 Esta lista está dividida em cinco colunas, sendo cada uma de 20% da width

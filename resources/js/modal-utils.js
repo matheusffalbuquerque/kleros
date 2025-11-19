@@ -64,6 +64,47 @@ export function initModalScripts(container) {
         }
     });
 
+    // --- controles de upload com preview de texto ---
+    const fileInputs = container.querySelectorAll('input[type="file"][data-file-display]');
+    fileInputs.forEach((input) => {
+        if (input.dataset.fileDisplayInitialized === 'true') {
+            return;
+        }
+        input.dataset.fileDisplayInitialized = 'true';
+
+        const selector = input.dataset.fileDisplay;
+        if (!selector) {
+            return;
+        }
+
+        const findTarget = () => {
+            const form = input.closest('form');
+            return (form && form.querySelector(selector))
+                || container.querySelector(selector)
+                || document.querySelector(selector);
+        };
+
+        const updateDisplay = () => {
+            const target = findTarget();
+            if (!target) {
+                return;
+            }
+
+            if (!target.dataset.fileInitial) {
+                target.dataset.fileInitial = target.innerHTML;
+            }
+
+            const file = input.files && input.files[0] ? input.files[0] : null;
+            if (file) {
+                target.textContent = file.name;
+            } else {
+                target.innerHTML = target.dataset.fileInitial || '';
+            }
+        };
+
+        input.addEventListener('change', updateDisplay);
+    });
+
     // --- controle de exibição das opções das perguntas ---
     const optionToggles = container.querySelectorAll('[data-toggle-options]');
     optionToggles.forEach(select => {

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('valor', 12, 2);
             $table->text('descricao')->nullable();
             $table->date('data_lancamento');
+            $table->string('anexo')->nullable();
             $table->timestamps();
 
             $table->index(['caixa_id', 'data_lancamento']);

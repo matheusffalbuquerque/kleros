@@ -1,5 +1,5 @@
 <h1>Registrar lançamento</h1>
-<form action="{{ route('financeiro.lancamentos.store') }}" method="post">
+<form action="{{ route('financeiro.lancamentos.store') }}" method="post" enctype="multipart/form-data">
     @csrf
     <input type="hidden" name="caixa_id" value="{{ $caixa->id }}">
     <div class="form-control">
@@ -34,6 +34,22 @@
         <div class="form-item">
             <label for="descricao">Descrição</label>
             <textarea name="descricao" id="descricao" rows="3" placeholder="Observações do lançamento">{{ old('descricao') }}</textarea>
+        </div>
+        <div class="form-item">
+            <label for="anexo">
+                <p>Anexar comprovante</p>
+                <small>Formatos aceitos: PDF, JPG ou PNG (até 5 MB).</small>
+            </label>
+            <div class="file-upload-control">
+                <div class="file-upload-preview">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    <span id="anexo-filename" data-file-initial="Nenhum arquivo selecionado">Nenhum arquivo selecionado</span>
+                </div>
+                <label class="btn">
+                    <i class="bi bi-upload"></i> Selecionar arquivo
+                    <input type="file" name="anexo" id="anexo" class="hidden" accept=".pdf,image/png,image/jpeg" data-file-display="#anexo-filename">
+                </label>
+            </div>
         </div>
         <div class="form-options">
             <button type="submit" class="btn"><i class="bi bi-plus-circle"></i> Registrar</button>
