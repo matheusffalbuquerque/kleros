@@ -1,0 +1,6 @@
+{
+    "name": "Batismo",
+    "description": "Gestão de batismos e agendamentos de membros.",
+    "provider": "Modules\\Batismo\\Providers\\BatismoServiceProvider",
+    "enabled": true
+}

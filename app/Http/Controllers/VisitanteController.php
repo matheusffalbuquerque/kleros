@@ -81,7 +81,10 @@ class VisitanteController extends Controller
             ->orderByDesc('data_visita')
             ->paginate(10);
 
-        return view('visitantes/historico', ['visitantes' => $visitantes]);
+        return view('visitantes/historico', [
+            'visitantes' => $visitantes,
+            'congregacao' => app('congregacao')
+        ]);
     }
 
     public function search(Request $request)
@@ -184,7 +187,17 @@ class VisitanteController extends Controller
     {
         $visitante = Visitante::findOrFail($id);
 
-        return view('visitantes/exibir', ['visitante' => $visitante]);
+        // Verifica se já existe um membro com o mesmo nome e telefone
+        $jaEhMembro = Membro::where('congregacao_id', app('congregacao')->id)
+            ->where('nome', $visitante->nome)
+            ->where('telefone', $visitante->telefone)
+            ->exists();
+
+        return view('visitantes/exibir', [
+            'visitante' => $visitante,
+            'congregacao' => app('congregacao'),
+            'jaEhMembro' => $jaEhMembro,
+        ]);
     }
 
     public function form_editar($id)
@@ -192,10 +205,17 @@ class VisitanteController extends Controller
         $visitante = Visitante::findOrFail($id);
         $situacao_visitante = SituacaoVisitante::orderBy('titulo')->get();
 
+        // Verifica se já existe um membro com o mesmo nome e telefone
+        $jaEhMembro = Membro::where('congregacao_id', app('congregacao')->id)
+            ->where('nome', $visitante->nome)
+            ->where('telefone', $visitante->telefone)
+            ->exists();
+
         return view('visitantes/includes/form_editar', [
             'visitante' => $visitante,
             'situacao_visitante' => $situacao_visitante,
             'returnTo' => request('return_to'),
+            'jaEhMembro' => $jaEhMembro,
         ]);
     }
 
@@ -283,14 +303,31 @@ class VisitanteController extends Controller
 
     public function tornarMembro(Request $request)
     {
-        $membro = new Membro;
-        $membro->nome = $request->nome;
-        $membro->telefone = $request->telefone;
-        $membro->data_nascimento = null;
-        $membro->congregacao_id = app('congregacao')->id;
-        $membro->created_at = now();
-        $membro->updated_at = now();
-        $membro->save();
+        $validated = $request->validate([
+            'nome' => ['required', 'string', 'max:255'],
+            'telefone' => ['required', 'string', 'max:100'],
+        ]);
+
+        // Verifica se já existe um membro com o mesmo nome e telefone
+        $membroExistente = Membro::where('congregacao_id', app('congregacao')->id)
+            ->where('nome', $validated['nome'])
+            ->where('telefone', $validated['telefone'])
+            ->first();
+
+        if ($membroExistente) {
+            return redirect()
+                ->back()
+                ->with('error', __('visitors.flash.already_member', ['name' => $validated['nome']]))
+                ->withInput();
+        }
+
+        $membro = Membro::create([
+            'nome' => $validated['nome'],
+            'telefone' => $validated['telefone'],
+            'data_nascimento' => null,
+            'congregacao_id' => app('congregacao')->id,
+            'ativo' => true,
+        ]);
 
         return redirect()
             ->route('membros.editar', $membro->id)

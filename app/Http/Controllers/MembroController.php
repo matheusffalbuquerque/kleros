@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Escolaridade;
 use App\Models\EstadoCiv;
 use App\Models\Membro;
+use App\Models\MembroStatusHistorico;
 use App\Models\Ministerio;
 use App\Models\User;
 use App\Models\Feed;
+use App\Models\MensagemPersonalizada;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +30,12 @@ class MembroController extends Controller
         $ministerios = Ministerio::all();
         $estado_civil = EstadoCiv::all();
 
-        return view('/membros/cadastro', ['escolaridade' => $escolaridade, 'ministerios' => $ministerios, 'estado_civil' => $estado_civil]);
+        return view('/membros/cadastro', [
+            'escolaridade' => $escolaridade, 
+            'ministerios' => $ministerios, 
+            'estado_civil' => $estado_civil,
+            'congregacao' => $this->congregacao
+        ]);
     }
 
     public function store(Request $request) {
@@ -39,6 +46,7 @@ class MembroController extends Controller
             'nome' => ['required', 'string', 'max:255'],
             'telefone' => ['required', 'string', 'max:100'],
             'data_nascimento' => ['required', 'date'],
+            'sexo' => ['nullable', 'in:Masculino,Feminino'],
         ], [
             'nome.required' => __('members.validation.name_required'),
             'telefone.required' => __('members.validation.phone_required'),
@@ -50,6 +58,7 @@ class MembroController extends Controller
         $membro->rg = $request->rg;
         $membro->cpf = $request->cpf;
         $membro->data_nascimento = $request->data_nascimento;
+        $membro->sexo = $request->sexo;
         $membro->telefone = $request->telefone;
         $membro->email = $request->email;
         $membro->estado_civ_id = $request->estado_civil;
@@ -78,6 +87,17 @@ class MembroController extends Controller
             $user->membro_id = $membro->id;
 
             $user->save();
+
+            $responsavel = optional(Auth::user())->membro;
+
+            MembroStatusHistorico::create([
+                'congregacao_id' => $membro->congregacao_id ?? $this->congregacao->id,
+                'membro_id' => $membro->id,
+                'status' => MembroStatusHistorico::STATUS_ATIVO,
+                'descricao' => 'Passou a fazer parte desta congregação.',
+                'data_status' => now(),
+                'membro_responsavel_id' => optional($responsavel)->id,
+            ]);
         }
 
         return redirect()->route('membros.adicionar')->with('msg', $msg);
@@ -92,6 +112,99 @@ class MembroController extends Controller
             ->paginate(10);
 
         return view('/membros/painel', ['membros' => $membros, 'congregacao' => $congregacao, 'showingInactives' => false]);
+    }
+
+    public function aniversariantes(Request $request)
+    {
+        $congregacao = $this->congregacao;
+
+        $mesSelecionado = (int) $request->input('mes', now()->month);
+        if ($mesSelecionado < 1 || $mesSelecionado > 12) {
+            $mesSelecionado = now()->month;
+        }
+
+        $nomeFiltro = trim((string) $request->input('nome'));
+
+        $membrosQuery = Membro::where('congregacao_id', $congregacao->id)
+            ->where('ativo', true)
+            ->whereNotNull('data_nascimento')
+            ->whereMonth('data_nascimento', $mesSelecionado);
+
+        if ($nomeFiltro !== '') {
+            $membrosQuery->where('nome', 'like', '%' . $nomeFiltro . '%');
+        }
+
+        $membros = $membrosQuery
+            ->orderByRaw('DAY(data_nascimento), nome')
+            ->get();
+
+        $meses = [
+            1 => 'Janeiro',
+            2 => 'Fevereiro',
+            3 => 'Março',
+            4 => 'Abril',
+            5 => 'Maio',
+            6 => 'Junho',
+            7 => 'Julho',
+            8 => 'Agosto',
+            9 => 'Setembro',
+            10 => 'Outubro',
+            11 => 'Novembro',
+            12 => 'Dezembro',
+        ];
+
+        return view('membros.aniversariantes', [
+            'congregacao' => $congregacao,
+            'membros' => $membros,
+            'mesSelecionado' => $mesSelecionado,
+            'meses' => $meses,
+            'nomeFiltro' => $nomeFiltro,
+        ]);
+    }
+
+    public function configurarMensagemAniversariantes()
+    {
+        $congregacao = $this->congregacao;
+
+        abort_if(! $congregacao, 404);
+
+        $configMensagem = MensagemPersonalizada::firstOrNew([
+            'congregacao_id' => $congregacao->id,
+            'tipo' => 'aniversario',
+        ]);
+
+        return view('membros.includes.aniversariantes_config', [
+            'configMensagem' => $configMensagem,
+        ]);
+    }
+
+    public function salvarMensagemAniversariantes(Request $request)
+    {
+        $congregacao = $this->congregacao;
+
+        abort_if(! $congregacao, 404);
+
+        $dados = $request->validate([
+            'assunto' => ['required', 'string', 'max:255'],
+            'mensagem' => ['required', 'string'],
+            'envio_automatico' => ['required', 'in:0,1'],
+        ]);
+
+        $configMensagem = MensagemPersonalizada::updateOrCreate(
+            [
+                'congregacao_id' => $congregacao->id,
+                'tipo' => 'aniversario',
+            ],
+            [
+                'assunto' => $dados['assunto'],
+                'mensagem' => $dados['mensagem'],
+                'envio_automatico' => (bool) $dados['envio_automatico'],
+            ]
+        );
+
+        return redirect()
+            ->route('membros.aniversariantes')
+            ->with('msg', 'Mensagem de aniversário salva com sucesso.');
     }
 
     public function inativos() {
@@ -198,8 +311,19 @@ class MembroController extends Controller
         $estado_civil = EstadoCiv::all();;
         $escolaridade = Escolaridade::all();
         $ministerio = Ministerio::daDenominacao()->get();
+        $ultimoHistoricoDesligado = $membro->statusHistorico()
+            ->where('status', MembroStatusHistorico::STATUS_DESLIGADO)
+            ->latest('data_status')
+            ->first();
 
-        return view('/membros/editar', ['membro' => $membro, 'estado_civil' => $estado_civil, 'escolaridade' => $escolaridade, 'ministerios' => $ministerio]);
+        return view('/membros/editar', [
+            'membro' => $membro, 
+            'estado_civil' => $estado_civil, 
+            'escolaridade' => $escolaridade, 
+            'ministerios' => $ministerio,
+            'congregacao' => $this->congregacao,
+            'ultimoMotivoDesligamento' => optional($ultimoHistoricoDesligado)->descricao,
+        ]);
     }
 
     public function form_editar($id) {
@@ -208,8 +332,19 @@ class MembroController extends Controller
         $estado_civil = EstadoCiv::all();;
         $escolaridade = Escolaridade::all();
         $ministerio = Ministerio::daDenominacao()->get();
+        $ultimoHistoricoDesligado = $membro->statusHistorico()
+            ->where('status', MembroStatusHistorico::STATUS_DESLIGADO)
+            ->latest('data_status')
+            ->first();
 
-        return view('/membros/includes/form_editar', ['membro' => $membro, 'estado_civil' => $estado_civil, 'escolaridade' => $escolaridade, 'ministerios' => $ministerio]);
+        return view('/membros/includes/form_editar', [
+            'membro' => $membro, 
+            'estado_civil' => $estado_civil, 
+            'escolaridade' => $escolaridade, 
+            'ministerios' => $ministerio,
+            'congregacao' => $this->congregacao,
+            'ultimoMotivoDesligamento' => optional($ultimoHistoricoDesligado)->descricao,
+        ]);
     }
 
     public function update(Request $request, $id) {
@@ -220,36 +355,68 @@ class MembroController extends Controller
             'nome' => ['required', 'string', 'max:255'],
             'telefone' => ['required', 'string', 'max:100'],
             'data_nascimento' => ['required', 'date'],
+            'sexo' => ['nullable', 'in:Masculino,Feminino'],
         ], [
             'nome.required' => __('members.validation.name_required'),
             'telefone.required' => __('members.validation.phone_required'),
             'data_nascimento.required' => __('members.validation.birth_required'),
         ]);
 
-        $membro->nome = $request->nome;
-        $membro->rg = $request->rg;
-        $membro->cpf = $request->cpf;
-        $membro->data_nascimento = $request->data_nascimento;
-        $membro->sexo = $request->sexo;
-        $membro->telefone = $request->telefone;
-        $membro->estado_civ_id = $request->estado_civil;
-        $membro->escolaridade_id = $request->escolaridade;
-        $membro->profissao = $request->profissao;
-        $membro->endereco = $request->endereco;
-        $membro->numero = $request->numero;
-        $membro->bairro = $request->bairro;
-        $membro->data_batismo= $request->data_batismo;
-        $membro->denominacao_origem= $request->denominacao_origem;
-        $membro->ministerio_id = $request->ministerio;
-        $membro->nome_paterno = $request->nome_paterno;
-        $membro->nome_materno = $request->nome_materno;
-        $membro->ativo = $request->ativo;
+        $statusAnterior = (int) $membro->getOriginal('ativo');
+        $novoMotivoDesligamento = trim((string) $request->input('motivo_desligamento', ''));
+        if ($novoMotivoDesligamento === '') {
+            $novoMotivoDesligamento = null;
+        }
+        $novoStatusAtivo = $request->has('ativo') ? (int) $request->input('ativo') : 1;
 
-        // Atualiza os timestamps
-        $membro->updated_at = date('Y-m-d H:i:s');
+        $membro->fill([
+            'nome' => $request->nome,
+            'rg' => $request->rg,
+            'cpf' => $request->cpf,
+            'data_nascimento' => $request->data_nascimento,
+            'sexo' => $request->sexo,
+            'telefone' => $request->telefone,
+            'email' => $request->email,
+            'estado_civ_id' => $request->estado_civil,
+            'escolaridade_id' => $request->escolaridade,
+            'profissao' => $request->profissao,
+            'endereco' => $request->endereco,
+            'numero' => $request->numero,
+            'bairro' => $request->bairro,
+            'data_batismo' => $request->data_batismo,
+            'denominacao_origem' => $request->denominacao_origem,
+            'ministerio_id' => $request->ministerio,
+            'data_consagracao' => $request->data_consagracao,
+            'nome_paterno' => $request->nome_paterno,
+            'nome_materno' => $request->nome_materno,
+            'ativo' => $novoStatusAtivo,
+        ]);
 
         // Salva as alterações
         if ($membro->save()) {
+            $responsavel = optional(Auth::user())->membro;
+            if ($novoMotivoDesligamento && (string) $novoStatusAtivo === '0') {
+                MembroStatusHistorico::create([
+                    'congregacao_id' => $membro->congregacao_id ?? $this->congregacao->id,
+                    'membro_id' => $membro->id,
+                    'status' => MembroStatusHistorico::STATUS_DESLIGADO,
+                    'descricao' => $novoMotivoDesligamento,
+                    'data_status' => now(),
+                    'membro_responsavel_id' => optional($responsavel)->id,
+                ]);
+            }
+
+            if ($statusAnterior === 0 && (string) $novoStatusAtivo === '1') {
+                MembroStatusHistorico::create([
+                    'congregacao_id' => $membro->congregacao_id ?? $this->congregacao->id,
+                    'membro_id' => $membro->id,
+                    'status' => MembroStatusHistorico::STATUS_ATIVO,
+                    'descricao' => 'Voltou a ser membro desta congregação.',
+                    'data_status' => now(),
+                    'membro_responsavel_id' => optional($responsavel)->id,
+                ]);
+            }
+
             return redirect()->back()->with('msg', __('members.flash.updated'));
         }
     }
@@ -273,7 +440,11 @@ class MembroController extends Controller
             ->where('fonte', 'guiame')
             ->limit(9)->get();
 
-        return view('/perfil/edicao', ['membro' => $membro, 'destaques' => $noticias]);
+        return view('/perfil/edicao', [
+            'membro' => $membro, 
+            'destaques' => $noticias,
+            'congregacao' => $this->congregacao
+        ]);
     }
 
     public function save_perfil($id) {

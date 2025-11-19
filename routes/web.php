@@ -180,6 +180,9 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::post('/membros', [MembroController::class, 'store'])->name('membros.store');
         Route::get('/membros/adicionar', [MembroController::class, 'adicionar'])->name('membros.adicionar'); 
         Route::get('/membros/painel', [MembroController::class, 'painel'])->name('membros.painel');
+        Route::get('/membros/aniversariantes', [MembroController::class, 'aniversariantes'])->name('membros.aniversariantes');
+        Route::get('/membros/aniversariantes/config', [MembroController::class, 'configurarMensagemAniversariantes'])->name('membros.aniversariantes.config');
+        Route::post('/membros/aniversariantes/config', [MembroController::class, 'salvarMensagemAniversariantes'])->name('membros.aniversariantes.config.salvar');
         Route::get('/membros/inativos', [MembroController::class, 'inativos'])->name('membros.inativos');
         Route::get('/membros/export', [MembroController::class, 'export'])->name('membros.export');
         Route::get('/membros/{id}', [MembroController::class, 'editar'])->name('membros.editar');

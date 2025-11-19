@@ -5,7 +5,7 @@ return [
         'fields' => [
             'name' => 'Nome',
             'phone' => 'Telefone',
-            'visit_date' => 'Data da visita',
+            'visit_date' => 'Última visita',
             'status' => 'Situação',
             'notes' => 'Observações',
             'keyword' => 'Palavra-chave',
@@ -38,6 +38,9 @@ return [
         'tooltip' => [
             'copied' => 'Copiado!',
         ],
+        'messages' => [
+            'confirm_delete' => 'Deseja realmente remover este visitante?',
+        ],
     ],
     'cadastro' => [
         'title' => 'Cadastrar Visitante',
@@ -46,6 +49,8 @@ return [
     'edit' => [
         'title' => 'Editar visitante',
         'section' => 'Informações',
+        'already_member' => 'Este visitante já foi convertido em membro',
+        'already_member_btn' => 'Já é membro',
     ],
     'view' => [
         'title' => 'Informações de Visitante',
@@ -61,9 +66,10 @@ return [
         ],
         'table' => [
             'name' => 'Nome',
-            'date' => 'Data da visita',
+            'date' => 'Última visita',
             'phone' => 'Telefone',
             'status' => 'Situação',
+            'became_member' => 'Tornou-se membro',
         ],
         'empty' => 'Nenhum visitante retornado para esta pesquisa.',
     ],
@@ -78,6 +84,7 @@ return [
         'updated' => ':name foi atualizado(a) com sucesso.',
         'deleted' => 'Visitante excluído com sucesso.',
         'converted' => ':name agora é um membro! Complete os dados cadastrais.',
+        'already_member' => ':name já está cadastrado(a) como membro. Não é possível converter novamente.',
     ],
     'export' => [
         'filename_prefix' => 'visitantes_',

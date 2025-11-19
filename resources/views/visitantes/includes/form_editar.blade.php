@@ -51,14 +51,22 @@
         </div>
         <div class="form-options">
             <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> {{ $common['buttons']['update'] }}</button>
-            <button class="btn" form="form-membrar"><i class="bi bi-person-add"></i> {{ $common['buttons']['convert_member'] }}</button>
+            @if(!isset($jaEhMembro) || !$jaEhMembro)
+                <button class="btn" form="form-membrar"><i class="bi bi-person-add"></i> {{ $common['buttons']['convert_member'] }}</button>
+            @else
+                <button class="btn" type="button" disabled title="{{ $editTexts['already_member'] ?? 'Este visitante já é membro' }}">
+                    <i class="bi bi-person-check"></i> {{ $editTexts['already_member_btn'] ?? 'Já é membro' }}
+                </button>
+            @endif
             <button type="button" class="btn" onclick="window.history.back()"><i class="bi bi-x-circle"></i> {{ $common['buttons']['cancel'] }}</button>
         </div>
     </div>
 </form>
 
+@if(!isset($jaEhMembro) || !$jaEhMembro)
 <form id="form-membrar" action="{{ route('visitantes.membrar') }}" method="POST">
     @csrf
     <input type="hidden" name="nome" value="{{ old('nome', $visitante->nome) }}">
     <input type="hidden" name="telefone" value="{{ old('telefone', $visitante->telefone) }}">
 </form>
+@endif

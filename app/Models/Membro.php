@@ -5,16 +5,43 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
 class Membro extends Model
 {
+    protected $fillable = [
+        'nome',
+        'rg',
+        'cpf',
+        'data_nascimento',
+        'sexo',
+        'telefone',
+        'email',
+        'estado_civ_id',
+        'escolaridade_id',
+        'profissao',
+        'endereco',
+        'numero',
+        'bairro',
+        'data_batismo',
+        'data_conversao',
+        'data_consagracao',
+        'denominacao_origem',
+        'ministerio_id',
+        'nome_paterno',
+        'nome_materno',
+        'ativo',
+        'congregacao_id',
+        'setor_id',
+    ];
 
     protected $casts = [
         'data_nascimento' => 'date',
         'data_batismo' => 'date',
         'data_conversao' => 'date',
         'data_cadastro' => 'date',
+        'data_consagracao' => 'date',
         'ativo' => 'boolean',
     ];
 
@@ -86,6 +113,11 @@ class Membro extends Model
     public function assinante(): HasOne
     {
         return $this->hasOne(Assinante::class);
+    }
+
+    public function statusHistorico(): HasMany
+    {
+        return $this->hasMany(MembroStatusHistorico::class);
     }
 
     /**

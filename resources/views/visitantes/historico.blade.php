@@ -70,7 +70,10 @@
                             <p><i class="bi bi-person-raised-hand"></i> {{ $item->nome }}</p>
                         </div>
                         <div class="item item-1">
-                            <p>{{ $formatDate($item->data_visita) }}</p>
+                            <p>
+                                {{ $formatDate($item->data_visita) }}
+                                <span class="badge badge-secondary">{{ $item->totalVisitas() }} visita(s)</span>
+                            </p>
                         </div>
                         <div class="item item-1">
                             <p>
@@ -82,7 +85,15 @@
                             </p>
                         </div>
                         <div class="item item-1">
-                            <p>{{ optional($item->sit_visitante)->titulo ?? $common['statuses']['not_informed'] }}</p>
+                            <p>
+                                @if($item->jaEhMembro())
+                                    <span class="badge badge-success">
+                                        <i class="bi bi-person-check-fill"></i> {{ $history['table']['became_member'] ?? 'Tornou-se membro' }}
+                                    </span>
+                                @else
+                                    {{ optional($item->sit_visitante)->titulo ?? $common['statuses']['not_informed'] }}
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </a>
@@ -101,6 +112,43 @@
 </div>
 
 <style>
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.35em 0.65em;
+    font-size: 0.85em;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge i {
+    font-size: 1em;
+}
+
+.badge-secondary {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    margin-left: 0.5em;
+    font-size: 0.88em;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--secondary-color);
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
 .tooltip-copiar {
     position: absolute;
     top: -25px;

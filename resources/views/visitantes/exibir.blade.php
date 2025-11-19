@@ -29,6 +29,12 @@
                         </div>
                     </div>
                     <div class="field">
+                        <label for="visitas_realizadas">Visitas realizadas:</label>
+                        <div class="card-title">
+                            <span>{{ $visitante->totalVisitas() }} visita(s)</span>
+                        </div>
+                    </div>
+                    <div class="field">
                         <label for="data_visita">{{ $common['fields']['visit_date'] }}:</label>
                         <div class="card-title">{{ $formatDate($visitante->data_visita) }}</div>
                     </div>
@@ -56,6 +62,22 @@
         </div>
     </form>
 </div>
+
+<style>
+.badge-secondary {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    margin-left: 0.5em;
+    font-size: 0.88em;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--secondary-color);
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+</style>
 @endsection
 
 @push('scripts')

@@ -137,6 +137,7 @@ class HomeController extends Controller
         
         $aniversariantes = Membro::DaCongregacao()
             ->whereMonth('data_nascimento', $hoje->month)
+            ->where('ativo', true)
             ->orderByRaw("DAY(data_nascimento) >= ? DESC, DAY(data_nascimento) ASC", [$diaAtual])
             ->get();
 

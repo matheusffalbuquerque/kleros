@@ -45,8 +45,8 @@
                 <div class="form-item">
                     <label for="sexo">{{ $common['fields']['gender'] }}:</label>
                     <select name="sexo" id="sexo">
-                        <option value="M" @selected(old('sexo') == 'M')>{{ $common['gender']['male'] }}</option>
-                        <option value="F" @selected(old('sexo') == 'F')>{{ $common['gender']['female'] }}</option>
+                        <option value="Masculino" @selected(old('sexo') == 'Masculino')>{{ $common['gender']['male'] }}</option>
+                        <option value="Feminino" @selected(old('sexo') == 'Feminino')>{{ $common['gender']['female'] }}</option>
                     </select>
                 </div>
                 <div class="form-item">

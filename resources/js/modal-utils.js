@@ -717,6 +717,23 @@ export function initModalScripts(container) {
         renderList();
     }
 
+    // --- Controle de motivo de desligamento em formulários de membros ---
+    const statusSelect = container.querySelector('#ativo');
+    const motivoDiv = container.querySelector('#motivo_desligamento_div');
+
+    if (statusSelect && motivoDiv) {
+        function toggleMotivoDiv() {
+            if (statusSelect.value === '0') {
+                motivoDiv.style.display = 'flex';
+            } else {
+                motivoDiv.style.display = 'none';
+            }
+        }
+
+        statusSelect.addEventListener('change', toggleMotivoDiv);
+        toggleMotivoDiv(); // Executa ao carregar para definir o estado inicial
+    }
+
     // Inicializa scripts para botões de menu nos paineis 
     if (typeof window !== 'undefined' && typeof window.initOptionsMenus === 'function') {
         window.initOptionsMenus(container || document);

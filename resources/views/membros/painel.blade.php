@@ -46,6 +46,10 @@
                     @else
                         <button type="button" class="btn" data-action="redirect" data-url="{{ route('membros.inativos') }}"><i class="bi bi-person-x"></i> {{ $painel['options']['show_inactives'] }}</button>
                     @endif
+                    @if(module_enabled('batismo') && Route::has('batismo.painel'))
+                        <button type="button" class="btn" data-action="redirect" data-url="{{ route('batismo.painel') }}"><i class="bi bi-water"></i> Batismos</button>
+                    @endif
+                    <button type="button" class="btn" data-action="redirect" data-url="{{ route('membros.aniversariantes') }}"><i class="bi bi-cake2"></i> Aniversariantes</button>
                     <button type="button" class="btn" data-action="back"><i class="bi bi-arrow-return-left"></i> {{ $painel['options']['back'] }}</button>
                 </div>
             </form>

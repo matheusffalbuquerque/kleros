@@ -15,7 +15,10 @@
                 <p><i class="bi bi-person-raised-hand"></i> {{ $item->nome }}</p>
             </div>
             <div class="item item-1">
-                <p>{{ $formatDate($item->data_visita) }}</p>
+                <p>
+                    {{ $formatDate($item->data_visita) }}
+                    <span class="tag">{{ $item->totalVisitas() }} visita(s)</span>
+                </p>
             </div>
             <div class="item item-1">
                 <p>
@@ -27,7 +30,15 @@
                 </p>
             </div>
             <div class="item item-1">
-                <p>{{ optional($item->sit_visitante)->titulo ?? $common['statuses']['not_informed'] }}</p>
+                <p>
+                    @if($item->jaEhMembro())
+                        <span class="badge badge-success">
+                            <i class="bi bi-person-check-fill"></i> {{ $history['table']['became_member'] ?? 'Tornou-se membro' }}
+                        </span>
+                    @else
+                        {{ optional($item->sit_visitante)->titulo ?? $common['statuses']['not_informed'] }}
+                    @endif
+                </p>
             </div>
         </div>
     </a>

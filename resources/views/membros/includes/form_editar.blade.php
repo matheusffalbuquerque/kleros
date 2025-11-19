@@ -50,8 +50,19 @@
                         <input type="date" name="data_nascimento" id="data_nascimento" value="{{ old('data_nascimento', $membro->data_nascimento  ? \Carbon\Carbon::parse($membro->data_nascimento)->format('Y-m-d') : '') }}" required>
                     </div>
                     <div class="form-item">
+                        <label for="sexo">{{ $common['fields']['gender'] }}:</label>
+                        <select name="sexo" id="sexo">
+                            <option value="Masculino" @selected(old('sexo', $membro->sexo) == 'Masculino')>{{ $common['gender']['male'] }}</option>
+                            <option value="Feminino" @selected(old('sexo', $membro->sexo) == 'Feminino')>{{ $common['gender']['female'] }}</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
                         <label for="telefone">{{ $common['fields']['phone'] }}:*</label>
                         <input type="text" name="telefone" id="telefone" placeholder="{{ $common['placeholders']['phone'] }}" value="{{ old('telefone', $membro->telefone) }}" required>
+                    </div>
+                    <div class="form-item">
+                        <label for="email">{{ $common['fields']['email'] }}:</label>
+                        <input type="email" name="email" id="email" placeholder="{{ $common['placeholders']['email'] }}" value="{{ old('email', $membro->email) }}">
                     </div>
                     <div class="form-item">
                         <label for="estado_civil">{{ $common['fields']['marital_status'] }}:</label>
@@ -136,8 +147,11 @@
                             <option value="0" @selected(old('ativo', $membro->ativo) == 0)>{{ $common['status']['inactive'] ?? 'Desligado' }}</option>
                         </select>
                     </div>
+                    <div class="form-item" id="motivo_desligamento_div" style="display: {{ old('ativo', $membro->ativo) == 0 ? 'flex' : 'none' }};">
+                        <label for="motivo_desligamento">{{ $common['fields']['disconnection_reason'] ?? 'Motivo do Desligamento' }}:</label>
+                        <textarea name="motivo_desligamento" id="motivo_desligamento" cols="30" rows="5">{{ old('motivo_desligamento', $ultimoMotivoDesligamento ?? '') }}</textarea>
+                    </div>
                 </div>
-            </div>
 
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> {{ $common['buttons']['update_member'] }}</button>
@@ -146,22 +160,3 @@
         </div>
     </form>
 </div>
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.tab-menu li').forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                const target = tab.dataset.tab;
-                tab.closest('.tabs').querySelectorAll('.tab-menu li').forEach(li => li.classList.remove('active'));
-                tab.closest('.tabs').querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-                tab.classList.add('active');
-                const pane = document.getElementById(target);
-                if (pane) {
-                    pane.classList.add('active');
-                }
-            });
-        });
-    });
-</script>
-@endpush

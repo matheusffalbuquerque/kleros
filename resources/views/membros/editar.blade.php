@@ -14,6 +14,8 @@
     </div>
 @endif
 
-@include('membros.includes.form_editar')
+<div class="container">
+    @include('membros.includes.form_editar')
+</div>
 
 @endsection

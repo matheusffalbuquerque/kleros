@@ -236,6 +236,9 @@
                             <a href="{{route('reunioes.painel')}}"><li><span title="Reuniões"><i class="bi bi-people-fill"></i></span><span>Reuniões</span></li></a>
                             <a href="{{route('avisos.painel')}}"><li><span title="Mensagens"><i class="bi bi-envelope"></i></span><span>Mensagens</span></li></a>
                             <a href="{{route('visitantes.historico')}}"><li><span title="Visitantes"><i class="bi bi-person-raised-hand"></i></span><span>Visitantes</span></li></a>
+                            @if(module_enabled('batismo') && Route::has('batismo.painel'))
+                                <a href="{{ route('batismo.painel') }}"><li><span title="Batismos"><i class="bi bi-water"></i></span><span>Batismos</span></li></a>
+                            @endif
                             <a href="{{route('departamentos.painel')}}"><li><span title="Departamentos"><i class="bi bi-intersect"></i></span><span>Departamentos</span></li></a>
                             @if(module_enabled('celulas') && Route::has('celulas.painel'))
                                 <a href="{{ route('celulas.painel') }}"><li><span title="GCA - Células"><i class="bi bi-cup-hot"></i></span><span>GCA - Células</span></li></a>
