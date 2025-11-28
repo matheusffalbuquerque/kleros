@@ -40,9 +40,12 @@ use App\Http\Middleware\CheckAdminRole;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ExtensaoCatalogoController;
 
+$publicDomain = config('domains.public', 'kleros.local');
+$adminDomain = config('domains.admin', 'admin.local');
+
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
-Route::domain('kleros.local')
+Route::domain($publicDomain)
     ->middleware('setlocale')
     ->group(function () {
     Route::get('/', [SiteController::class, 'home'])->name('site.home');
@@ -63,7 +66,7 @@ Route::domain('kleros.local')
     Route::post('/configuracoes/{congregacao}', [CongregacaoController::class, 'salvarConfig'])->name('congregacoes.config.salvar');
 });
 
-Route::domain('admin.local')->middleware('setlocale')->group(function () {
+Route::domain($adminDomain)->middleware('setlocale')->group(function () {
 
     Route::get('/', fn() => redirect()->route('admin.login'));
     Route::get('/login', [AdminController::class, 'login'])->name('admin.login');

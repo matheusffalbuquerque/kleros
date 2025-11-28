@@ -20,11 +20,13 @@ class AcessarCongregacaoPeloDominio
     {
         // Obtém o host da requisição
         $host = $request->getHost();
+        $publicDomain = config('domains.public', 'kleros.local');
+        $adminDomain = config('domains.admin', 'admin.local');
 
         // Se for o domínio principal, não carregar congregação
-         if (in_array($host, ['kleros.local', 'admin.local'])) {
-            app()->instance('modo_admin', $host === 'admin.local');
-            app()->instance('site_publico', $host === 'kleros.local');
+        if (in_array($host, [$publicDomain, $adminDomain], true)) {
+            app()->instance('modo_admin', $host === $adminDomain);
+            app()->instance('site_publico', $host === $publicDomain);
             app()->instance('congregacao', null);
             Auth::shouldUse('web'); // garante sessão padrão
             return $next($request);
@@ -48,7 +50,14 @@ class AcessarCongregacaoPeloDominio
 
         if (!$dominio) {
             // 🔁 Redireciona para site principal se o domínio não existir
-            return redirect()->away('http://kleros.local');
+            $mainUrl = rtrim((string) config('app.url'), '/');
+
+            if ($mainUrl === '') {
+                $scheme = config('domains.scheme', $request->isSecure() ? 'https' : 'http');
+                $mainUrl = "{$scheme}://{$publicDomain}";
+            }
+
+            return redirect()->away($mainUrl);
         }
 
         app()->instance('congregacao', $dominio->congregacao);

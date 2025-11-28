@@ -44,11 +44,14 @@ class AppServiceProvider extends ServiceProvider
             Livewire::component('biblia-verse-comments', \App\Livewire\BibliaVerseComments::class);
         }
 
-        app()->singleton('modo_admin', function () {
-            return request()->getHost() === 'admin.local';
+        $publicDomain = config('domains.public', 'kleros.local');
+        $adminDomain = config('domains.admin', 'admin.local');
+
+        app()->singleton('modo_admin', function () use ($adminDomain) {
+            return request()->getHost() === $adminDomain;
         });
-        app()->singleton('site_publico', function () {
-            return request()->getHost() === 'kleros.local';
+        app()->singleton('site_publico', function () use ($publicDomain) {
+            return request()->getHost() === $publicDomain;
         });
 
         $this->registerEnabledModules();
