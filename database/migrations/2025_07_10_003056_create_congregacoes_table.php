@@ -43,7 +43,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('denominacao_id')->constrained('denominacoes')->onDelete('cascade');
             $table->string('identificacao');
-            $table->string('nome_reduzido')->nullable();
+            $table->string('nome_curto')->nullable();
             $table->string('cnpj')->nullable();
             $table->boolean('ativa');
             $table->string('endereco')->nullable();
