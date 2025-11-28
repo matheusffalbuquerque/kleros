@@ -26,7 +26,11 @@
     </style>
 
     {{-- Tailwind CSS (se estiver usando Vite ou Mix) --}}
-    @vite('resources/css/site.css')
+    @vite([
+    'resources/css/app.scss',
+    'resources/css/site.css',
+    'resources/js/app.js'
+    ])
 </head>
 <body class="antialiased">
     @if (session('locale_changed') || session('locale_error'))
