@@ -75,7 +75,6 @@ return new class extends Migration
             $table->string('logo_caminho')->nullable();
             $table->string('banner_caminho')->nullable();
             $table->json('conjunto_cores');
-            $table->string('font_family')->nullable();
             $table->enum('agrupamentos', ['grupo', 'departamento', 'setor'])->default('grupo');
             $table->boolean('celulas')->default(false);
             $table->string('font_family')->nullable();
