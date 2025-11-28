@@ -11,8 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Coluna e FK já foram criadas anteriormente; evita duplicação quando rodar em ambientes existentes
+        if (Schema::hasColumn('congregacoes', 'responsavel_principal_id')) {
+            return;
+        }
+
         Schema::table('congregacoes', function (Blueprint $table) {
-            $table->foreignId('responsavel_principal_id')->nullable()->constrained('membros')->onDelete('set null');
+            $table->foreignId('responsavel_principal_id')
+                ->nullable()
+                ->constrained('membros')
+                ->onDelete('set null');
         });
     }
 
@@ -21,6 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasColumn('congregacoes', 'responsavel_principal_id')) {
+            return;
+        }
+
         Schema::table('congregacoes', function (Blueprint $table) {
             $table->dropForeign(['responsavel_principal_id']);
             $table->dropColumn(['responsavel_principal_id']);
