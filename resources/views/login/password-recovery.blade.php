@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $tituloPagina }} - {{ $congregacaoNome }}</title>
-    <link rel="shortcut icon" href="{{ asset('storage/'.$congregacao->config->logo_caminho) }}" type="image/x-icon">
+    <link rel="shortcut icon" href="/storage/{{$congregacao->config->logo_caminho}}" type="image/x-icon">
     @vite(['resources/css/app.scss'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,9 +39,9 @@
         }
     </style>
 </head>
-<body id="login" style="background-image: url({{ asset('storage/'.$congregacao->config->banner_caminho) }});">
+<body id="login" style="background-image: url(/storage/{{$congregacao->config->banner_caminho}});">
     <div class="login-container">
-        <img src="{{ asset('storage/'.$congregacao->config->logo_caminho) }}" alt="{{ $congregacao->denominacao->nome }}" class="logo">
+        <img src="/storage/{{$congregacao->config->logo_caminho}}" alt="{{ $congregacao->denominacao->nome }}" class="logo">
         <h2>{{ $tituloPagina }}</h2>
         <p class="login-hint">
             @switch($step)

@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@yield('title')</title>
-        <link rel="shortcut icon" href="{{asset('storage/'.$congregacao->config->logo_caminho)}}" type="image/x-icon">
+        <link rel="shortcut icon" href="/storage/{{$congregacao->config->logo_caminho}}" type="image/x-icon">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,7 +77,7 @@
             <header class="nao-imprimir">
                 <nav class="main-navbar">
                     <div class="nav-logo">
-                        <img src="{{asset('storage/'.$congregacao->config->logo_caminho)}}" alt="{{$congregacao->denominacao->nome}} Logo">
+                        <img src="/storage/{{$congregacao->config->logo_caminho}}" alt="{{$congregacao->denominacao->nome}} Logo">
                     </div>
                     <div class="nav-menu">
                         <ul id="menu-express">

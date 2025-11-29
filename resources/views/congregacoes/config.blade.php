@@ -93,7 +93,7 @@
                         <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                             <div class="h-16 w-16 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
                                 @if ($config->logo_caminho)
-                                    <img src="{{ asset('storage/' . $config->logo_caminho) }}" alt="Logo" class="h-full w-full object-cover">
+                                    <img src="/storage/{{ $config->logo_caminho }}" alt="Logo" class="h-full w-full object-cover">
                                 @else
                                     <i class="bi bi-image text-2xl text-white/40"></i>
                                 @endif
@@ -113,7 +113,7 @@
                         <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                             <div class="h-16 w-24 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
                                 @if ($config->banner_caminho)
-                                    <img src="{{ asset('storage/' . $config->banner_caminho) }}" alt="Banner" class="h-full w-full object-cover">
+                                    <img src="/storage/{{ $config->banner_caminho }}" alt="Banner" class="h-full w-full object-cover">
                                 @else
                                     <i class="bi bi-images text-2xl text-white/40"></i>
                                 @endif

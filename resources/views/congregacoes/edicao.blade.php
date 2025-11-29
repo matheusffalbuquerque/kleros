@@ -9,8 +9,8 @@
     $sections = $edit['sections'];
     $placeholders = $edit['placeholders'];
     $scripts = $edit['scripts'];
-    $logoPath = optional($congregacao->config)->logo_caminho ? asset('storage/' . $congregacao->config->logo_caminho) : '';
-    $bannerPath = optional($congregacao->config)->banner_caminho ? asset('storage/' . $congregacao->config->banner_caminho) : '';
+    $logoPath = optional($congregacao->config)->logo_caminho ? '/storage/' . $congregacao->config->logo_caminho : '';
+    $bannerPath = optional($congregacao->config)->banner_caminho ? '/storage/' . $congregacao->config->banner_caminho : '';
     $hasLogo = !empty($logoPath);
     $hasBanner = !empty($bannerPath);
 @endphp

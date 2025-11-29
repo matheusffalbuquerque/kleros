@@ -13,8 +13,8 @@ class CongregacaoConfigResource extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->identificacao ?? $this->nome,
-            'logo' => $config?->logo_caminho ? asset('storage/' . $config->logo_caminho) : null,
-            'banner' => $config?->banner_caminho ? asset('storage/' . $config->banner_caminho) : null,
+            'logo' => $config?->logo_caminho ? '/storage/' . $config->logo_caminho : null,
+            'banner' => $config?->banner_caminho ? '/storage/' . $config->banner_caminho : null,
             'cores' => $config?->conjunto_cores ?? [],
             'fonte' => $config?->font_family,
             'tema' => $config?->tema_id,
