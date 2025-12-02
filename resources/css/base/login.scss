@@ -200,13 +200,15 @@
 // Media Queries para Responsividade
 @media (max-width: 768px) {
     #login {
-        padding: 50px 15px;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px 15px 72px;
     }
     
     #login .login-container {
         max-width: 380px;
         padding: 30px 35px 35px 35px;
-        margin: 0;
+        margin: 10px 0 24px;
     }
     
     #login .login-container img {
@@ -232,13 +234,15 @@
 
 @media (max-width: 480px) {
     #login {
-        padding: 40px 10px;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 14px 10px 68px;
     }
     
     #login .login-container {
         max-width: 100%;
         padding: 25px 25px 30px 25px;
-        margin: 0;
+        margin: 8px 0 20px;
         border-radius: 12px;
     }
     
@@ -290,12 +294,14 @@
 
 @media (max-width: 360px) {
     #login {
-        padding: 30px 8px;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 12px 8px 60px;
     }
     
     #login .login-container {
         padding: 20px 20px 25px 20px;
-        margin: 0;
+        margin: 6px 0 16px;
     }
     
     #login .login-container img {
