@@ -12,30 +12,30 @@
     color: #0a1929;
 }
 
-/*Config do header*/
+/*Config do header (escopado para layouts autenticados)*/
 
-header nav {
+.layout-wrapper header nav {
     display: flex;
     width: 100%;
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 
-header nav .nav-logo img{
+.layout-wrapper header nav .nav-logo img{
     width: 75px;
     padding: 10px;
 }
 
-header nav .nav-logo img:hover{
+.layout-wrapper header nav .nav-logo img:hover{
     cursor: pointer;
 }
 
-header nav .nav-menu {
+.layout-wrapper header nav .nav-menu {
     width: 100%;
     align-items: center;
     padding: 0 10px;
 }
 
-header nav .nav-menu ul{
+.layout-wrapper header nav .nav-menu ul{
     list-style: none;
     display: flex;
     width: 100%;
@@ -44,17 +44,17 @@ header nav .nav-menu ul{
     justify-content: right;
 }
 
-header nav .nav-menu ul a {
+.layout-wrapper header nav .nav-menu ul a {
     text-decoration: none;
     color: black;
 }
 
-header nav .nav-menu ul li{
+.layout-wrapper header nav .nav-menu ul li{
     padding: 8px;
     font-size: 1.2em;
 }
 
-header nav .nav-menu ul li:hover {
+.layout-wrapper header nav .nav-menu ul li:hover {
     color: #1060a5;
     cursor: pointer;
 }
@@ -266,12 +266,12 @@ footer {
 
 @media screen and (max-width:500px) {
     
-    header nav {
+    .layout-wrapper header nav {
         display: flex;
         flex-direction:column;
     }
 
-    header nav .nav-menu {
+    .layout-wrapper header nav .nav-menu {
         margin-top: -20px;
         margin-bottom: 20px;
     }

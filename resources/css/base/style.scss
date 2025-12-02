@@ -24,12 +24,12 @@ body {
 }
 
 /* Header */
-header {
+.layout-wrapper header {
     z-index: 999;
     backdrop-filter: blur(12px);
 }
 
-header .main-navbar {
+.layout-wrapper header .main-navbar {
     display: flex;
     width: 100%;
     align-items: center;
@@ -38,25 +38,25 @@ header .main-navbar {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-header nav .nav-logo img {
+.layout-wrapper header nav .nav-logo img {
     width: 100px;
     padding: 6px 0;
     transition: transform 0.2s ease;
 }
 
-header nav .nav-logo img:hover {
+.layout-wrapper header nav .nav-logo img:hover {
     cursor: pointer;
     transform: translateY(-1px);
 }
 
-header nav .nav-menu {
+.layout-wrapper header nav .nav-menu {
     width: 100%;
     align-items: center;
     display: flex;
     justify-content: center;
 }
 
-header nav .nav-menu ul {
+.layout-wrapper header nav .nav-menu ul {
     list-style: none;
     width: 100%;
     display: flex;
@@ -65,7 +65,7 @@ header nav .nav-menu ul {
     padding: 0 12px;
 }
 
-header nav .nav-menu ul a {
+.layout-wrapper header nav .nav-menu ul a {
     text-decoration: none;
     color: var(--background-contrast);
     font-weight: 500;
@@ -74,24 +74,24 @@ header nav .nav-menu ul a {
     transition: color 0.2s ease;
 }
 
-header nav .nav-menu ul li:hover {
+.layout-wrapper header nav .nav-menu ul li:hover {
     cursor: pointer;
     color: var(--secondary-color);
 }
 
 @media (max-width: 750px) {
-    header .main-navbar {
+    .layout-wrapper header .main-navbar {
         justify-content: space-between;
         align-items: center;
         display: flex;
         flex-direction: row;
     }
 
-    header nav .nav-menu {
+    .layout-wrapper header nav .nav-menu {
         display: none !important;
     }
 
-    header .main-navbar .login_info {
+    .layout-wrapper header .main-navbar .login_info {
         margin-left: auto;
         display: flex;
         align-items: center;
@@ -100,7 +100,7 @@ header nav .nav-menu ul li:hover {
 }
 
 /* Body */
-main {
+.layout-wrapper > main {
     display: flex;
     flex-direction: row;
 }
@@ -353,6 +353,67 @@ h1 {
 
 .tab-pane.active {
     display: block;
+}
+
+.cronograma-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.85); /* fallback */
+    background: color-mix(in srgb, var(--background-color, #f5f5f5) 92%, #ffffff 8%);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--text-color, #0f172a) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-color, #0f172a) 10%, transparent);
+}
+
+.cronograma-table thead th {
+    background: color-mix(in srgb, var(--background-color, #f5f5f5) 86%, #ffffff 14%);
+    color: var(--text-color);
+    font-weight: 700;
+    letter-spacing: .2px;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-color, #0f172a) 12%, transparent);
+}
+
+.cronograma-table tbody tr {
+    background: color-mix(in srgb, var(--background-color, #f5f5f5) 95%, #ffffff 20%);
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.cronograma-table tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--background-color, #f5f5f5) 90%, #ffffff 22%);
+}
+
+.cronograma-table tbody tr:hover {
+    background: color-mix(in srgb, var(--secondary-color, #0a5aa5) 12%, var(--background-color, #f5f5f5) 88%);
+}
+
+.cronograma-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-color, #0f172a) 10%, transparent);
+}
+
+.cronograma-table input[type="date"],
+.cronograma-table input[type="time"],
+.cronograma-table input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--text-color, #0f172a) 18%, transparent);
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: color-mix(in srgb, var(--background-color, #f5f5f5) 90%, #ffffff 20%);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: var(--text-color);
+}
+
+.cronograma-table input[type="date"]:focus,
+.cronograma-table input[type="time"]:focus,
+.cronograma-table input[type="text"]:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--secondary-color, #0a5aa5) 22%, transparent);
+    outline: none;
 }
 
 .checkbox-grid {
