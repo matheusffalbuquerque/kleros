@@ -2,7 +2,7 @@
   height: 100%;
   position: relative;
   overflow: hidden;                  /* esconde texto quando fechar */
-  width: 50px;                       /* estado inicial fechado */
+  width: 10px;                       /* estado inicial fechado */
   transition: width .2s ease;        /* animação suave */
 }
 

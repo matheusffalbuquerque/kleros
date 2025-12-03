@@ -44,7 +44,7 @@
 
     #dados-gerais .dashboard-card strong {
         display: block;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 600;
         line-height: 1.2;
     }
@@ -81,7 +81,7 @@
         justify-content: space-between;
         align-items: center;
         font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--text-color);
     }
 
     #dados-gerais .chart-item header span.value {
@@ -293,7 +293,8 @@
 
     $dayName = $days[Carbon::now()->dayOfWeek] ?? '';
     $periodFormat = $cards['new_month']['period_format'] ?? 'MMM/Y';
-    $periodLabel = Carbon::now()->translatedFormat($periodFormat);
+    // Usa isoFormat porque o pattern definido nas traduções segue a convenção Moment (ex: MMM/Y)
+    $periodLabel = Carbon::now()->isoFormat($periodFormat);
 
     $groupsChartData = ($gruposDestaque ?? collect())->map(fn ($grupo) => [
         'label' => $grupo->nome,
@@ -379,7 +380,7 @@
             <div class="dashboard-side">
                 <h4 style="margin-bottom: 12px;">{{ $dashboard['chart']['title'] }}</h4>
                 <div id="groupsDashboardChart" data-chart='@json($groupsChartData)'></div>
-                <div style="margin-top: 16px; font-size: 0.85rem; color: rgba(255, 255, 255, 0.75);">
+                <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-color);">
                     {{ __('dashboard.chart.subtitle', [
                         'services' => $formatNumber($dashboardStats['cultos_proximos'] ?? 0),
                         'events' => $formatNumber($dashboardStats['eventos_proximos'] ?? 0),

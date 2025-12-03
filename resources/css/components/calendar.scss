@@ -2,10 +2,10 @@
     max-width: 100%;
     margin: 40px auto;
     background-color: var(--background-color);
-    padding: 1rem;
+    padding: 0.8rem;
     border-radius: var(--border-style);
     box-shadow: 0 0 8px rgba(0,0,0,0.5);
-    font-size: 0.9em;
+    font-size: 0.8em;
 }
 
 #calendar button {
@@ -37,4 +37,9 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.control-btn .control-btn-group .btn {
+    padding: 0.55rem 1.4rem;
+    font-size: 0.8rem;
 }

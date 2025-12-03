@@ -10,7 +10,7 @@
 
 <div class="container programacao-container">
     <div class="page-heading nao-imprimir">
-        <h1 class="page-heading__title">Programações da comunidade</h1>
+        <h1>Programações da comunidade</h1>
         <p class="page-heading__subtitle">
             Fique por dentro dos próximos eventos e cultos da sua congregação.
         </p>

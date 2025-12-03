@@ -154,7 +154,7 @@
             <div class="card" id="painel-visitantes-registrados-empty" @if ($visitantesDia->isNotEmpty()) hidden @endif>
                 <p><i class="bi bi-exclamation-circle"></i> Nenhum visitante registrado para este culto.</p>
             </div>
-            @endif
+            @else
             <div class="list" id="painel-visitantes-registrados-list" @if ($visitantesDia->isEmpty()) hidden @endif>
             <div class="list-title">
                 <div class="item item-15"><b>Nome</b></div>
@@ -203,6 +203,7 @@
                     @endforeach
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
@@ -317,7 +318,7 @@
         padding: 0.45rem 0.65rem;
         border-radius: 6px;
         border: 1px solid var(--border-color, #d9d9d9);
-        background: var(--surface-color, #fff);
+        background-color: rgba(255, 255, 255, 0.08);
     }
 
     .painel-culto-search__input {
