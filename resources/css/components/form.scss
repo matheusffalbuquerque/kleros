@@ -15,7 +15,7 @@
 
 .form-control .form-block h3 {
     margin-bottom: 18px;
-    font-size: 1.08rem;
+    font-size: 1rem;
     font-weight: 600;
 }
 
@@ -30,7 +30,7 @@
 .form-control .form-item label {
     flex: 1 1 20px;
     font-weight: 500;
-    font-size: 0.98rem;
+    font-size: 0.9rem;
 }
 
 .form-control .form-item input[type="text"],
@@ -46,8 +46,8 @@
 .form-control .form-item input[type="number"] {
     flex: 2 1 30px;
     border: 1px solid rgba(24, 24, 24, 0.18);
-    font-size: 1rem;
-    padding: 10px 14px;
+    font-size: 0.95rem;
+    padding: 8px 12px;
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.08);
     color: var(--text-color);
@@ -92,7 +92,7 @@
     flex: 2 1 30px;
     width: 100%;
     padding: 14px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     display: flex;
     justify-content: space-between;
     border-radius: 16px;
@@ -140,11 +140,11 @@
 }
 
 .form-control .escala-summary-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .form-control .escala-summary-funcao {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--secondary-color);
 }
 

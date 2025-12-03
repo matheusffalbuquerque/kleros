@@ -20,7 +20,7 @@
     #dados-gerais .dashboard-card {
         position: relative;
         border-radius: 18px;
-        padding: 18px 20px;
+        padding: 16px 18px;
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)) var(--primary-color);
         color: var(--primary-contrast);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -44,14 +44,14 @@
 
     #dados-gerais .dashboard-card strong {
         display: block;
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 600;
-        line-height: 1.2;
+        line-height: 1;
     }
 
     #dados-gerais .dashboard-card small {
         display: block;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         margin-top: 8px;
         opacity: 0.8;
     }
@@ -60,7 +60,7 @@
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 22px 20px;
+        padding: 20px 18px;
         box-shadow: 0 12px 24px rgba(17, 24, 39, 0.2);
     }
 

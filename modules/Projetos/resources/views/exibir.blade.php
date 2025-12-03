@@ -109,13 +109,14 @@
         padding: 0.35rem 0.75rem;
         border-radius: 999px;
         background: var(--badge-color, #1f2937);
-        color: #fff;
+        color: var(--primary-contrast);
         font-size: 0.85rem;
         width: fit-content;
     }
 
     .projeto-meta__info {
-        color: rgba(15, 23, 42, 0.65);
+        color: var(--text-color);
+        opacity: 0.8;
         font-size: 0.9rem;
         display: inline-flex;
         align-items: center;
@@ -140,6 +141,8 @@
         border-radius: 8px;
         border: 1px solid rgba(15, 23, 42, 0.15);
         min-width: 220px;
+        background: var(--background-color);
+        color: var(--text-color);
     }
 
     .projeto-quadros {
@@ -151,12 +154,11 @@
     }
 
     .projeto-lista {
-        background: #fff;
+        background: var(--background-color);
         border-radius: 16px;
         padding: 1.25rem;
-        box-shadow: 0 12px 32px -26px rgba(15, 23, 42, 0.45);
-        min-width: 260px;
-        max-width: 320px;
+        box-shadow: 0 0 0 rgba(15, 23, 42, 0.45);
+        width: 320px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -170,7 +172,8 @@
 
     .projeto-lista__badge {
         font-size: 0.8rem;
-        color: rgba(15, 23, 42, 0.6);
+        color: var(--text-color);
+        opacity: 0.7;
     }
 
     .projeto-cards {
@@ -182,13 +185,14 @@
     .projeto-card-item {
         position: relative;
         border-radius: 12px;
-        border: 1px solid rgba(15, 23, 42, 0.1);
+        border: 1px solid rgba(119, 119, 119, 0.1);
         padding: 1rem 1rem 1rem 1rem;
-        background: rgba(255, 255, 255, 0.9);
+        background: var(--background-color);
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         transition: transform .2s ease, box-shadow .2s ease;
+        color: var(--text-color);
     }
 
     .projeto-card-item__content {
@@ -203,7 +207,7 @@
         right: 0.45rem;
         border: none;
         background: transparent;
-        color: rgba(15, 23, 42, 0.45);
+        color: var(--text-color);
         cursor: pointer;
         padding: 0.25rem;
         border-radius: 6px;
@@ -224,7 +228,8 @@
         flex-wrap: wrap;
         gap: 0.75rem;
         font-size: 0.8rem;
-        color: rgba(15, 23, 42, 0.65);
+        color: var(--text-color);
+        opacity: 0.8;
     }
 
     .projeto-card-item__meta .status {
@@ -237,7 +242,8 @@
         border-radius: 12px;
         border: 2px dashed rgba(15, 23, 42, 0.15);
         text-align: center;
-        color: rgba(15, 23, 42, 0.6);
+        color: var(--text-color);
+        opacity: 0.75;
     }
 
     .projeto-lista__footer {
@@ -265,6 +271,7 @@
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
         flex-direction: column;
         gap: 0.6rem;
+        color: var(--text-color);
     }
 
     .projeto-card-form.is-visible {
@@ -279,6 +286,8 @@
         font-size: 0.9rem;
         resize: vertical;
         min-height: 60px;
+        background: var(--background-color);
+        color: var(--text-color);
     }
 
     .projeto-card-form textarea:focus {
@@ -290,12 +299,19 @@
     .projeto-card-form__actions {
         display: flex;
         gap: 0.5rem;
+        flex-wrap: wrap;           /* evita que os botões estourem a largura */
+        justify-content: flex-start;
     }
 
     .btn-sm {
         font-size: 0.8rem;
         padding: 0.35rem 0.75rem;
         border-radius: 6px;
+    }
+
+    .projeto-card-form__actions .btn {
+        flex: 1 1 140px;          /* distribui largura e permite quebra */
+        max-width: 100%;
     }
 
     @media (max-width: 768px) {

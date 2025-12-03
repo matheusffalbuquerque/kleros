@@ -87,7 +87,7 @@
         align-items: center;
         gap: 0.65rem;
         margin-bottom: 1rem;
-        color: rgba(15, 23, 42, 0.85);
+        color: var(--text-color);
     }
 
     .projetos-section-icon {
@@ -97,7 +97,7 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: rgba(15, 23, 42, 0.08);
+        background: var(--primary-color);
     }
 
     .projetos-section-title {
@@ -124,7 +124,7 @@
         box-shadow: 0 18px 32px -26px rgba(15, 23, 42, 0.4);
         transition: transform .2s ease, box-shadow .2s ease;
         overflow: hidden;
-        border: 1px solid rgba(15, 23, 42, 0.06);
+        border: 1px solid var(--secondary-color);
         width: 150px;
     }
 
@@ -166,13 +166,13 @@
     .projeto-card__title {
         margin: 0;
         font-size: 1rem;
-        color: rgba(15, 23, 42, 0.92);
+        color: var(--text-color);
     }
 
     .projeto-card__meta {
         margin: 0;
         font-size: 0.85rem;
-        color: rgba(15, 23, 42, 0.6);
+        color: var(--text-color);
     }
 
     .projeto-card__link {
@@ -192,10 +192,10 @@
     .projetos-empty {
         grid-column: 1 / -1;
         padding: 2rem;
-        border: 2px dashed rgba(15, 23, 42, 0.1);
+        border: 2px dashed var(--secondary-color);
         border-radius: 16px;
         text-align: center;
-        color: rgba(15, 23, 42, 0.65);
+        color: var(--text-color);
     }
 
     @media (max-width: 768px) {

@@ -129,6 +129,8 @@
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        width: 100%;
+        min-width: 0; /* evita empurrar o menu lateral em telas menores */
     }
 
     .drive-header {
@@ -212,17 +214,20 @@
         flex-wrap: wrap;
         gap: 1rem;
         align-items: center;
+        min-width: 0;
     }
 
     .drive-toolbar__form {
         display: flex;
         gap: 0.65rem;
         align-items: center;
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
     .drive-toolbar__filename {
         font-size: 0.9rem;
-        color: rgba(10, 25, 41, 0.65);
+        color: var(--secondary-color);
         max-width: 20ch;
         white-space: nowrap;
         overflow: hidden;
@@ -231,9 +236,20 @@
 
     .drive-toolbar__form input[type="text"] {
         min-width: 12rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-        border: 1px solid rgba(10, 25, 41, 0.15);
+        min-height: 44px;
+        padding: 10px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(24, 24, 24, 0.12);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-color);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .drive-toolbar__form input[type="text"]:focus {
+        border-color: var(--secondary-color);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 3px rgba(100, 73, 162, 0.23);
+        outline: none;
     }
 
     .drive-toolbar__form--upload input[type="file"] {
@@ -245,16 +261,21 @@
         align-items: center;
         gap: 1rem;
         font-size: 0.95rem;
-        color: rgba(10, 25, 41, 0.7);
+        color: var(--secondary-color);
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
     .drive-content {
         display: grid;
         gap: 1rem;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(10, 25, 41, 0.08);
+        background: var(--background-color);
+        box-shadow: 0 2px 8px rgba(10, 25, 41, 0.5);
         border-radius: 14px;
         padding: 1.5rem;
+        width: 100%;
+        min-width: 0;
+        overflow-x: auto; /* evita empurrar o layout se houver itens largos */
     }
 
     .drive-content--grid {
@@ -272,8 +293,10 @@
         gap: 1rem;
         padding: 1rem;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid transparent;
+        background: var(--background-color);
+        
+        box-shadow: 0 0 0 rgba(10, 25, 41, 0.4);
+        border: 1px solid rgba(173, 173, 173, 0.08);
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -293,7 +316,7 @@
         display: inline-flex;
         align-items: center;
         gap: 0.6rem;
-        color: inherit;
+        color: var(--text-color);
         text-decoration: none;
         font-weight: 600;
     }
@@ -312,7 +335,7 @@
 
     .drive-item__meta {
         font-size: 0.85rem;
-        color: rgba(10, 25, 41, 0.6);
+        color: var(--secondary-color);
     }
 
     .drive-item__actions {

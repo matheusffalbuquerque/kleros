@@ -317,7 +317,6 @@
     .painel-culto-meta-date input[type="date"] {
         padding: 0.45rem 0.65rem;
         border-radius: 6px;
-        border: 1px solid var(--border-color, #d9d9d9);
         background-color: rgba(255, 255, 255, 0.08);
     }
 
