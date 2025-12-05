@@ -81,10 +81,10 @@ class AtualizarFeedsJob implements ShouldQueue
 
                     // monta os dados principais
                     $dados = [
-                        'titulo'       => $titulo,
+                        'titulo'       => html_entity_decode($titulo, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                         'link'         => $link,
-                        'descricao'    => strip_tags($descricao),
-                        'conteudo'     => $conteudo,
+                        'descricao'    => html_entity_decode(strip_tags($descricao), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                        'conteudo'     => html_entity_decode($conteudo, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                         'imagem_capa'  => $imagem,
                         'fonte'        => $nome,
                         'tipo'         => 'rss',
