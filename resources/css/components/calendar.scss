@@ -1,8 +1,8 @@
 #calendar {
     max-width: 100%;
-    margin: 40px auto;
+    margin: 30px auto;
     background-color: var(--background-color);
-    padding: 0.8rem;
+    padding: 0.75rem;
     border-radius: var(--border-style);
     box-shadow: 0 0 8px rgba(0,0,0,0.5);
     font-size: 0.8em;
@@ -36,10 +36,24 @@
 .control-btn {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .control-btn .control-btn-group .btn {
-    padding: 0.55rem 1.4rem;
+    padding: 0.45rem 1.2rem;
     font-size: 0.8rem;
+}
+
+@media screen and (max-width: 660px) {
+    .control-btn {
+        flex-direction: column;
+    }
+
+    .control-btn .control-btn-group {
+        justify-content: flex-start;
+    }
+
+    .control-btn .control-btn-group .btn {
+        margin: 0.25rem 0;
+    }
 }

@@ -175,16 +175,16 @@
     }
     .programacao-row__weekday {
         font-size: 0.75rem;
-        color: var(--text-color);
+        color: var(--background-color);
     }
     .programacao-row__day {
         font-size: 1.9rem;
-        color: var(--text-color);
+        color: var(--background-color);
         line-height: 1;
     }
     .programacao-row__time {
         font-size: 0.85rem;
-        color: var(--text-color);
+        color: var(--background-color);
     }
 
     .programacao-row__content {

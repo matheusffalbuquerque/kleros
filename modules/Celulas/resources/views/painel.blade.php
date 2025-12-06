@@ -44,14 +44,24 @@
         <br>
         
         <h3>Mapa das Células</h3>
-        <div class="celulas-map-wrapper">
-            <p class="map-feedback">Carregando localização das células…</p>
-            <div
-                id="celulas-map"
-                data-celulas="{{ json_encode($celulasMapa) }}"
-                data-map-id="{{ $googleMapsMapId }}"
-            ></div>
-        </div>
+        @if(!empty($googleMapsKey))
+            <div class="celulas-map-wrapper">
+                <p class="map-feedback">Carregando localização das células…</p>
+                <div
+                    id="celulas-map"
+                    data-celulas="{{ json_encode($celulasMapa) }}"
+                    data-map-id="{{ $googleMapsMapId ?? '' }}"
+                ></div>
+            </div>
+        @else
+            <div class="card">
+                <p style="color: #dc3545;">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    O mapa não pode ser exibido porque a chave do Google Maps não está configurada. 
+                    Configure as variáveis <code>GOOGLE_MAPS_KEY</code> e <code>GOOGLE_MAPS_ID</code> no arquivo .env
+                </p>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -164,15 +174,29 @@
             const mapEl = document.getElementById('celulas-map');
             const feedback = document.querySelector('.map-feedback');
 
-            if (!mapEl || !(window.google && google.maps)) {
+            if (!mapEl) {
+                console.error('Elemento #celulas-map não encontrado');
+                return;
+            }
+
+            if (!(window.google && google.maps)) {
+                console.error('Google Maps API não carregada');
+                if (feedback) {
+                    feedback.textContent = 'Erro ao carregar o Google Maps. Verifique sua conexão.';
+                }
                 return;
             }
 
             let celulasData = [];
             try {
                 celulasData = JSON.parse(mapEl.dataset.celulas || '[]');
+                console.log('Dados das células carregados:', celulasData);
             } catch (error) {
-                console.warn('Falha ao interpretar os dados do mapa:', error);
+                console.error('Falha ao interpretar os dados do mapa:', error);
+                if (feedback) {
+                    feedback.textContent = 'Erro ao carregar dados das células.';
+                }
+                return;
             }
 
             const mapOptions = {
@@ -301,8 +325,23 @@
 
             map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
         };
+
+        // Timeout de segurança caso o Google Maps não carregue
+        setTimeout(() => {
+            if (!window.google || !google.maps) {
+                const feedback = document.querySelector('.map-feedback');
+                if (feedback) {
+                    feedback.textContent = 'Erro ao carregar o Google Maps. Verifique se a chave da API está configurada corretamente.';
+                    feedback.style.color = '#dc3545';
+                }
+                console.error('Google Maps API falhou ao carregar após 10 segundos');
+            }
+        }, 10000);
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsKey }}&loading=async&libraries=marker&callback=initCelulasMap"></script>
+    <script async defer 
+        src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsKey }}&loading=async&libraries=marker&callback=initCelulasMap"
+        onerror="console.error('Erro ao carregar script do Google Maps'); document.querySelector('.map-feedback').textContent = 'Erro ao carregar Google Maps. Verifique a chave da API.';"
+    ></script>
 @endif
 
 @endsection

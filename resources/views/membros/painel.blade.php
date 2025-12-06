@@ -29,9 +29,9 @@
                     <div class="search-panel-item">
                         <label for="chave">{{ $painel['search']['keyword_label'] }}:</label>
                         <input type="text" id="chave" placeholder="{{ $common['placeholders']['keyword'] }}">
+                        <button id="btn_filtrar" type="button"><i class="bi bi-search"></i> {{ $common['buttons']['search'] }}</button>
                     </div>
                     <div class="search-panel-item">
-                        <button id="btn_filtrar" type="button"><i class="bi bi-search"></i> {{ $common['buttons']['search'] }}</button>
                         <a href="{{ route('membros.adicionar') }}">
                             <button type="button"><i class="bi bi-plus-circle"></i> {{ $common['buttons']['add'] }}</button>
                         </a>
@@ -81,13 +81,13 @@
                                 {{ $item->nome }}
                             </p>
                         </div>
-                        <div class="item item-1">
+                        <div class="item item-1" data-label="{{ $common['table']['phone'] }}">
                             <p>{{ $item->telefone }}</p>
                         </div>
-                        <div class="item item-2">
+                        <div class="item item-2" data-label="{{ $common['table']['address'] }}">
                             <p>{{ $item->endereco }}, {{ $item->numero }} - {{ $item->bairro }}</p>
                         </div>
-                        <div class="item item-1">
+                        <div class="item item-1" data-label="{{ $common['table']['ministry'] }}">
                             <p>{{ optional($item->ministerio)->titulo ?? $common['statuses']['not_informed'] }}</p>
                         </div>
                     </div>

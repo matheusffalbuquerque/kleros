@@ -18,13 +18,16 @@
     flex-direction: row;
     gap: 6px;
     min-width: 180px;
+    align-items: flex-start;
 }
 
 .search-panel-item label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding-top: 2px;
+    padding-top: 8px;
+    white-space: nowrap;
+    align-self: flex-start;
 }
 
 .search-panel-item input[type='date'],
@@ -32,14 +35,22 @@
 .search-panel-item input[type='month'],
 .search-panel-item select {
     width: 100%;
-    min-height: 44px;
     font-size: 0.85rem;
-    padding: 8px 12px;
+    padding: 0.45rem 1.2rem;
     border-radius: 14px;
     background-color: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(24, 24, 24, 0.12);
     color: var(--text-color);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* Botão que vem depois de input ou select - força o tamanho padrão */
+.search-panel-item input + button,
+.search-panel-item select + button {
+    height: auto !important;
+    min-height: auto !important;
+    padding: 0.45rem 1.2rem !important;
+    font-size: 0.8rem !important;
 }
 
 .search-panel-item select option {
@@ -56,7 +67,7 @@
 }
 
 .search-panel button {
-    padding: 0.55rem 1.4rem;
+    padding: 0.45rem 1.2rem;
     font-size: 0.8rem;
     color: var(--primary-contrast);
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -64,6 +75,7 @@
     border: none;
     box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
     white-space: nowrap;
+    flex-shrink: 0; /* Impede que o botão encolha */
 }
 
 .search-panel button:hover {
@@ -81,7 +93,8 @@
 }
 
 .options-menu button {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    padding: 0.4rem 1rem;
 }
 
 .options-menu.is-open {
@@ -91,3 +104,122 @@
 .options-menu[hidden] {
     display: none !important;
 }
+
+/* Responsividade para telas menores que 560px */
+@media (max-width: 580px) {
+    .search-panel {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .search-panel-item {
+        width: 100%;
+        min-width: unset;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: space-between;
+    }
+
+    .search-panel-item label {
+        padding-top: 0;
+    }
+
+    /* Container dos botões */
+    .search-panel-item:last-child {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        width: 100%;
+    }
+
+    .search-panel button {
+        width: 100%;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .options-menu {
+        gap: 8px;
+        width: 100%;
+    }
+
+    .options-menu button {
+        text-align: center;
+    }
+
+    /* Para views com .form-options (cultos, eventos, etc) */
+    .search-panel-item .form-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        width: 100%;
+    }
+
+    .search-panel-item .form-options button {
+        width: 100%;
+        padding: 0.7rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Para views com .form-control (eventos histórico, etc) */
+    .search-panel .form-control {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        width: 100%;
+    }
+
+    .search-panel .form-control button,
+    .search-panel .form-control a button {
+        width: 100%;
+        padding: 0.7rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Para painel de cultos com CSS customizado */
+    .painel-culto-search {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+
+    .painel-culto-search .search-panel-item {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Item que contém o select e botão juntos */
+    .painel-culto-search__input {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 6px !important;
+        flex: none !important;
+    }
+
+    .painel-culto-search__input .select2-container {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .painel-culto-search .btn,
+    .painel-culto-search button {
+        width: 100% !important;
+        padding: 0.7rem 0.5rem !important;
+        font-size: 0.75rem !important;
+        margin: 0 !important;
+    }
+
+    .painel-culto-meta-actions .search-panel-item {
+        width: 100% !important;
+    }
+
+    .painel-culto-meta-actions button {
+        width: 100% !important;
+    }
+}
+
+

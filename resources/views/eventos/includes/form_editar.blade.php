@@ -66,15 +66,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-options">
-                        <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
-                        <button onclick="fecharJanelaModal()" type="button" class="btn"><i class="bi bi-x-circle"></i> Cancelar</button>
-                    </div>
                 </div>
 
                 <div id="evento-cronograma" class="tab-pane form-control">
+                    @php
+                        $cronograma = $evento->ocorrencias ?? collect();
+                        $hasOcorrencias = $cronograma->isNotEmpty();
+                    @endphp
                     <div class="card">
-                        <p><i class="bi bi-info-circle"></i> As ocorrências são geradas automaticamente a partir do intervalo entre data de início e data de encerramento.</p>
+                        @if ($hasOcorrencias)
+                            <p><i class="bi bi-info-circle"></i> Ajuste as ocorrências existentes. Inclusões e exclusões devem ser feitas no cadastro inicial.</p>
+                        @else
+                            <p><i class="bi bi-info-circle"></i> Não há ocorrências cadastradas. As datas serão sugeridas pelo intervalo de início e encerramento para você ajustar.</p>
+                        @endif
                     </div>
                     <div class="table-responsive">
                         <table class="table cronograma-table">
@@ -86,13 +90,29 @@
                                     <th>Local (opcional)</th>
                                 </tr>
                             </thead>
-                            <tbody
-                                id="cronograma-body-editar"
-                                data-cronograma-body
-                                data-cronograma-start="#data_inicio"
-                                data-cronograma-end="#data_encerramento"
-                                data-cronograma-prefix="ocorrencias">
-                            </tbody>
+                            @if ($hasOcorrencias)
+                                <tbody id="cronograma-body-editar">
+                                    @foreach ($cronograma as $index => $oc)
+                                        <tr>
+                                            <td>
+                                                <input type="hidden" name="ocorrencias[{{ $index }}][id]" value="{{ $oc->id }}">
+                                                <input type="date" name="ocorrencias[{{ $index }}][data_ocorrencia]" value="{{ $oc->data_ocorrencia ? \Illuminate\Support\Carbon::parse($oc->data_ocorrencia)->format('Y-m-d') : '' }}">
+                                            </td>
+                                            <td><input type="time" name="ocorrencias[{{ $index }}][horario_inicio]" value="{{ $oc->horario_inicio }}"></td>
+                                            <td><input type="text" name="ocorrencias[{{ $index }}][descricao]" value="{{ $oc->descricao }}" placeholder="Descrição (opcional)"></td>
+                                            <td><input type="text" name="ocorrencias[{{ $index }}][local]" value="{{ $oc->local }}" placeholder="Local (opcional)"></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            @else
+                                <tbody
+                                    id="cronograma-body-editar"
+                                    data-cronograma-body
+                                    data-cronograma-start="#data_inicio"
+                                    data-cronograma-end="#data_encerramento"
+                                    data-cronograma-prefix="ocorrencias">
+                                </tbody>
+                            @endif
                         </table>
                     </div>
                 </div>

@@ -64,6 +64,7 @@ body {
     align-items: center;
     padding: 0 12px;
     text-wrap: nowrap;
+    word-wrap: normal;
 }
 
 .layout-wrapper header nav .nav-menu ul a {
@@ -73,6 +74,7 @@ body {
     font-size: 0.85rem;
     letter-spacing: 0.01em;
     transition: color 0.2s ease;
+    text-wrap: nowrap;
 }
 
 .layout-wrapper header nav .nav-menu ul li:hover {
@@ -991,4 +993,70 @@ footer {
 #visitantes-galeria .galeria-item {
     background: transparent !important;
     border: none !important;
+}
+/* Responsividade adicional para telas muito pequenas */
+@media (max-width: 580px) {
+    .container {
+        padding: 14px;
+    }
+
+    /* Responsividade para componente .list */
+    .list {
+        margin: 15px 0;
+        font-size: 0.8rem;
+        border: none;
+    }
+
+    /* Esconde o título da lista em mobile */
+    .list-title {
+        display: none;
+    }
+
+    .list-item {
+        flex-direction: column;
+        padding: 6px 10px;
+        gap: 4px;
+        border: 0;
+        box-shadow: 12px 12px 24px rgba(0, 0, 0, 0.1);
+        align-items: flex-start;
+    }
+
+    .list-item:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    /* Todos os itens ocupam 100% da largura */
+    .list-item .item,
+    .list-item .item-1,
+    .list-item .item-15,
+    .list-item .item-2 {
+        width: 100% !important;
+        padding: 8px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* Adiciona labels antes dos dados em mobile usando data-label */
+    .list-item .item::before,
+    .list-item .item-1::before,
+    .list-item .item-15::before,
+    .list-item .item-2::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--secondary-color);
+        margin-bottom: 2px;
+    }
+
+    /* Avatar em mobile */
+    .list-item .item img.avatar,
+    .list-item .item-2 img.avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
 }

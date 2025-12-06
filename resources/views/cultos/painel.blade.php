@@ -387,11 +387,11 @@
         opacity: 0.75;
     }
 
-.item-05 {
-    width: 10%;
-}
+    .item-05 {
+        width: 10%;
+    }
 
-.taggable-item {
+    .taggable-item {
         gap: 1rem;
         align-items: center;
     }
@@ -470,6 +470,35 @@
     @keyframes painelHighlight {
         0% { background-color: rgba(61, 139, 253, 0.2); }
         100% { background-color: transparent; }
+    }
+
+    @media (max-width: 600px) {
+        .painel-culto-search {
+            gap: 8px !important;
+            padding: 12px !important;
+        }
+
+        .painel-culto-search .search-panel-item {
+            gap: 6px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .painel-culto-search__input {
+            gap: 6px !important;
+            margin: 0 !important;
+            flex: none !important;
+        }
+
+        /* Remove todos os espaçamentos entre filhos diretos */
+        .painel-culto-search > .search-panel-item {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        .painel-culto-search .select2-container {
+            margin: 0 !important;
+        }
     }
 </style>
 
