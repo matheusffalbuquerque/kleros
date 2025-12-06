@@ -306,7 +306,7 @@
             @include('partials.audio-player')
             
             <footer>
-                <p>Sistema de Gestão Interna | {{$congregacao->nome_curto}} - {{optional($congregacao->cidade)->nome}}/{{optional($congregacao->estado)->uf}}</p>
+                <p>Ecossistema Kleros | {{$congregacao->nome_curto}} - {{optional($congregacao->cidade)->nome}}/{{optional($congregacao->estado)->uf}}</p>
                 @if($congregacao->cnpj) <h4>CNPJ {{$congregacao->cnpj}}</h4> @endif
             </footer>
         </div>
@@ -481,7 +481,10 @@
                 const { iframe = false, title = 'Visualização' } = options;
                 let targetUrl = url;
 
-                if (typeof url === 'string') {
+                // Se for iframe com URL externa, mantém a URL completa
+                if (iframe && (url.startsWith('http://') || url.startsWith('https://'))) {
+                    targetUrl = url;
+                } else if (typeof url === 'string') {
                     try {
                         if (url.startsWith('http://') || url.startsWith('https://')) {
                             const parsed = new URL(url, window.location.href);

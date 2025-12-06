@@ -6,6 +6,15 @@
     border-radius: var(--border-style);
     box-shadow: 0 0 8px rgba(0,0,0,0.5);
     font-size: 0.8em;
+    min-height: 600px;
+}
+
+#calendar .fc {
+    height: 100%;
+}
+
+#calendar .fc-view-harness {
+    height: 580px !important;
 }
 
 #calendar button {
@@ -39,38 +48,75 @@
     justify-content: space-around;
 }
 
-.control-btn .control-btn-group .btn {
+.control-btn .control-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-btn .control-btn-group h4 {
+    margin: 0;
+}
+
+.control-btn .control-btn-group .control-btn-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.control-btn .control-btn-group .control-btn-wrapper .btn {
     padding: 0.45rem 1.2rem;
     font-size: 0.8rem;
+    width: fit-content !important;
+    min-width: auto !important;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin: 0 !important;
 }
 
 @media screen and (max-width: 660px) {
     .control-btn {
         flex-direction: column;
+        gap: 1rem;
     }
 
     .control-btn .control-btn-group {
+        width: 100%;
+    }
+
+    .control-btn .control-btn-group .control-btn-wrapper {
+        flex-direction: row;
         justify-content: flex-start;
     }
 
-    .control-btn .control-btn-group .btn {
-        margin: 0.25rem 0;
+    .control-btn .control-btn-group .control-btn-wrapper .btn {
+        width: fit-content !important;
+        min-width: auto !important;
+        margin: 0 !important;
     }
 }
 
 /* Responsividade para telas muito pequenas */
-@media screen and (max-width: 580px) {
+@media screen and (max-width: 450px) {
     #calendar {
         padding: 0.5rem;
         margin: 20px auto;
         font-size: 0.7em;
         overflow-x: auto;
+        min-height: 500px;
+    }
+
+    #calendar .fc-view-harness {
+        height: 480px !important;
     }
 
     /* Força o calendário a não ultrapassar a tela */
     #calendar .fc {
         max-width: 100%;
         overflow-x: auto;
+        height: 100%;
     }
 
     /* Reduz o tamanho dos botões do calendário */

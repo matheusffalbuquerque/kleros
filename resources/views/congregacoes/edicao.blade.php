@@ -376,11 +376,40 @@
     }
     #file-logo, #file-banner {
         max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .form-options {
         text-align: center;
         margin-top: 20px;
     }
+
+    /* Responsividade para uploads */
+    @media (max-width: 580px) {
+        .logo, .banner {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #file-logo, #file-banner {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .logo > div,
+        .banner > div {
+            width: 100%;
+        }
+
+        .btn-line {
+            width: 100%;
+            text-align: center;
+            display: block;
+        }
+    }
+
     @keyframes fadeIn {
         from {opacity: 0; transform: translateY(10px);}
         to {opacity: 1; transform: translateY(0);}

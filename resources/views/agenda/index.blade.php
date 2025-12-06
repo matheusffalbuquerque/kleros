@@ -18,21 +18,25 @@
         <div class="control-btn">
             <div class="control-btn-group">
                 <h4>{{ $views['change'] }}</h4>
-                <button class="btn" id="btnVisaoAnual">{{ $views['annual'] }}</button>
-                <button class="btn" id="btnVisaoMensal">{{ $views['monthly'] }}</button>
+                <div class="control-btn-wrapper">
+                    <button class="btn" id="btnVisaoAnual">{{ $views['annual'] }}</button>
+                    <button class="btn" id="btnVisaoMensal">{{ $views['monthly'] }}</button>
+                </div>
             </div>
 
             <div class="control-btn-group">
                 <h4>{{ $schedule['heading'] }}</h4>
-                <button onclick="abrirJanelaModal('{{ route('eventos.form_criar') }}')" class="btn" id="evento">
-                    <i class="bi bi-calendar-event"></i> {{ $schedule['event'] }}
-                </button>
-                <button onclick="abrirJanelaModal('{{ route('cultos.form_criar') }}')" class="btn" id="culto">
-                    <i class="bi bi-bell"></i> {{ $schedule['service'] }}
-                </button>
-                <button onclick="abrirJanelaModal('{{ route('reunioes.form_criar') }}')" class="btn" id="reuniao">
-                    <i class="bi bi-people"></i> {{ $schedule['meeting'] }}
-                </button>
+                <div class="control-btn-wrapper">
+                    <button onclick="abrirJanelaModal('{{ route('eventos.form_criar') }}')" class="btn" id="evento">
+                        <i class="bi bi-calendar-event"></i> {{ $schedule['event'] }}
+                    </button>
+                    <button onclick="abrirJanelaModal('{{ route('cultos.form_criar') }}')" class="btn" id="culto">
+                        <i class="bi bi-bell"></i> {{ $schedule['service'] }}
+                    </button>
+                    <button onclick="abrirJanelaModal('{{ route('reunioes.form_criar') }}')" class="btn" id="reuniao">
+                        <i class="bi bi-people"></i> {{ $schedule['meeting'] }}
+                    </button>
+                </div>
             </div>
         </div>
         <div id="calendar"></div>

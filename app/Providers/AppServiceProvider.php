@@ -72,8 +72,22 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('noticias.includes.destaques', function ($view) {
-            $destaques = Feed::where('fonte', 'guiame')
-                ->orderBy('publicado_em', 'desc')->limit(9)->get();
+            $feedsQuery = Feed::where('fonte', 'guiame')
+                ->orderBy('publicado_em', 'desc')
+                ->limit(9)
+                ->get();
+            
+            $destaques = $feedsQuery->map(function ($feed) {
+                return [
+                    'id' => $feed->id,
+                    'titulo' => $feed->titulo,
+                    'link' => $feed->link,
+                    'imagem' => $feed->imagem_capa ?: $feed->media_url,
+                    'publicado_em' => optional($feed->publicado_em)->format('d/m/Y H:i'),
+                    'publicado_em_iso' => optional($feed->publicado_em)->toIso8601String(),
+                ];
+            });
+            
             $view->with('destaques', $destaques);
         });
 

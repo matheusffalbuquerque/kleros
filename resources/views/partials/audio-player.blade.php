@@ -5,11 +5,11 @@
             <audio id="podcast-player" controls preload="metadata" playsinline>
                 Seu navegador não suporta o elemento de áudio.
             </audio>
-            <span class="podcast-title" id="podcast-title">Selecione um episódio...</span>
         </div>
 
-        <!-- Menu -->
+        <!-- Menu com título e ícones -->
         <ul class="podcast-menu">
+            <li><span class="podcast-title" id="podcast-title">Selecione um episódio...</span></li>
             <li><a href="#" class="play-btn" title="Compartilhar"><i class="bi bi-share"></i></a></li>
             <li><a href="#" class="play-btn" title="Favoritar"><i class="bi bi-heart"></i></a></li>
         </ul>

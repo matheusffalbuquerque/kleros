@@ -16,7 +16,7 @@
             <div class="item item-1">
                 <p><i class="bi bi-house"></i> {{ $item->identificacao }}</p>
             </div>
-            <div class="item item-1">
+            <div class="item item-15">
                 <p>
                     {{ optional($item->lider)->nome ?? '—' }}
                     @if ($item->colider)

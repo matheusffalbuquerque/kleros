@@ -96,12 +96,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-options">
+                    <div class="form-options">
                     <button type="submit" class="btn"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
                 </div>
-               
+                </div>
             </div>
             </div>
         </form>
@@ -239,6 +237,29 @@
 
 #file-foto {
     max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Responsividade para foto-upload */
+@media (max-width: 580px) {
+    .foto-upload {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #file-foto {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .btn-line {
+        width: 100%;
+        text-align: center;
+        display: block;
+    }
 }
 
 /* Botão salvar */

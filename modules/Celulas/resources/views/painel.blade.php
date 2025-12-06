@@ -26,7 +26,7 @@
                 <div class="item-1">
                     <b>Identificação</b>
                 </div>
-                <div class="item-1">
+                <div class="item-15">
                     <b>Liderança</b>
                 </div>
                 <div class="item-1">

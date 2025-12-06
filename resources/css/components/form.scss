@@ -168,6 +168,15 @@
 .form-control .form-options {
     margin: 25px 0 5px;
     text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.form-control .form-options button {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 .input-false {
@@ -175,6 +184,20 @@
 }
 
 @media (max-width: 720px) {
+    .form-control .form-options {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .form-control .form-options button {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: fit-content;
+    }
+
     .form-control .form-item {
         flex-direction: column;
         align-items: stretch;
@@ -196,6 +219,24 @@
         flex: none; /* Remove a propriedade flex para permitir que o width funcione */
     }
 }
+
+@media (max-width: 560px) {
+    .form-control .form-options {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .form-control .form-options button {
+        flex: 0 0 auto !important;
+        width: fit-content !important;
+        min-width: auto !important;
+        white-space: nowrap !important;
+    }
+}
+
 .form-control .form-item select option,
 .form-control select option {
     color: #111 !important;

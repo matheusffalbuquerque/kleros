@@ -10,7 +10,7 @@
         <h3>Cristianismo pelo mundo</h3>
         <div class="noticias-container">
             @forelse ($noticias as $fonte => $lista)
-                <h4 class="noticias-fonte">{{ $fonte }}</h4>
+                <h4 class="noticias-fonte">{{ strtoupper($fonte) }}</h4>
                 <div class="noticias-grid">
                     @foreach ($lista as $noticia)
                         <div class="noticia-card">
