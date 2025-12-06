@@ -67,8 +67,8 @@
 }
 
 .search-panel button {
-    padding: 0.45rem 1.2rem;
-    font-size: 0.8rem;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.85rem;
     color: var(--primary-contrast);
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border-radius: 999px;
@@ -131,6 +131,7 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
         width: 100%;
+        margin-top: 1rem;
     }
 
     .search-panel button {

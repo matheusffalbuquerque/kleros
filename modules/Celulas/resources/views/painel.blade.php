@@ -74,6 +74,8 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         const endpoint = @json(route('celulas.search'));
 
+        let isSearching = false; // Previne múltiplas requisições simultâneas
+
         function aplicarResultado(html) {
             if (!contentTarget) {
                 return;
@@ -91,8 +93,14 @@
         }
 
         function pesquisarCelulas() {
-            if (!csrfToken || !endpoint) {
+            if (!csrfToken || !endpoint || isSearching) {
                 return;
+            }
+
+            isSearching = true;
+            if (trigger) {
+                trigger.disabled = true;
+                trigger.innerHTML = '<i class="bi bi-hourglass-split"></i> Buscando...';
             }
 
             const payload = {
@@ -119,14 +127,36 @@
                     aplicarResultado(data.view || '');
                 })
                 .catch((error) => {
-                    console.error(error);
+                    console.error('Erro na busca de células:', error);
+                    if (contentTarget) {
+                        contentTarget.innerHTML = '<div class="card"><p style="color: #dc3545;">Erro ao carregar células. Tente novamente.</p></div>';
+                    }
+                })
+                .finally(() => {
+                    isSearching = false;
+                    if (trigger) {
+                        trigger.disabled = false;
+                        trigger.innerHTML = '<i class="bi bi-search"></i> Procurar';
+                    }
                 });
         }
 
-        trigger?.addEventListener('click', function (event) {
-            event.preventDefault();
-            pesquisarCelulas();
-        });
+        if (trigger) {
+            trigger.addEventListener('click', function (event) {
+                event.preventDefault();
+                pesquisarCelulas();
+            });
+        }
+
+        // Adiciona busca ao pressionar Enter
+        if (inputMembro) {
+            inputMembro.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    pesquisarCelulas();
+                }
+            });
+        }
     })();
 </script>
 @endpush
@@ -327,20 +357,44 @@
         };
 
         // Timeout de segurança caso o Google Maps não carregue
-        setTimeout(() => {
+        let mapLoadTimeout = setTimeout(() => {
             if (!window.google || !google.maps) {
                 const feedback = document.querySelector('.map-feedback');
+                const mapEl = document.getElementById('celulas-map');
                 if (feedback) {
-                    feedback.textContent = 'Erro ao carregar o Google Maps. Verifique se a chave da API está configurada corretamente.';
+                    feedback.textContent = 'O Google Maps não pôde ser carregado. Verifique sua conexão ou recarregue a página.';
                     feedback.style.color = '#dc3545';
                 }
-                console.error('Google Maps API falhou ao carregar após 10 segundos');
+                if (mapEl) {
+                    mapEl.style.display = 'none';
+                }
+                console.error('Google Maps API falhou ao carregar após 15 segundos');
+            } else {
+                clearTimeout(mapLoadTimeout);
             }
-        }, 10000);
+        }, 15000);
+
+        // Limpa o timeout quando o mapa carregar com sucesso
+        window.addEventListener('load', () => {
+            if (window.google && google.maps) {
+                clearTimeout(mapLoadTimeout);
+            }
+        });
     </script>
     <script async defer 
         src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsKey }}&loading=async&libraries=marker&callback=initCelulasMap"
-        onerror="console.error('Erro ao carregar script do Google Maps'); document.querySelector('.map-feedback').textContent = 'Erro ao carregar Google Maps. Verifique a chave da API.';"
+        onerror="(function() {
+            console.error('Erro ao carregar script do Google Maps');
+            const feedback = document.querySelector('.map-feedback');
+            const mapEl = document.getElementById('celulas-map');
+            if (feedback) {
+                feedback.textContent = 'Erro ao carregar Google Maps. Verifique a chave da API ou sua conexão.';
+                feedback.style.color = '#dc3545';
+            }
+            if (mapEl) {
+                mapEl.style.display = 'none';
+            }
+        })();"
     ></script>
 @endif
 

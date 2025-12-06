@@ -57,3 +57,58 @@
         margin: 0.25rem 0;
     }
 }
+
+/* Responsividade para telas muito pequenas */
+@media screen and (max-width: 580px) {
+    #calendar {
+        padding: 0.5rem;
+        margin: 20px auto;
+        font-size: 0.7em;
+        overflow-x: auto;
+    }
+
+    /* Força o calendário a não ultrapassar a tela */
+    #calendar .fc {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Reduz o tamanho dos botões do calendário */
+    #calendar button {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Ajusta o cabeçalho do calendário */
+    #calendar .fc-toolbar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #calendar .fc-toolbar-title {
+        font-size: 1.1rem;
+    }
+
+    /* Ajusta as células dos dias */
+    #calendar .fc-daygrid-day {
+        min-height: 40px !important;
+    }
+
+    #calendar .fc-col-header-cell {
+        padding: 0.25rem;
+        font-size: 0.7rem;
+    }
+
+    /* Ajusta os eventos para não quebrarem */
+    #calendar .fc-event {
+        font-size: 0.7rem;
+        padding: 1px 2px;
+    }
+
+    #calendar .fc-daygrid-event {
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
