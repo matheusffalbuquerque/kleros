@@ -55,3 +55,92 @@
         </div>
     </form>
 </div>
+
+<script>
+(function() {
+    'use strict';
+    
+    console.log('Script de atualização de eventos carregado no formulário de criação de cultos');
+    
+    // Função para adicionar evento ao select
+    function adicionarEventoAoSelect(eventoId, eventoTitulo) {
+        const selectEvento = document.getElementById('evento_id');
+        
+        if (!selectEvento) {
+            console.error('Select de eventos não encontrado!');
+            return false;
+        }
+        
+        console.log('Select de eventos encontrado, adicionando opção...', eventoId, eventoTitulo);
+        
+        // Verifica se a opção já existe
+        const optionExists = Array.from(selectEvento.options).some(opt => opt.value == eventoId);
+        
+        if (!optionExists) {
+            // Cria nova opção
+            const newOption = new Option(eventoTitulo, eventoId, true, true);
+            selectEvento.add(newOption);
+            
+            // Feedback visual
+            selectEvento.style.backgroundColor = 'color-mix(in srgb, var(--success-color, #22c55e) 20%, transparent)';
+            setTimeout(() => {
+                selectEvento.style.backgroundColor = '';
+            }, 1500);
+            
+            console.log('✅ Evento adicionado ao select:', eventoTitulo);
+            return true;
+        } else {
+            // Se já existe, apenas seleciona
+            selectEvento.value = eventoId;
+            console.log('ℹ️ Evento já existe no select, apenas selecionado');
+            return true;
+        }
+    }
+    
+    // Verifica se há um evento recente criado ao carregar a página
+    console.log('Verificando window.eventoRecenteCriado:', window.eventoRecenteCriado);
+    if (window.eventoRecenteCriado) {
+        console.log('Encontrado evento recente criado, adicionando ao select...');
+        setTimeout(() => {
+            adicionarEventoAoSelect(
+                window.eventoRecenteCriado.id, 
+                window.eventoRecenteCriado.titulo
+            );
+            // Limpa após usar
+            window.eventoRecenteCriado = null;
+        }, 200);
+    }
+    
+    // Escuta quando o modal é restaurado
+    window.addEventListener('modalRestaurado', function(e) {
+        console.log('Modal restaurado! Verificando evento recente...', window.eventoRecenteCriado);
+        if (window.eventoRecenteCriado) {
+            console.log('Encontrado evento após restauração:', window.eventoRecenteCriado);
+            adicionarEventoAoSelect(
+                window.eventoRecenteCriado.id, 
+                window.eventoRecenteCriado.titulo
+            );
+            // Limpa após usar
+            window.eventoRecenteCriado = null;
+        }
+    });
+    
+    // Escuta o evento de criação de evento
+    window.addEventListener('eventoCreated', function(e) {
+        console.log('Evento eventoCreated recebido no form criar cultos:', e.detail);
+        
+        const { eventoId, eventoTitulo } = e.detail;
+        
+        if (!eventoId || !eventoTitulo) {
+            console.warn('Dados incompletos:', e.detail);
+            return;
+        }
+        
+        console.log('Processando evento criado:', eventoId, eventoTitulo);
+        
+        setTimeout(() => {
+            adicionarEventoAoSelect(eventoId, eventoTitulo);
+        }, 300);
+    });
+})();
+</script>

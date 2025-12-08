@@ -109,22 +109,19 @@ class AgendaController extends Controller
         ])->where('congregacao_id', $congregacao->id)
             ->get()
             ->map(function ($evento) {
-                $start = Carbon::parse($evento->data_inicio);
-                $end = null;
-
-                if ($evento->data_encerramento) {
-                    $endDate = Carbon::parse($evento->data_encerramento);
-
-                    if ($endDate->greaterThan($start)) {
-                        $end = $endDate->copy()->addDay()->toDateString();
-                    }
-                }
+                $startDate = Carbon::parse($evento->data_inicio);
+                $endDate = Carbon::parse($evento->data_encerramento);;
+                
+                // No FullCalendar, 'end' é exclusivo, então adicionamos 1 dia
+                // para que o último dia seja incluído visualmente
+                $start = $startDate->copy()->addDay();
+                $end = $endDate->copy()->addDay();
 
             return [
                 'id' => 'evento-' . $evento->id,
                 'title' => $evento->title,
                 'start' => $start->toIso8601String(),
-                'end' => $end,
+                'end' => $end->toIso8601String(),
                 'color' => '#2196f3',
                 'backgroundColor' => '#2196f3',
                 'extendedProps' => [

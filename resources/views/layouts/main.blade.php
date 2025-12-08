@@ -40,7 +40,7 @@
         <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 
         <!-- Link para o calendário -->
-        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" />
 
         <!-- Plyr.js para áudios -->
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
@@ -244,24 +244,24 @@
                                 <a href="{{ route('celulas.painel') }}"><li><span title="GCA - Células"><i class="bi bi-cup-hot"></i></span><span>GCA - Células</span></li></a>
                             @endif
                             @if(module_enabled('cursos'))
-                                <a href="{{route('cursos.index')}}"><li><span title="Escola Virtual"><i class="bi bi-mortarboard"></i></span><span>Escola Virtual</span></li></a>
+                                <a href="{{route('cursos.index')}}" style="display: none;"><li><span title="Escola Virtual"><i class="bi bi-mortarboard"></i></span><span>Escola Virtual</span></li></a>
                             @endif
                             <a href="{{ route('financeiro.painel') }}"><li><span title="Financeiro"><i class="bi bi-currency-exchange"></i></span><span>Financeiro</span></li></a>
                             <a href="{{route('noticias.painel')}}"><li><span title="Notícias"><i class="bi bi-newspaper"></i></span><span>Notícias</span></li></a>
                             <a href="{{route('podcasts.painel')}}"><li><span title="Podcasts"><i class="bi bi-mic-fill"></i></span><span>Podcasts</span></li></a>
                             @if($areaPastoralRoute)
-                                <a href="{{ $areaPastoralRoute }}"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
+                                <a href="{{ $areaPastoralRoute }}" style="display: none;"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
                             @endif
-                            <a href="{{route('livraria.index')}}"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
+                            <a href="{{route('livraria.index')}}" style="display: none;"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
                             <a href="{{route('relatorios.painel')}}"><li><span title="Relatórios"><i class="bi bi-pie-chart"></i></span><span>Relatórios</span></li></a>
                             @if(module_enabled('projetos') && Route::has('projetos.painel'))
-                                <a href="{{ route('projetos.painel') }}"><li><span title="Projetos"><i class="bi bi-kanban"></i></span><span>Projetos</span></li></a>
+                                <a href="{{ route('projetos.painel') }}" style="display: none;"><li><span title="Projetos"><i class="bi bi-kanban"></i></span><span>Projetos</span></li></a>
                             @endif
                             @if(module_enabled('moedas') && Route::has('moedas.painel'))
                                 <a href="{{ route('moedas.painel') }}"><li><span title="Moeda Interna"><i class="bi bi-coin"></i></span><span>Moeda Interna</span></li></a>
                             @endif
-                            <a href="{{route('livraria.index')}}"><li><span title="Ação Social"><i class="bi bi-box2-heart"></i></span><span>Ação Social</span></li></a>
-                            <a href="{{route('assinaturas.index')}}"><li><span title="Assinaturas"><i class="bi bi-journal-plus"></i></span><span>Assinaturas</span></li></a>
+                            <a href="{{route('livraria.index')}}" style="display: none;"><li><span title="Ação Social"><i class="bi bi-box2-heart"></i></span><span>Ação Social</span></li></a>
+                            <a href="{{route('assinaturas.index')}}" style="display: none;"><li><span title="Assinaturas"><i class="bi bi-journal-plus"></i></span><span>Assinaturas</span></li></a>
                             <a href="{{route('pesquisas.replies.index')}}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
                             @if(module_enabled('biblia'))
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
@@ -270,7 +270,7 @@
                                 <a href="{{ route('recados.historico') }}"><li><span title="Recados"><i class="bi bi-chat-left-dots"></i></span><span>Recados</span></li></a>
                             @endif
                             @if(module_enabled('futcristao') && Route::has('futcristao.index'))
-                                <a href="{{ route('futcristao.index') }}"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
+                                <a href="{{ route('futcristao.index') }}" style="display: none;"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
                             @endif
                             <a href="{{route('tutoriais.index')}}"><li><span title="Tutoriais"><i class="bi bi-question-octagon"></i></span><span>Tutoriais</span></li></a>
                             <a href="{{route('extensoes.painel')}}"><li><span title="Extensões"><i class="bi bi-nut"></i></span><span>Extensões</span></li></a>
@@ -284,16 +284,16 @@
                             <a href="{{ route('avisos.painel') }}"><li><span title="Avisos"><i class="bi bi-megaphone"></i></span><span>Avisos</span></li></a>
                             <a href="{{route('podcasts.painel')}}"><li><span title="Podcasts"><i class="bi bi-mic-fill"></i></span><span>Podcasts</span></li></a>
                             @if($areaPastoralRoute)
-                                <a href="{{ $areaPastoralRoute }}"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
+                                <a href="{{ $areaPastoralRoute }}" style="display: none;"><li><span title="Área Pastoral"><i class="bi bi-align-top"></i></span><span>Área Pastoral</span></li></a>
                             @endif
-                            <a href="{{route('livraria.index')}}"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
+                            <a href="{{route('livraria.index')}}" style="display: none;"><li><span title="Livraria"><i class="bi bi-book"></i></span><span>Livraria</span></li></a>
                             @if(module_enabled('biblia'))
                                 <a href="{{route('biblia.index')}}"><li><span title="Bíblia"><x-icon title="Bíblia Sagrada" name="biblia" class="svg"/> </span><span>Bíblia Sagrada</span></li></a>
                             @endif
                             <a href="{{ route('perfil') }}"><li><span title="Perfil"><i class="bi bi-person-badge"></i></span><span>Perfil</span></li></a>
                             <a href="{{ route('pesquisas.replies.index') }}"><li><span title="Pesquisas"><i class="bi bi-bar-chart"></i></span><span>Pesquisas</span></li></a>
                             @if(module_enabled('futcristao') && Route::has('futcristao.index'))
-                                <a href="{{ route('futcristao.index') }}"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
+                                <a href="{{ route('futcristao.index') }}" style="display: none;"><li><span title="Futcristão"><x-icon title="Futcristão" name="soccer" class="svg"/> </span><span>Futcristão</span></li></a>
                             @endif
                         @endif
                     </ul>
@@ -324,7 +324,7 @@
         <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
         <!--CDN do fullcalendar para a agenda-->
-        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
         <!-- CDN do Plyr.js para áudio -->
         <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -475,10 +475,37 @@
 
         <!--Função para controle da janela flutuante-->
         <script>
+            // Sistema de pilha de modais para navegação entre eles
+            const modalStack = [];
+            let currentModalIndex = -1;
+
             function abrirJanelaModal(url, options = {}) {
-                const container = document.getElementById('conteudoModal');
-                const modal = document.getElementById('janelaModal');
                 const { iframe = false, title = 'Visualização' } = options;
+                
+                const modal = document.getElementById('janelaModal');
+                const container = document.getElementById('conteudoModal');
+                const modalEstaAberto = modal.style.display === 'flex';
+                
+                // Se já existe um modal aberto, salva-o na pilha
+                if (modalEstaAberto && container.innerHTML.trim() !== '') {
+                    const currentContent = container.innerHTML;
+                    
+                    modalStack.push({
+                        url: window.currentModalUrl || url,
+                        content: currentContent,
+                        iframe: window.currentModalIsIframe || false,
+                        title: window.currentModalTitle || title
+                    });
+                    currentModalIndex = modalStack.length - 1;
+                    
+                    console.log('Modal salvo na pilha. Total na pilha:', modalStack.length);
+                }
+
+                // Salva informações do modal atual
+                window.currentModalUrl = url;
+                window.currentModalIsIframe = iframe;
+                window.currentModalTitle = title;
+
                 let targetUrl = url;
 
                 // Se for iframe com URL externa, mantém a URL completa
@@ -511,6 +538,9 @@
                     wrapper.appendChild(iframeEl);
                     container.appendChild(wrapper);
                     modal.style.display = 'flex';
+                    
+                    // Adiciona botão de voltar se houver histórico
+                    adicionarBotaoVoltar();
                     return;
                 }
 
@@ -527,7 +557,7 @@
                     .then(html => {
                         container.innerHTML = html;
                         modal.style.display = 'flex';
-
+                        
                         if (typeof initModalScripts === 'function') {
                             try {
                                 initModalScripts(container);
@@ -557,6 +587,9 @@
                                 console.error('Falha ao inicializar menus do modal.', error);
                             }
                         }
+                        
+                        // Adiciona botão de voltar se houver histórico
+                        adicionarBotaoVoltar();
                     })
                     .catch(() => {
                         container.innerHTML = '';
@@ -564,14 +597,206 @@
                         message.textContent = 'Não foi possível carregar o conteúdo.';
                         container.appendChild(message);
                         modal.style.display = 'flex';
+                        
+                        adicionarBotaoVoltar();
                     });                
             }
 
+            function adicionarBotaoVoltar() {
+                console.log('adicionarBotaoVoltar chamado. Modais na pilha:', modalStack.length);
+                
+                // Remove botão anterior se existir
+                const btnExistente = document.getElementById('btnVoltarModal');
+                if (btnExistente) {
+                    console.log('Removendo botão voltar existente');
+                    btnExistente.remove();
+                }
+
+                // Só adiciona se houver histórico
+                if (modalStack.length === 0) {
+                    console.log('Nenhum modal na pilha, não adicionando botão voltar');
+                    return;
+                }
+
+                const modal = document.getElementById('janelaModal');
+                const btnFechar = modal.querySelector('.close');
+                
+                console.log('Botão fechar encontrado:', btnFechar !== null);
+                
+                if (btnFechar) {
+                    const btnVoltar = document.createElement('span');
+                    btnVoltar.id = 'btnVoltarModal';
+                    btnVoltar.className = 'btn-voltar-modal';
+                    btnVoltar.innerHTML = '<i class="bi bi-arrow-left"></i>';
+                    btnVoltar.title = 'Voltar ao modal anterior (' + modalStack.length + ' na pilha)';
+                    btnVoltar.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        voltarModalAnterior();
+                    };
+                    
+                    btnFechar.parentNode.insertBefore(btnVoltar, btnFechar);
+                    console.log('Botão voltar adicionado com sucesso');
+                } else {
+                    console.error('Botão fechar (.close) não encontrado!');
+                }
+            }
+
+            function voltarModalAnterior() {
+                if (modalStack.length === 0) {
+                    fecharJanelaModal();
+                    return;
+                }
+
+                const modalAnterior = modalStack.pop();
+                currentModalIndex--;
+
+                const container = document.getElementById('conteudoModal');
+                
+                // Verifica se precisa recarregar o modal
+                if (window.recarregarModalAnterior && modalAnterior.url) {
+                    console.log('🔄 [MAIN] Recarregando modal anterior:', modalAnterior.url);
+                    window.recarregarModalAnterior = false;
+                    
+                    // Recarrega o modal via AJAX
+                    fetch(modalAnterior.url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        container.innerHTML = html;
+                        
+                        // Restaura informações do modal
+                        window.currentModalUrl = modalAnterior.url;
+                        window.currentModalIsIframe = false;
+                        window.currentModalTitle = modalAnterior.title;
+                        
+                        // Reinicializa scripts
+                        if (typeof initModalScripts === 'function') {
+                            try {
+                                initModalScripts(container);
+                            } catch (error) {
+                                console.error('Falha ao reinicializar scripts.', error);
+                            }
+                        }
+                        
+                        if (typeof initOptionsMenus === 'function') {
+                            try {
+                                initOptionsMenus(container);
+                            } catch (error) {
+                                console.error('Falha ao reinicializar menus.', error);
+                            }
+                        }
+                        
+                        // Atualiza botão de voltar
+                        adicionarBotaoVoltar();
+                        
+                        // Dispara evento de que o modal foi restaurado
+                        console.log('Modal anterior recarregado, disparando evento modalRestaurado');
+                        setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('modalRestaurado', {
+                                detail: { recarregado: true }
+                            }));
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Erro ao recarregar modal:', error);
+                        // Fallback: restaura do cache
+                        container.innerHTML = modalAnterior.content;
+                    });
+                    
+                    return;
+                }
+                
+                // Comportamento normal: restaura do cache
+                container.innerHTML = modalAnterior.content;
+
+                // Restaura informações do modal
+                window.currentModalUrl = modalAnterior.url;
+                window.currentModalIsIframe = modalAnterior.iframe;
+                window.currentModalTitle = modalAnterior.title;
+
+                // Reinicializa scripts se não for iframe
+                if (!modalAnterior.iframe) {
+                    if (typeof initModalScripts === 'function') {
+                        try {
+                            initModalScripts(container);
+                        } catch (error) {
+                            console.error('Falha ao reinicializar scripts.', error);
+                        }
+                    }
+                    
+                    if (typeof initOptionsMenus === 'function') {
+                        try {
+                            initOptionsMenus(container);
+                        } catch (error) {
+                            console.error('Falha ao reinicializar menus.', error);
+                        }
+                    }
+                }
+
+                // Atualiza botão de voltar
+                adicionarBotaoVoltar();
+                
+                // Dispara evento de que o modal foi restaurado
+                console.log('Modal anterior restaurado, disparando evento modalRestaurado');
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('modalRestaurado', {
+                        detail: { container: container }
+                    }));
+                }, 100);
+            }
+
             function fecharJanelaModal() {
+                // Se houver modais na pilha, volta ao anterior em vez de fechar tudo
+                if (modalStack.length > 0) {
+                    console.log('Voltando ao modal anterior ao invés de fechar');
+                    voltarModalAnterior();
+                    return;
+                }
+
+                // Só fecha tudo se não houver histórico
                 const container = document.getElementById('conteudoModal');
                 container.innerHTML = '';
                 document.getElementById('janelaModal').style.display = 'none';
-            }      
+                
+                // Limpa a pilha de modais
+                modalStack.length = 0;
+                currentModalIndex = -1;
+                window.currentModalUrl = null;
+                window.currentModalIsIframe = null;
+                window.currentModalTitle = null;
+                
+                // Remove botão de voltar se existir
+                const btnVoltar = document.getElementById('btnVoltarModal');
+                if (btnVoltar) {
+                    btnVoltar.remove();
+                }
+                
+                console.log('Modal fechado completamente');
+            }
+            
+            // Função para fechar todos os modais de uma vez (força)
+            function fecharTodosModais() {
+                const container = document.getElementById('conteudoModal');
+                container.innerHTML = '';
+                document.getElementById('janelaModal').style.display = 'none';
+                
+                modalStack.length = 0;
+                currentModalIndex = -1;
+                window.currentModalUrl = null;
+                window.currentModalIsIframe = null;
+                window.currentModalTitle = null;
+                
+                const btnVoltar = document.getElementById('btnVoltarModal');
+                if (btnVoltar) {
+                    btnVoltar.remove();
+                }
+                
+                console.log('Todos os modais fechados');
+            }
         </script>
 
         <!--Script para o banner de destaques-->
@@ -913,39 +1138,42 @@
             const markAllRead = document.getElementById('markAllRead');
             const clearAll = document.getElementById('clearAll');
 
-            // Atualiza badge com base nos itens não lidos
-            function updateBadge(){
-                const unread = list.querySelectorAll('.notif-item:not(.is-read)').length;
-                if (unread > 0) { badge.textContent = unread; badge.classList.remove('is-hidden'); }
-                else { badge.classList.add('is-hidden'); }
-                empty.style.display = list.children.length === 0 ? 'block' : (unread === 0 ? 'block' : 'none');
-                if(list.children.length === 0){ empty.textContent = 'Sem notificações.'; }
+            // Só executa se os elementos existirem
+            if (list && empty && badge && markAllRead && clearAll) {
+                // Atualiza badge com base nos itens não lidos
+                function updateBadge(){
+                    const unread = list.querySelectorAll('.notif-item:not(.is-read)').length;
+                    if (unread > 0) { badge.textContent = unread; badge.classList.remove('is-hidden'); }
+                    else { badge.classList.add('is-hidden'); }
+                    empty.style.display = list.children.length === 0 ? 'block' : (unread === 0 ? 'block' : 'none');
+                    if(list.children.length === 0){ empty.textContent = 'Sem notificações.'; }
+                }
+
+                // Marca um item como lido ao clicar nele (antes de seguir o link)
+                list.addEventListener('click', function(e){
+                    const item = e.target.closest('.notif-item');
+                    if(!item) return;
+                    item.classList.add('is-read');
+                    updateBadge();
+                    // Se quiser bloquear a navegação para tratar via JS/AJAX:
+                    // e.preventDefault();
+                });
+
+                // Marcar todas como lidas
+                markAllRead.addEventListener('click', function(){
+                    list.querySelectorAll('.notif-item').forEach(i => i.classList.add('is-read'));
+                    updateBadge();
+                });
+
+                // Limpar todas
+                clearAll.addEventListener('click', function(){
+                    list.innerHTML = '';
+                    updateBadge();
+                });
+
+                // Inicializa contagem
+                updateBadge();
             }
-
-            // Marca um item como lido ao clicar nele (antes de seguir o link)
-            list.addEventListener('click', function(e){
-                const item = e.target.closest('.notif-item');
-                if(!item) return;
-                item.classList.add('is-read');
-                updateBadge();
-                // Se quiser bloquear a navegação para tratar via JS/AJAX:
-                // e.preventDefault();
-            });
-
-            // Marcar todas como lidas
-            markAllRead.addEventListener('click', function(){
-                list.querySelectorAll('.notif-item').forEach(i => i.classList.add('is-read'));
-                updateBadge();
-            });
-
-            // Limpar todas
-            clearAll.addEventListener('click', function(){
-                list.innerHTML = '';
-                updateBadge();
-            });
-
-            // Inicializa contagem
-            updateBadge();
         </script>
 
         @stack('scripts')

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\EventoOcorrencia;
 
 class Evento extends Model
 {
@@ -22,5 +23,8 @@ class Evento extends Model
     {
         return $this->belongsToMany(Membro::class, 'evento_membro', 'evento_id', 'membro_id');
     }
-
+    public function ocorrencias()
+    {
+        return $this->hasMany(EventoOcorrencia::class);
+    }
 }

@@ -473,7 +473,7 @@
     </div>
 
     {{-- Cursos --}}
-    @if (module_enabled('cursos'))
+    {{-- @if (module_enabled('cursos'))
         <div class="info" id="cursos">
             <h3>{{ $sections['courses']['title'] }}</h3>
             <div class="card-container">
@@ -493,11 +493,14 @@
                                 <a href="#">
                                     <button type="button" class="btn-options"><i class="bi bi-eye"></i> {{ $common['view'] }}</button>
                                 </a>
+                                <button type="button" title="{{ $sections['courses']['buttons']['edit'] }}" class="btn-options" onclick="abrirJanelaModal('{{ route('cursos.form_editar', $item->id) }}')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
                                 <form id="delete-curso-{{ $item->id }}" action="{{ route('cursos.destroy', $item->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn-options danger" onclick="handleSubmit(event, this.form, '{{ __('cadastros.confirmations.delete_course') }}')">
-                                        <i class="bi bi-trash"></i> {{ $common['delete'] }}
+                                    <button type="button" title="{{ $common['delete'] }}" class="btn-options danger" onclick="handleSubmit(event, this.form, '{{ __('cadastros.confirmations.delete_course') }}')">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
@@ -516,7 +519,7 @@
                 <i class="bi bi-printer"></i> {{ $sections['courses']['buttons']['print'] }}
             </button>
         </div>
-    @endif
+    @endif --}}
 
     {{-- Células --}}
     @if (module_enabled('celulas'))
@@ -541,14 +544,14 @@
                                 <a href="{{ route('celulas.integrantes', $item->id) }}">
                                     <button type="button" class="btn-options"><i class="bi bi-eye"></i> {{ $sections['cells']['buttons']['view'] }}</button>
                                 </a>
-                                <button type="button" class="btn-options" onclick="abrirJanelaModal('{{ route('celulas.form_editar', $item->id) }}')">
-                                    <i class="bi bi-pencil-square"></i> {{ $sections['cells']['buttons']['edit'] }}
+                                <button type="button" title="{{ $sections['cells']['buttons']['edit'] }}" class="btn-options" onclick="abrirJanelaModal('{{ route('celulas.form_editar', $item->id) }}')">
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <form id="delete-celula-{{ $item->id }}" action="{{ route('grupos.destroy', $item->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn-options danger" onclick="handleSubmit(event, this.form, '{{ __('cadastros.confirmations.delete_cell') }}')">
-                                        <i class="bi bi-trash"></i> {{ $common['delete'] }}
+                                    <button type="button" title="{{ $common['delete'] }}" class="btn-options danger" onclick="handleSubmit(event, this.form, '{{ __('cadastros.confirmations.delete_cell') }}')">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
@@ -570,8 +573,9 @@
             </button>
         </div>
     @endif
-
-    @include('noticias.includes.destaques', ['destaques' => $destaques])
+    <div class="info">
+        @include('noticias.includes.destaques', ['destaques' => $destaques])
+    </div>
 </div>
 @endsection
 

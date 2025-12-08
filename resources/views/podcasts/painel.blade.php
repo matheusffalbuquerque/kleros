@@ -7,10 +7,10 @@
 <div class="container">
     <h1>Podcasts</h1>
     <div class="info">
-        <h3 id="teologia">Aprender ouvindo</h3>
+        <h3 id="teologia">Mais Populares</h3>
         <div class="noticias-container">
             @forelse ($podcasts as $fonte => $episodios)
-                <h4 class="noticias-fonte">{{ $fonte }}</h4>
+                <h4 class="noticias-fonte">{{ strtoupper($fonte) }}</h4>
                 <div class="noticias-grid">
                     @foreach ($episodios as $item)
                         <div class="noticia-card">

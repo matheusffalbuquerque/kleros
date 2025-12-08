@@ -1,6 +1,6 @@
 <h1>Novo Evento</h1>
 <div class="info">
-    <form action="/eventos" method="post">
+    <form id="form-criar-evento" action="{{ route('eventos.store') }}" method="post">
     @csrf
         <div class="tabs">
             <ul class="tab-menu">
@@ -30,21 +30,13 @@
                         <div class="form-square">
                             <div>
                                 <input type="radio" id="especifico" name="evento_recorrente" value="0" checked>
-                                <label for="especifico">Específico <small>Ocorrerá apenas uma vez</small></label>
+                                <label for="especifico">Específico <small>Sem regularidade</small></label>
                             </div>
                             <div>
                                 <input type="radio" id="recorrente" name="evento_recorrente" value="1">
-                                <label for="recorrente">Recorrente <small>Ocorrerá repetidamente</small></label>
+                                <label for="recorrente">Recorrente <small>Ocorrerá regularmente</small></label>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-item">
-                        <label for="data_inicio">Data de início: </label>
-                        <input type="date" name="data_inicio" id="data_inicio" value="{{ date('Y-m-d') }}">
-                    </div>
-                    <div class="form-item">
-                        <label for="data_encerramento">Data de encerramento: </label>
-                        <input type="date" name="data_encerramento" id="data_encerramento" value="{{ date('Y-m-d') }}">
                     </div>
                     <div class="form-item">
                         <label for="descricao">Descrição: </label>
@@ -90,14 +82,11 @@
                                     <th>Horário de início (opcional)</th>
                                     <th>Descrição (opcional)</th>
                                     <th>Local (opcional)</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody
-                                id="cronograma-body-criar"
-                                data-cronograma-body
-                                data-cronograma-start="#data_inicio"
-                                data-cronograma-end="#data_encerramento"
-                                data-cronograma-prefix="ocorrencias">
+                            <tbody id="cronograma-body-criar">
+                                <!-- Primeira ocorrência será adicionada automaticamente -->
                             </tbody>
                         </table>
                     </div>
@@ -105,7 +94,6 @@
             </div>
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-plus-circle"></i> Adicionar Evento</button>
-                <button onclick="fecharJanelaModal()" type="button" class="btn"><i class="bi bi-x-circle"></i> Cancelar</button>
             </div>
         </div>
     </form>

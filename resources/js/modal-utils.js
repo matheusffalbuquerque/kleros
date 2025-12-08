@@ -1,4 +1,231 @@
+// Função para exibir mensagens do sistema
+function showSystemMessage(message, type = 'success') {
+    const msgContainer = document.querySelector('.msg') || createMessageContainer();
+    const icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-diamond';
+    const closeBtn = type === 'success' ? '<div class="close"><i class="bi bi-x"></i></div>' : '';
+    
+    msgContainer.innerHTML = `
+        <div class="${type}">
+            ${closeBtn}
+            <i class="bi ${icon}"></i> ${message}
+        </div>
+    `;
+    
+    // Auto-remove após 5 segundos
+    setTimeout(() => {
+        msgContainer.innerHTML = '';
+    }, 5000);
+    
+    // Adiciona evento de fechar no X
+    if (type === 'success') {
+        const closeButton = msgContainer.querySelector('.close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                msgContainer.innerHTML = '';
+            });
+        }
+    }
+}
+
+function createMessageContainer() {
+    const container = document.createElement('div');
+    container.className = 'msg';
+    const main = document.querySelector('main.content');
+    if (main) {
+        main.insertBefore(container, main.firstChild);
+    }
+    return container;
+}
+
+// Inicializa cronograma de ocorrências para formulário de CRIAR evento
+function initCronogramaOcorrenciasCriar(tbody) {
+    tbody.dataset.initialized = 'true';
+    let ocorrenciaCount = 0;
+    
+    function adicionarOcorrencia() {
+        const dataAtual = new Date().toISOString().split('T')[0];
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-ocorrencia-row', '');
+        row.innerHTML = `
+            <td data-label="Dia">
+                <input type="date" name="ocorrencias[${ocorrenciaCount}][data_ocorrencia]" value="${dataAtual}" required>
+            </td>
+            <td data-label="Horário">
+                <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
+            </td>
+            <td data-label="Descrição">
+                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
+            </td>
+            <td data-label="Local">
+                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            </td>
+            <td data-label="Ações" class="cronograma-acoes">
+                <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
+                    <i class="bi bi-plus-circle"></i>
+                </button>
+                <button type="button" class="btn-icon btn-remove-ocorrencia" title="Remover ocorrência">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+        ocorrenciaCount++;
+    }
+    
+    function reindexarOcorrencias() {
+        const rows = tbody.querySelectorAll('tr[data-ocorrencia-row]');
+        rows.forEach((row, index) => {
+            row.querySelectorAll('input, select, textarea').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name && name.includes('ocorrencias[')) {
+                    const newName = name.replace(/ocorrencias\[\d+\]/, `ocorrencias[${index}]`);
+                    input.setAttribute('name', newName);
+                }
+            });
+        });
+        ocorrenciaCount = rows.length;
+    }
+    
+    // Delegação de eventos para botões
+    tbody.addEventListener('click', function(e) {
+        const addBtn = e.target.closest('.btn-add-ocorrencia');
+        if (addBtn) {
+            e.preventDefault();
+            adicionarOcorrencia();
+            return;
+        }
+        
+        const removeBtn = e.target.closest('.btn-remove-ocorrencia');
+        if (removeBtn) {
+            e.preventDefault();
+            const row = removeBtn.closest('tr[data-ocorrencia-row]');
+            if (tbody.querySelectorAll('tr[data-ocorrencia-row]').length > 1) {
+                row.remove();
+                reindexarOcorrencias();
+            } else {
+                alert('É necessário manter pelo menos uma ocorrência.');
+            }
+        }
+    });
+    
+    // Adiciona primeira ocorrência automaticamente se a tabela estiver vazia
+    if (tbody.children.length === 0) {
+        adicionarOcorrencia();
+    }
+}
+
+// Inicializa cronograma de ocorrências para formulário de EDITAR evento
+function initCronogramaOcorrenciasEditar(tbody) {
+    tbody.dataset.initialized = 'true';
+    const temOcorrencias = tbody.querySelectorAll('tr[data-ocorrencia-row]').length > 0;
+    let ocorrenciaCount = temOcorrencias ? tbody.querySelectorAll('tr[data-ocorrencia-row]').length : 0;
+    
+    function adicionarOcorrenciaEdit() {
+        const dataAtual = new Date().toISOString().split('T')[0];
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-ocorrencia-row', '');
+        row.innerHTML = `
+            <td data-label="Dia">
+                <input type="date" name="ocorrencias[${ocorrenciaCount}][data_ocorrencia]" value="${dataAtual}" required>
+            </td>
+            <td data-label="Horário">
+                <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
+            </td>
+            <td data-label="Descrição">
+                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
+            </td>
+            <td data-label="Local">
+                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            </td>
+            <td data-label="Ações" class="cronograma-acoes">
+                <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
+                    <i class="bi bi-plus-circle"></i>
+                </button>
+                <button type="button" class="btn-icon btn-remove-ocorrencia" title="Remover ocorrência">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+        ocorrenciaCount++;
+    }
+    
+    function reindexarOcorrenciasEdit() {
+        const rows = tbody.querySelectorAll('tr[data-ocorrencia-row]');
+        rows.forEach((row, index) => {
+            row.querySelectorAll('input, select, textarea').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name && name.includes('ocorrencias[')) {
+                    const newName = name.replace(/ocorrencias\[\d+\]/, `ocorrencias[${index}]`);
+                    input.setAttribute('name', newName);
+                }
+            });
+        });
+        ocorrenciaCount = rows.length;
+    }
+    
+    // Delegação de eventos para botões
+    tbody.addEventListener('click', function(e) {
+        const addBtn = e.target.closest('.btn-add-ocorrencia');
+        if (addBtn) {
+            e.preventDefault();
+            adicionarOcorrenciaEdit();
+            return;
+        }
+        
+        const removeBtn = e.target.closest('.btn-remove-ocorrencia');
+        if (removeBtn) {
+            e.preventDefault();
+            const row = removeBtn.closest('tr[data-ocorrencia-row]');
+            if (tbody.querySelectorAll('tr[data-ocorrencia-row]').length > 1) {
+                row.remove();
+                reindexarOcorrenciasEdit();
+            } else {
+                alert('É necessário manter pelo menos uma ocorrência.');
+            }
+        }
+    });
+    
+    // Adiciona primeira ocorrência se não houver nenhuma
+    if (!temOcorrencias) {
+        adicionarOcorrenciaEdit();
+    }
+}
+
 export function initModalScripts(container) {
+    // Inicializa formulário de criar evento se existir
+    const formCriarEvento = container.querySelector('#form-criar-evento');
+    if (formCriarEvento && !formCriarEvento.dataset.ajaxInitialized) {
+        initFormCriarEvento(formCriarEvento);
+    }
+    
+    // Inicializa cronograma de ocorrências para criar evento
+    const cronogramaBodyCriar = container.querySelector('#cronograma-body-criar');
+    if (cronogramaBodyCriar && !cronogramaBodyCriar.dataset.initialized) {
+        initCronogramaOcorrenciasCriar(cronogramaBodyCriar);
+    }
+    
+    // Inicializa cronograma de ocorrências para editar evento
+    const cronogramaBodyEditar = container.querySelector('#cronograma-body-editar');
+    if (cronogramaBodyEditar && !cronogramaBodyEditar.dataset.initialized) {
+        initCronogramaOcorrenciasEditar(cronogramaBodyEditar);
+    }
+    
+    // Inicializa formulário de editar culto se existir
+    const selectEvento = container.querySelector('#evento_id');
+    if (selectEvento && !selectEvento.dataset.eventListenersAdded) {
+        initFormEditarCulto(selectEvento);
+    }
+    
+    // Inicializa formulários AJAX
+    if (typeof window.initAjaxForms === 'function') {
+        window.initAjaxForms(container);
+    }
+    
     // --- abas legadas (.tabs / .tab-menu) ---
     const legacyTabContainers = container.querySelectorAll('.tabs');
     legacyTabContainers.forEach((tabsContainer) => {
@@ -29,6 +256,132 @@ export function initModalScripts(container) {
         if (initialTab) {
             activate(initialTab.dataset.tab);
         }
+    });
+                
+    // --- cronograma de eventos (gera linhas a partir do intervalo de datas) ---
+    container.querySelectorAll('[data-cronograma-body]').forEach((tbody) => {
+        if (tbody.dataset.cronogramaInitialized === 'true') {
+            return;
+        }
+        tbody.dataset.cronogramaInitialized = 'true';
+
+        const startSelector = tbody.dataset.cronogramaStart || '#data_inicio';
+        const endSelector = tbody.dataset.cronogramaEnd || '#data_encerramento';
+        const prefix = tbody.dataset.cronogramaPrefix || 'ocorrencias';
+
+        const startInput = container.querySelector(startSelector) || document.querySelector(startSelector);
+        const endInput = container.querySelector(endSelector) || document.querySelector(endSelector);
+
+        const parseDate = (value) => {
+            const date = value ? new Date(value + 'T00:00:00') : null;
+            return date instanceof Date && !isNaN(date) ? date : null;
+        };
+
+        const buildDateRange = (startDate, endDate) => {
+            if (!startDate) return [];
+            const end = endDate && endDate >= startDate ? endDate : startDate;
+            const days = [];
+            for (let dt = new Date(startDate); dt <= end; dt.setDate(dt.getDate() + 1)) {
+                days.push(new Date(dt));
+            }
+            return days;
+        };
+
+        const renderCronograma = () => {
+            const startDate = parseDate(startInput?.value);
+            const endDate = parseDate(endInput?.value);
+            const range = buildDateRange(startDate, endDate);
+            const rows = range.length ? range : [null];
+
+            tbody.innerHTML = '';
+
+            rows.forEach((dateValue, index) => {
+                const dateStr = dateValue ? dateValue.toISOString().slice(0, 10) : '';
+                const dateFormatted = dateValue ? dateValue.toLocaleDateString('pt-BR', { 
+                    weekday: 'long', 
+                    day: '2-digit', 
+                    month: 'long', 
+                    year: 'numeric' 
+                }) : '';
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr data-ocorrencia-row>
+                        <td data-label="Dia">
+                            <span class="cronograma-data">${dateFormatted}</span>
+                            <input type="hidden" name="${prefix}[${index}][data_ocorrencia]" value="${dateStr}" data-data-ocorrencia>
+                        </td>
+                        <td data-label="Horário"><input type="time" name="${prefix}[${index}][horario_inicio]"></td>
+                        <td data-label="Descrição"><input type="text" name="${prefix}[${index}][descricao]" placeholder="Descrição (opcional)"></td>
+                        <td data-label="Local"><input type="text" name="${prefix}[${index}][local]" placeholder="Local (opcional)"></td>
+                        <td data-label="Ações" class="cronograma-acoes">
+                            <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                            <button type="button" class="btn-icon btn-remove-ocorrencia" title="Remover ocorrência">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        };
+
+        startInput?.addEventListener('change', renderCronograma);
+        endInput?.addEventListener('change', renderCronograma);
+        renderCronograma();
+
+        // Função para reindexar os nomes dos inputs
+        const reindexarOcorrencias = () => {
+            const rows = tbody.querySelectorAll('tr[data-ocorrencia-row]');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input, select, textarea').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes(prefix + '[')) {
+                        const newName = name.replace(new RegExp(prefix + '\\[\\d+\\]'), `${prefix}[${index}]`);
+                        input.setAttribute('name', newName);
+                    }
+                });
+            });
+        };
+
+        // Event listener para adicionar ocorrência
+        tbody.addEventListener('click', (e) => {
+            const addBtn = e.target.closest('.btn-add-ocorrencia');
+            if (addBtn) {
+                e.preventDefault();
+                const row = addBtn.closest('tr[data-ocorrencia-row]');
+                const newRow = row.cloneNode(true);
+                
+                // Limpar valores dos inputs (exceto data)
+                newRow.querySelectorAll('input[type="time"], input[type="text"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Inserir nova linha após a atual
+                row.parentNode.insertBefore(newRow, row.nextSibling);
+                
+                // Reindexar todos os inputs
+                reindexarOcorrencias();
+            }
+        });
+
+        // Event listener para remover ocorrência
+        tbody.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.btn-remove-ocorrencia');
+            if (removeBtn) {
+                e.preventDefault();
+                const row = removeBtn.closest('tr[data-ocorrencia-row]');
+                const totalRows = tbody.querySelectorAll('tr[data-ocorrencia-row]').length;
+                
+                if (totalRows > 1) {
+                    if (confirm('Deseja realmente remover esta ocorrência?')) {
+                        row.remove();
+                        reindexarOcorrencias();
+                    }
+                } else {
+                    alert('Não é possível remover a última ocorrência. O evento deve ter ao menos uma ocorrência.');
+                }
+            }
+        });
     });
                 
     // --- controle de abas internas ---
@@ -859,4 +1212,204 @@ export function initModalScripts(container) {
             }
         });
     }
+}
+
+// Função para inicializar formulário de criar evento com AJAX
+function initFormCriarEvento(form) {
+    if (!form) return;
+    if (form.dataset.ajaxInitialized === 'true') return;
+    
+    form.dataset.ajaxInitialized = 'true';
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Validação
+        const titulo = form.querySelector('[name="titulo"]');
+        
+        if (!titulo || !titulo.value.trim()) {
+            showSystemMessage('Por favor, preencha o título do evento.', 'error');
+            return;
+        }
+        
+        // Valida se há ao menos uma ocorrência
+        const ocorrencias = form.querySelectorAll('input[name*="[data_ocorrencia]"]');
+        if (ocorrencias.length === 0) {
+            showSystemMessage('Por favor, adicione ao menos uma ocorrência ao evento.', 'error');
+            return;
+        }
+        
+        // Valida se todas as ocorrências têm data preenchida
+        let todasPreenchidas = true;
+        ocorrencias.forEach(input => {
+            if (!input.value) {
+                todasPreenchidas = false;
+            }
+        });
+        
+        if (!todasPreenchidas) {
+            showSystemMessage('Por favor, preencha a data de todas as ocorrências.', 'error');
+            return;
+        }
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+        }
+        
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-plus-circle"></i> Adicionar Evento';
+            }
+            
+            if (!data.success) {
+                showSystemMessage(data.message || 'Erro ao criar evento.', 'error');
+                return;
+            }
+            
+            const evento = data.evento || data.data;
+            if (!evento || !evento.id) {
+                showSystemMessage('Evento criado mas dados incompletos.', 'error');
+                return;
+            }
+            
+            // Mostra mensagem de sucesso
+            if (data.message) {
+                showSystemMessage(data.message, 'success');
+            }
+            
+            window.eventoRecenteCriado = {
+                id: evento.id,
+                titulo: evento.titulo,
+                evento: evento
+            };
+            
+            // Marca que precisa recarregar o modal anterior
+            window.recarregarModalAnterior = true;
+            
+            if (typeof voltarModalAnterior === 'function') {
+                voltarModalAnterior();
+                
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('eventoCreated', {
+                        detail: {
+                            eventoId: evento.id,
+                            eventoTitulo: evento.titulo,
+                            evento: evento
+                        }
+                    }));
+                }, 300);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao criar evento:', error);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-plus-circle"></i> Adicionar Evento';
+            }
+            showSystemMessage('Erro ao criar evento.', 'error');
+        });
+    });
+}
+
+function initFormEditarCulto(selectEvento) {
+    if (!selectEvento || selectEvento.dataset.eventListenersAdded === 'true') {
+        return;
+    }
+    
+    selectEvento.dataset.eventListenersAdded = 'true';
+    
+    // Função para adicionar evento ao select
+    function adicionarEventoAoSelect(eventoId, eventoTitulo) {
+        if (!selectEvento) return false;
+        
+        const optionExists = Array.from(selectEvento.options).some(opt => opt.value == eventoId);
+        
+        if (!optionExists) {
+            const newOption = new Option(eventoTitulo, eventoId, true, true);
+            selectEvento.add(newOption);
+            
+            // Força re-renderização completa do select
+            const parent = selectEvento.parentNode;
+            const clone = selectEvento.cloneNode(true);
+            parent.replaceChild(clone, selectEvento);
+            selectEvento = clone;
+            
+            // Feedback visual
+            setTimeout(() => {
+                clone.focus();
+                clone.scrollTop = clone.scrollHeight;
+                clone.style.transition = 'background-color 0.3s ease';
+                clone.style.backgroundColor = '#22c55e';
+                setTimeout(() => {
+                    clone.style.backgroundColor = 'color-mix(in srgb, var(--success-color, #22c55e) 20%, transparent)';
+                    setTimeout(() => {
+                        clone.style.backgroundColor = '';
+                    }, 1500);
+                }, 300);
+            }, 100);
+            
+            return true;
+        } else {
+            selectEvento.value = eventoId;
+            selectEvento.focus();
+            selectEvento.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Feedback visual
+            selectEvento.style.transition = 'background-color 0.3s ease';
+            selectEvento.style.backgroundColor = '#3b82f6';
+            setTimeout(() => {
+                selectEvento.style.backgroundColor = '';
+            }, 800);
+            
+            return true;
+        }
+    }
+    
+    // Verifica se há um evento recente criado ao carregar
+    if (window.eventoRecenteCriado) {
+        setTimeout(() => {
+            adicionarEventoAoSelect(
+                window.eventoRecenteCriado.id, 
+                window.eventoRecenteCriado.titulo
+            );
+            window.eventoRecenteCriado = null;
+        }, 200);
+    }
+    
+    // Escuta quando o modal é restaurado
+    window.addEventListener('modalRestaurado', function(e) {
+        if (window.eventoRecenteCriado) {
+            adicionarEventoAoSelect(
+                window.eventoRecenteCriado.id, 
+                window.eventoRecenteCriado.titulo
+            );
+            window.eventoRecenteCriado = null;
+        }
+    });
+    
+    // Escuta o evento de criação de evento
+    window.addEventListener('eventoCreated', function(e) {
+        const { eventoId, eventoTitulo } = e.detail;
+        
+        if (!eventoId || !eventoTitulo) return;
+        
+        setTimeout(() => {
+            adicionarEventoAoSelect(eventoId, eventoTitulo);
+        }, 300);
+    });
 }

@@ -84,12 +84,6 @@
                 <div class="card">
                     <p><i class="bi bi-info-circle"></i> Nenhuma pesquisa encontrada para este filtro.</p>
                 </div>
-            @endforelse
-
-            @if($pesquisas instanceof \Illuminate\Pagination\Paginator || $pesquisas instanceof \Illuminate\Pagination\LengthAwarePaginator)
-                <div class="pagination">
-                    {{ $pesquisas->links('pagination::default') }}
-                </div>
             @endif
         </div>
     </div>

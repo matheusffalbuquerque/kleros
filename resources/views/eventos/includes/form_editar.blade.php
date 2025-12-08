@@ -26,27 +26,6 @@
                         </select>
                     </div>
                     <div class="form-item">
-                        <label for="evento_recorrente">Natureza do evento: </label>
-                        <div class="form-square">
-                            <div>
-                                <input type="radio" id="especifico" name="evento_recorrente" value="0" {{ !$evento->recorrente ? 'checked' : '' }}>
-                                <label for="especifico">Específico (cadastro individual)</label>
-                            </div>
-                            <div>
-                                <input type="radio" id="recorrente" name="evento_recorrente" value="1" {{ $evento->recorrente ? 'checked' : '' }}>
-                                <label for="recorrente">Recorrente (cadastro único)</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-item">
-                        <label for="data_inicio">Data de início: </label>
-                        <input type="date" name="data_inicio" id="data_inicio" value="{{ \Carbon\Carbon::parse($evento->data_inicio)->format('Y-m-d') }}">
-                    </div>
-                    <div class="form-item">
-                        <label for="data_encerramento">Data de encerramento: </label>
-                        <input type="date" name="data_encerramento" id="data_encerramento" value="{{ \Carbon\Carbon::parse($evento->data_encerramento)->format('Y-m-d') }}">
-                    </div>
-                    <div class="form-item">
                         <label for="descricao">Descrição: </label>
                         <textarea name="descricao" placeholder="Descrição do evento">{{ $evento->descricao }}</textarea>
                     </div>
@@ -71,15 +50,16 @@
                 <div id="evento-cronograma" class="tab-pane form-control">
                     @php
                         $cronograma = $evento->ocorrencias ?? collect();
-                        $hasOcorrencias = $cronograma->isNotEmpty();
+                        $emptyOcorrencias = $cronograma->isEmpty();
                     @endphp
-                    <div class="card">
-                        @if ($hasOcorrencias)
-                            <p><i class="bi bi-info-circle"></i> Ajuste as ocorrências existentes. Inclusões e exclusões devem ser feitas no cadastro inicial.</p>
-                        @else
+                    
+                    <!--Pode ser necessário, caso seja um evento recorrente-->
+                    @if ($emptyOcorrencias)
+                        <div class="card">
                             <p><i class="bi bi-info-circle"></i> Não há ocorrências cadastradas. As datas serão sugeridas pelo intervalo de início e encerramento para você ajustar.</p>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
+                    
                     <div class="table-responsive">
                         <table class="table cronograma-table">
                             <thead>
@@ -88,29 +68,34 @@
                                     <th>Horário de início (opcional)</th>
                                     <th>Descrição (opcional)</th>
                                     <th>Local (opcional)</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
-                            @if ($hasOcorrencias)
+                            @if (!$emptyOcorrencias)
                                 <tbody id="cronograma-body-editar">
                                     @foreach ($cronograma as $index => $oc)
-                                        <tr>
-                                            <td>
+                                        <tr data-ocorrencia-row>
+                                            <td data-label="Dia">
                                                 <input type="hidden" name="ocorrencias[{{ $index }}][id]" value="{{ $oc->id }}">
-                                                <input type="date" name="ocorrencias[{{ $index }}][data_ocorrencia]" value="{{ $oc->data_ocorrencia ? \Illuminate\Support\Carbon::parse($oc->data_ocorrencia)->format('Y-m-d') : '' }}">
+                                                <input type="date" name="ocorrencias[{{ $index }}][data_ocorrencia]" value="{{ $oc->data_ocorrencia ? \Illuminate\Support\Carbon::parse($oc->data_ocorrencia)->format('Y-m-d') : '' }}" required>
                                             </td>
-                                            <td><input type="time" name="ocorrencias[{{ $index }}][horario_inicio]" value="{{ $oc->horario_inicio }}"></td>
-                                            <td><input type="text" name="ocorrencias[{{ $index }}][descricao]" value="{{ $oc->descricao }}" placeholder="Descrição (opcional)"></td>
-                                            <td><input type="text" name="ocorrencias[{{ $index }}][local]" value="{{ $oc->local }}" placeholder="Local (opcional)"></td>
+                                            <td data-label="Horário"><input type="time" name="ocorrencias[{{ $index }}][horario_inicio]" value="{{ $oc->horario_inicio }}"></td>
+                                            <td data-label="Descrição"><input type="text" name="ocorrencias[{{ $index }}][descricao]" value="{{ $oc->descricao }}" placeholder="Descrição (opcional)"></td>
+                                            <td data-label="Local"><input type="text" name="ocorrencias[{{ $index }}][local]" value="{{ $oc->local }}" placeholder="Local (opcional)"></td>
+                                            <td data-label="Ações" class="cronograma-acoes">
+                                                <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </button>
+                                                <button type="button" class="btn-icon btn-remove-ocorrencia" title="Remover ocorrência">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             @else
-                                <tbody
-                                    id="cronograma-body-editar"
-                                    data-cronograma-body
-                                    data-cronograma-start="#data_inicio"
-                                    data-cronograma-end="#data_encerramento"
-                                    data-cronograma-prefix="ocorrencias">
+                                <tbody id="cronograma-body-editar">
+                                    <!-- Primeira ocorrência será adicionada automaticamente -->
                                 </tbody>
                             @endif
                         </table>
@@ -120,9 +105,14 @@
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> Atualizar Evento</button>
                 <button type="button" class="btn danger" onclick="handleSubmit(event, document.getElementById('delete-evento-{{ $evento->id }}'), 'Deseja realmente excluir este evento?')"><i class="bi bi-trash"></i> Excluir</button>
-                <button type="button" class="btn" onclick="fecharJanelaModal()"><i class="bi bi-arrow-return-left"></i> Voltar</button>
             </div>
         </div>
+    </form>
+    
+    <!-- Formulário de exclusão -->
+    <form id="delete-evento-{{ $evento->id }}" action="{{ route('eventos.destroy', $evento->id) }}" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
     </form>
 </div>
 

@@ -38,7 +38,9 @@ class CultoController extends Controller
             ->get();
         $cultos = $cultos->isEmpty() ? '' : $cultos;
 
-        $eventos = Evento::all();
+        $eventos = Evento::where('congregacao_id', $congregacao->id)
+            ->orderBy('titulo')
+            ->get();
 
         return view('cultos/checkin', ['cultos' => $cultos, 'eventos' => $eventos, 'congregacao' => $congregacao]);
     }
@@ -138,21 +140,7 @@ class CultoController extends Controller
         return response()->json(['view' => $view]);
     }
 
-    public function complete($id) {
-        
-
-        if($id == 'adicionar'){
-            $culto = null;
-        } else {
-            $culto = Culto::findOrFail($id);
-        }
-
-        $congregacao = app('congregacao');
-        $eventos = Evento::all();
-
-        return view('cultos/checkout', ['culto' => $culto, 'eventos' => $eventos, 'congregacao' => $congregacao]);
-    }
-
+    
     public function update(Request $request, $id){
 
         $culto = Culto::findOrFail($id);
@@ -175,14 +163,14 @@ class CultoController extends Controller
     }
 
     public function form_criar(){
-        $eventos = Evento::all();
+        $eventos = Evento::where('congregacao_id', app('congregacao')->id)->get();
         return view('cultos/includes/form_criar', ['eventos' => $eventos]);
     }
 
     public function form_editar($id){
         $culto = Culto::with(['escalas.tipo', 'escalas.itens.membro'])->findOrFail($id);
         $culto->escalas = $culto->escalas->sortBy('data_hora')->values();
-        $eventos = Evento::all();
+        $eventos = Evento::where('congregacao_id', $culto->congregacao_id)->get();
         return view('cultos/includes/form_editar', ['culto' => $culto, 'eventos' => $eventos]);
     }
 
