@@ -48,24 +48,31 @@ class AgendaController extends Controller
                 ];
             });
 
-        $cultos = Culto::select([
+        $cultos = Culto::with('preletor')->select([
             'id',
             'data_culto',
-            'preletor',
+            'preletor_id',
+            'preletor_externo',
+            'evento_id',
         ])->where('congregacao_id', $congregacao->id)->get()
             ->map(function ($culto) {
                 $title = 'Culto';
+                $preletorNome = optional($culto->preletor)->nome ?: $culto->preletor_externo;
 
-                if (! empty($culto->preletor)) {
-                    $title .= ' - ' . $culto->preletor;
+                if (! empty($preletorNome)) {
+                    $title .= ' - ' . $preletorNome;
                 }
+
+                $start = Carbon::parse($culto->data_culto, config('app.timezone'));
+                $color = $culto->evento_id ? '#2196f3' : '#4caf50';
 
                 return [
                     'id' => 'culto-' . $culto->id,
                     'title' => $title,
-                    'start' => Carbon::parse($culto->data_culto)->toDateString(),
-                    'color' => '#4caf50',
-                    'backgroundColor' => '#4caf50',
+                    'start' => $start->toIso8601String(),
+                    'allDay' => true,
+                    'color' => $color,
+                    'backgroundColor' => $color,
                     'extendedProps' => [
                         'type' => 'culto',
                         'editUrl' => route('cultos.form_editar', $culto->id),
@@ -101,36 +108,62 @@ class AgendaController extends Controller
             ];
         });
 
-        $eventos = Evento::select([
+        $eventos = Evento::with('ocorrencias')->select([
             'id',
             'titulo as title',
             'data_inicio',
             'data_encerramento',
         ])->where('congregacao_id', $congregacao->id)
             ->get()
-            ->map(function ($evento) {
-                $startDate = Carbon::parse($evento->data_inicio);
-                $endDate = Carbon::parse($evento->data_encerramento);;
-                
-                // No FullCalendar, 'end' é exclusivo, então adicionamos 1 dia
-                // para que o último dia seja incluído visualmente
-                $start = $startDate->copy()->addDay();
-                $end = $endDate->copy()->addDay();
+            ->flatMap(function ($evento) {
+                // Se não houver ocorrências, mantém comportamento anterior (evento dia todo)
+                if ($evento->ocorrencias->isEmpty()) {
+                    $startDate = Carbon::parse($evento->data_inicio);
+                    $endDate = $evento->data_encerramento
+                        ? Carbon::parse($evento->data_encerramento)->addDay()
+                        : $startDate->copy()->addDay();
 
-            return [
-                'id' => 'evento-' . $evento->id,
-                'title' => $evento->title,
-                'start' => $start->toIso8601String(),
-                'end' => $end->toIso8601String(),
-                'color' => '#2196f3',
-                'backgroundColor' => '#2196f3',
-                'extendedProps' => [
-                    'type' => 'evento',
-                    'editUrl' => route('eventos.form_editar', $evento->id),
-                    'detailUrl' => route('agenda.detalhes', ['tipo' => 'evento', 'id' => $evento->id]),
-                ],
-            ];
-        });
+                    return [[
+                        'id' => 'evento-' . $evento->id,
+                        'title' => $evento->title,
+                        'start' => $startDate->toDateString(),
+                        'end' => $endDate->toDateString(),
+                        'allDay' => true,
+                        'color' => '#2196f3',
+                        'backgroundColor' => '#2196f3',
+                        'extendedProps' => [
+                            'type' => 'evento',
+                            'editUrl' => route('eventos.form_editar', $evento->id),
+                            'detailUrl' => route('agenda.detalhes', ['tipo' => 'evento', 'id' => $evento->id]),
+                        ],
+                    ]];
+                }
+
+                // Cria um evento por ocorrência, respeitando o horário salvo
+                return $evento->ocorrencias->map(function ($ocorrencia) use ($evento) {
+                    $allDay = empty($ocorrencia->horario_inicio);
+
+                    $start = $allDay
+                        ? Carbon::parse($ocorrencia->data_ocorrencia)
+                        : Carbon::parse(
+                            $ocorrencia->data_ocorrencia . ' ' . $ocorrencia->horario_inicio
+                        );
+
+                    return [
+                        'id' => 'evento-' . $evento->id . '-oc-' . $ocorrencia->id,
+                        'title' => $evento->title,
+                        'start' => $allDay ? $start->toDateString() : $start->toIso8601String(),
+                        'allDay' => $allDay,
+                        'color' => '#2196f3',
+                        'backgroundColor' => '#2196f3',
+                        'extendedProps' => [
+                            'type' => 'evento',
+                            'editUrl' => route('eventos.form_editar', $evento->id),
+                            'detailUrl' => route('agenda.detalhes', ['tipo' => 'evento', 'id' => $evento->id]),
+                        ],
+                    ];
+                });
+            });
 
         $todosEventos = $cultos
             ->concat($eventos)

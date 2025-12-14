@@ -61,7 +61,7 @@
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
             locale: locale,
-            timeZone: 'local',
+            timeZone: 'America/Sao_Paulo',
             initialView: 'dayGridMonth',
             headerToolbar: {
                 left: 'prev,next today',

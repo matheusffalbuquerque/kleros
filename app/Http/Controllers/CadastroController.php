@@ -17,6 +17,7 @@ use App\Models\TipoEscala;
 use App\Models\Caixa;
 use App\Models\TipoContribuicao;
 use App\Models\TipoLancamento;
+use App\Models\CultoCategoria;
 
 class CadastroController extends Controller
 {
@@ -74,6 +75,8 @@ class CadastroController extends Controller
             ->orderBy('nome')
             ->get();
 
+        $cultoCategorias = CultoCategoria::orderBy('nome')->get();
+
         /*Essa parte verifica o tal de visitantes do mês, se não houver ele receberá uma string vazia*/
         $visitantes_mes = Visitante::where('congregacao_id', $congregacaoId)
             ->whereMonth('data_visita', $now->month)
@@ -129,6 +132,7 @@ class CadastroController extends Controller
             'tiposEscala' => $tiposEscala,
             'caixas' => $caixas,
             'tiposLancamento' => $tiposLancamento,
+            'cultoCategorias' => $cultoCategorias,
         ]);
     }
 }

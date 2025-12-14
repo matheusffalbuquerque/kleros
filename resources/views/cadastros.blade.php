@@ -42,14 +42,39 @@
                 </div>
             @endif
         </div>
+
+        <h3 class="mg-top-20">Categorias de Culto</h3>
+        <div class="card-container categorias-culto-list">
+            @if(isset($cultoCategorias) && $cultoCategorias->count())
+                @foreach ($cultoCategorias as $categoria)
+                    <div class="tag-item">
+                        <p><i class="bi bi-tag"></i> {{ $categoria->nome }}</p>
+                        @if($categoria->descricao)
+                            <small class="hint">{{ $categoria->descricao }}</small>
+                        @endif
+                        <form action="{{ route('cultos.categorias.destroy', $categoria->id) }}" method="post" style="margin-left:auto;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-icon danger" title="Excluir" onclick="handleSubmit(event, this.form, 'Remover categoria?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endforeach
+            @else
+                <div class="card">
+                    <p><i class="bi bi-exclamation-triangle"></i> Nenhuma categoria cadastrada.</p>
+                </div>
+            @endif
+        </div>
         <button class="btn" onclick="abrirJanelaModal('{{ route('cultos.form_criar') }}')">
             <i class="bi bi-plus-circle"></i> {{ $sections['cults']['buttons']['schedule'] }}
         </button>
+        <button class="btn mg-top-10" onclick="abrirJanelaModal('{{ route('cultos.categorias.index') }}')">
+            <i class="bi bi-tags"></i> Adicionar categoria
+        </button>        
         <a href="{{ url('/cultos/agenda') }}">
             <button class="btn"><i class="bi bi-arrow-right-circle"></i> {{ $sections['cults']['buttons']['agenda'] }}</button>
-        </a>
-        <a href="{{ route('cultos.complete', 'adicionar') }}">
-            <button class="btn"><i class="bi bi-plus-circle-fill"></i> {{ $sections['cults']['buttons']['register'] }}</button>
         </a>
         <a href="{{ url('/cultos/historico') }}">
             <button class="btn"><i class="bi bi-card-list"></i> {{ $sections['cults']['buttons']['history'] }}</button>

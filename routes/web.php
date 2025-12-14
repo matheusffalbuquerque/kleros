@@ -239,6 +239,10 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::post('cultos/search', [CultoController::class, 'search'])->name('cultos.search');
         Route::get('/cultos/agendamento', [CultoController::class, 'create'])->name('cultos.create');
         Route::get('/cultos/novo', [CultoController::class, 'form_criar'])->name('cultos.form_criar');
+        Route::get('/cultos/categorias', [\App\Http\Controllers\CultoCategoriaController::class, 'index'])->name('cultos.categorias.index');
+        Route::post('/cultos/categorias', [\App\Http\Controllers\CultoCategoriaController::class, 'store'])->name('cultos.categorias.store');
+        Route::put('/cultos/categorias/{id}', [\App\Http\Controllers\CultoCategoriaController::class, 'update'])->name('cultos.categorias.update');
+        Route::delete('/cultos/categorias/{id}', [\App\Http\Controllers\CultoCategoriaController::class, 'destroy'])->name('cultos.categorias.destroy');
         Route::get('/cultos/{id}', [CultoController::class, 'complete'])->name('cultos.complete');
         Route::get('/cultos/editar/{id}', [CultoController::class, 'form_editar'])->name('cultos.form_editar');
         Route::put('/cultos/{id}', [CultoController::class, 'update'])->name('cultos.update');

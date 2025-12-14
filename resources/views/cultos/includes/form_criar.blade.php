@@ -17,8 +17,32 @@
                     </div>
 
                     <div class="form-item">
-                        <label for="preletor">Preletor: </label>
-                        <input type="text" name="preletor" id="preletor" value="{{ old('preletor') }}" required>
+                        <label for="culto_categoria">Categoria: </label>
+                        <select name="culto_categoria" id="culto_categoria">
+                            <option value="">Regular</option>
+                            @foreach ($categorias as $categoria)
+                                <option value="{{ $categoria->nome }}" @selected(old('culto_categoria') == $categoria->nome)>{{ $categoria->nome }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-item" data-preletor-container>
+                        <label for="preletor_id">
+                            Preletor:
+                            <button type="button" class="btn-small" data-preletor-toggle>Inserir externo</button>
+                        </label>
+                        <select name="preletor_id" id="preletor_id" class="select2" data-placeholder="Selecione um preletor" data-preletor-select>
+                            <option value="">Selecione um preletor</option>
+                            @foreach($membros as $membro)
+                                @php
+                                    $ministerioNome = optional($membro->ministerio)->nome;
+                                @endphp
+                                <option value="{{ $membro->id }}" @selected(old('preletor_id') == $membro->id)>
+                                    {{ $membro->nome }}@if($ministerioNome) <small style="color:#666;"> ({{ $ministerioNome }})</small>@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <input type="text" name="preletor_externo" id="preletor_externo" value="{{ old('preletor_externo') }}" placeholder="Nome do preletor externo" data-preletor-external-input style="display: none;" disabled>
                     </div>
 
                     <div class="form-item">
@@ -126,7 +150,7 @@
     });
     
     // Escuta o evento de criação de evento
-    window.addEventListener('eventoCreated', function(e) {
+window.addEventListener('eventoCreated', function(e) {
         console.log('Evento eventoCreated recebido no form criar cultos:', e.detail);
         
         const { eventoId, eventoTitulo } = e.detail;
@@ -143,4 +167,5 @@
         }, 300);
     });
 })();
+
 </script>

@@ -27,8 +27,13 @@
                         <input type="time" name="horario_inicio" id="horario_inicio" value="{{ old('horario_inicio', $horaCulto) }}">
                     </div>
                     <div class="form-item">
-                        <label for="preletor">Preletor: </label>
-                        <input type="text" name="preletor" id="preletor" value="{{ old('preletor', $culto->preletor) }}" required>
+                        <label for="culto_categoria">Categoria: </label>
+                        <select name="culto_categoria" id="culto_categoria">
+                            <option value="">Regular</option>
+                            @foreach ($categorias as $categoria)
+                                <option value="{{ $categoria->nome }}" @selected(old('culto_categoria', optional($culto->categoria)->nome) == $categoria->nome)>{{ $categoria->nome }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-item">
                         <label for="evento_id">Evento: </label>
@@ -50,6 +55,24 @@
                 </div>
 
                 <div id="culto-detalhes" class="tab-pane form-control">
+                    <div class="form-item" data-preletor-container>
+                        <label for="preletor_id">
+                            Preletor:
+                            <button type="button" class="btn-small" data-preletor-toggle>Inserir externo</button>
+                        </label>
+                        <select name="preletor_id" id="preletor_id" class="select2" data-placeholder="Selecione um preletor" data-preletor-select>
+                            <option value="">Selecione um preletor</option>
+                            @foreach($membros as $membro)
+                                @php
+                                    $ministerioNome = optional($membro->ministerio)->nome;
+                                @endphp
+                                <option value="{{ $membro->id }}" @selected(old('preletor_id', $culto->preletor_id) == $membro->id)>
+                                    {{ $membro->nome }}@if($ministerioNome) <small style="color:#666;"> ({{ $ministerioNome }})</small>@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <input type="text" name="preletor_externo" id="preletor_externo" value="{{ old('preletor_externo', $culto->preletor_externo) }}" placeholder="Nome do preletor externo" data-preletor-external-input style="display: none;" disabled>
+                    </div>
                     <div class="form-item">
                         <label for="tema_sermao">Tema do sermão</label>
                         <input type="text" placeholder="Tema central do sermão" name="tema_sermao" id="tema_sermao" value="{{ old('tema_sermao', $culto->tema_sermao) }}">
@@ -154,6 +177,7 @@
         </div>
     </form>
 </div>
+
 
 <form id="delete-culto-{{ $culto->id }}" action="{{ route('cultos.destroy', $culto->id) }}" method="POST" style="display:none;">
     @csrf

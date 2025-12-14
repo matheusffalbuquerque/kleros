@@ -202,6 +202,80 @@ export function initModalScripts(container) {
     if (formCriarEvento && !formCriarEvento.dataset.ajaxInitialized) {
         initFormCriarEvento(formCriarEvento);
     }
+
+    // Controles de preletor (alternar entre membro select2 e campo externo)
+    const preletorContainers = container.querySelectorAll('[data-preletor-container]');
+    preletorContainers.forEach((scope) => {
+        if (scope.dataset.preletorToggleInitialized === 'true') {
+            return;
+        }
+        scope.dataset.preletorToggleInitialized = 'true';
+        initPreletorToggle(scope);
+    });
+
+    // Controle de geração de cultos quando o evento for marcado como recorrente
+    const geracaoCultosField = container.querySelector('.geracao_cultos');
+    const eventoRecorrenteRadios = container.querySelectorAll('input[name="evento_recorrente"]');
+    if (geracaoCultosField && eventoRecorrenteRadios.length && geracaoCultosField.dataset.recorrenteToggleInitialized !== 'true') {
+        geracaoCultosField.dataset.recorrenteToggleInitialized = 'true';
+        const manualGeracaoInput = container.querySelector('input[name="geracao_cultos"][value="0"]');
+        const cronogramaTab = container.querySelector('.tab-menu li[data-tab="evento-cronograma"]');
+        const cronogramaPane = container.querySelector('#evento-cronograma');
+        const descricaoTab = container.querySelector('.tab-menu li[data-tab="evento-descricao"]');
+        const descricaoPane = container.querySelector('#evento-descricao');
+        const detalhesTab = container.querySelector('.tab-menu li[data-tab="evento-detalhes"]');
+        const detalhesPane = container.querySelector('#evento-detalhes');
+
+        const toggleGeracaoCultos = () => {
+            const selected = container.querySelector('input[name="evento_recorrente"]:checked');
+            const isRecorrente = selected && selected.value === '1';
+
+            if (geracaoCultosField instanceof HTMLElement) {
+                geracaoCultosField.style.display = isRecorrente ? 'none' : '';
+                geracaoCultosField.hidden = isRecorrente;
+            }
+
+            if (isRecorrente && manualGeracaoInput) {
+                manualGeracaoInput.checked = true;
+                manualGeracaoInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Oculta a aba/painel de cronograma quando recorrente
+            if (cronogramaTab instanceof HTMLElement) {
+                cronogramaTab.style.display = isRecorrente ? 'none' : '';
+                cronogramaTab.hidden = isRecorrente;
+                cronogramaTab.classList.toggle('active', !isRecorrente && cronogramaTab.classList.contains('active'));
+            }
+            if (cronogramaPane instanceof HTMLElement) {
+                cronogramaPane.style.display = isRecorrente ? 'none' : '';
+                cronogramaPane.hidden = isRecorrente;
+                cronogramaPane.classList.toggle('active', !isRecorrente && cronogramaPane.classList.contains('active'));
+            }
+
+            // Se o cronograma estava ativo, troca para outra aba visível
+            if (isRecorrente && cronogramaTab && cronogramaTab.classList.contains('active')) {
+                const fallbackTab = detalhesTab || descricaoTab;
+                const fallbackPane = detalhesPane || descricaoPane;
+
+                cronogramaTab.classList.remove('active');
+                cronogramaPane?.classList.remove('active');
+                if (fallbackTab) {
+                    fallbackTab.classList.add('active');
+                }
+                if (fallbackPane) {
+                    fallbackPane.hidden = false;
+                    fallbackPane.style.display = '';
+                    fallbackPane.classList.add('active');
+                }
+            }
+        };
+
+        eventoRecorrenteRadios.forEach((radio) => {
+            radio.addEventListener('change', toggleGeracaoCultos);
+        });
+
+        toggleGeracaoCultos();
+    }
     
     // Inicializa cronograma de ocorrências para criar evento
     const cronogramaBodyCriar = container.querySelector('#cronograma-body-criar');
@@ -665,6 +739,16 @@ export function initModalScripts(container) {
         const $dropdownParent = isDocumentContainer ? $(container.body || document.body) : $container;
         const $selectScope = isDocumentContainer ? $dropdownParent : $container;
         const $selects = $selectScope.find('select.select2');
+
+        // Força dropdown sempre para baixo
+        if (!window.__select2ForceBelowBound) {
+            window.__select2ForceBelowBound = true;
+            $(document).on('select2:open', () => {
+                const $openDropdown = $('.select2-container--open .select2-dropdown');
+                $openDropdown.removeClass('select2-dropdown--above').addClass('select2-dropdown--below');
+                $openDropdown.css({ top: '100%' });
+            });
+        }
 
         $selects.each(function () {
             const $select = $(this);
@@ -1323,6 +1407,64 @@ function initFormCriarEvento(form) {
             }
             showSystemMessage('Erro ao criar evento.', 'error');
         });
+    });
+}
+
+function initPreletorToggle(scope) {
+    const selectEl = scope.querySelector('[data-preletor-select]');
+    const toggleBtn = scope.querySelector('[data-preletor-toggle]');
+    const externalInput = scope.querySelector('[data-preletor-external-input]');
+
+    if (!selectEl || !toggleBtn || !externalInput) {
+        return;
+    }
+
+    const toggleSelect2Visibility = (hide) => {
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            const $select = $(selectEl);
+            const $container = $select.next('.select2');
+            if ($container.length) {
+                $container.toggle(!hide);
+            }
+            // se o select2 ainda não foi inicializado, tenta novamente em seguida
+            if (!$container.length) {
+                setTimeout(() => {
+                    const $cont2 = $select.next('.select2');
+                    if ($cont2.length) {
+                        $cont2.toggle(!hide);
+                    }
+                }, 50);
+            }
+        } else {
+            selectEl.style.display = hide ? 'none' : '';
+        }
+    };
+
+    const setMode = (mode) => {
+        const isExternal = mode === 'external';
+        scope.dataset.mode = mode;
+
+        selectEl.disabled = isExternal;
+        toggleSelect2Visibility(isExternal);
+
+        selectEl.style.display = isExternal ? 'none' : '';
+        externalInput.style.display = isExternal ? '' : 'none';
+        externalInput.disabled = !isExternal;
+
+        toggleBtn.textContent = isExternal ? 'Inserir membro' : 'Inserir externo';
+    };
+
+    const initialExternal = !selectEl.value && externalInput.value;
+    setMode(initialExternal ? 'external' : 'member');
+
+    // Reaplica após a inicialização do select2
+    setTimeout(() => {
+        setMode(scope.dataset.mode || 'member');
+    }, 400);
+
+    toggleBtn.addEventListener('click', () => {
+        const isExternal = scope.dataset.mode === 'external';
+        setMode(isExternal ? 'member' : 'external');
     });
 }
 

@@ -26,6 +26,13 @@
                         </select>
                     </div>
                     <div class="form-item">
+                        <label for="descricao">Descrição: </label>
+                        <textarea name="descricao" placeholder="Descrição do evento"></textarea>
+                    </div>
+                </div>
+
+                <div id="evento-detalhes" class="tab-pane form-control">
+                    <div class="form-item">
                         <label for="evento_recorrente">Natureza do evento: </label>
                         <div class="form-square">
                             <div>
@@ -38,13 +45,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-item">
-                        <label for="descricao">Descrição: </label>
-                        <textarea name="descricao" placeholder="Descrição do evento"></textarea>
-                    </div>
-                </div>
-
-                <div id="evento-detalhes" class="tab-pane form-control">
                     <div class="form-item">
                         <label for="requer_inscricao">Tipo de Acesso: </label>
                         <div class="form-square">

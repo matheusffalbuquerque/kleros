@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Culto;
+use App\Models\CultoCategoria;
 use App\Models\Evento;
+use App\Models\Membro;
 use App\Models\SituacaoVisitante;
 use App\Models\Visitante;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +44,16 @@ class CultoController extends Controller
             ->orderBy('titulo')
             ->get();
 
-        return view('cultos/checkin', ['cultos' => $cultos, 'eventos' => $eventos, 'congregacao' => $congregacao]);
+        $categorias = CultoCategoria::orderBy('nome')->get();
+        $membros = Membro::orderBy('nome')->get();
+
+        return view('cultos/checkin', [
+            'cultos' => $cultos,
+            'eventos' => $eventos,
+            'categorias' => $categorias,
+            'membros' => $membros,
+            'congregacao' => $congregacao
+        ]);
     }
 
     public function agenda() {
@@ -60,15 +71,31 @@ class CultoController extends Controller
             ->orderBy('titulo')
             ->get(['id', 'titulo']);
 
-        $preletores = Culto::where('congregacao_id', $congregacaoId)
-            ->whereNotNull('preletor')
-            ->distinct()
-            ->orderBy('preletor')
-            ->pluck('preletor');
+        $categorias = CultoCategoria::orderBy('nome')->get();
+        $membros = Membro::orderBy('nome')->get();
+        $preletoresMembros = Membro::whereIn(
+                'id',
+                Culto::where('congregacao_id', $congregacaoId)
+                    ->whereNotNull('preletor_id')
+                    ->pluck('preletor_id')
+            )->pluck('nome');
+
+        $preletoresExternos = Culto::where('congregacao_id', $congregacaoId)
+            ->whereNotNull('preletor_externo')
+            ->pluck('preletor_externo');
+
+        $preletores = $preletoresMembros
+            ->merge($preletoresExternos)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('cultos/agenda', [
             'cultos' => $cultos->isEmpty() ? '' : $cultos,
             'eventosFiltro' => $eventosFiltro,
+            'categorias' => $categorias,
+            'membros' => $membros,
             'preletores' => $preletores,
             'congregacao' => $congregacao,
         ]);
@@ -79,9 +106,20 @@ class CultoController extends Controller
         $culto = new Culto;
 
         $culto->data_culto = $request->data_culto . ' ' . $request->horario_inicio;
-        $culto->preletor = $request->preletor;
+        $preletorId = $request->preletor_id ?: null;
+        $preletorExterno = $request->preletor_externo ?: null;
+
+        $categoriaNome = $request->culto_categoria;
+        $categoriaId = $request->culto_categoria_id;
+        if (! $categoriaId && $categoriaNome) {
+            $categoriaId = CultoCategoria::where('nome', $categoriaNome)->value('id');
+        }
+
+        $culto->preletor_id = $preletorId;
+        $culto->preletor_externo = $preletorId ? null : $preletorExterno;
         $culto->quant_visitantes = $request->quantidade_visitantes ?? 0;
         $culto->evento_id = $request->evento_id;
+        $culto->culto_categoria_id = $categoriaId ?: null;
         $culto->tema_sermao = $request->tema_sermao ?? null;
         $culto->texto_base = $request->texto_base ?? null;
         $culto->quant_adultos = $request->quantidade_adultos ?? 0;
@@ -124,7 +162,12 @@ class CultoController extends Controller
             $query->whereDate('data_culto', '>=', date('Y-m-d'));
 
             if ($request->filled('preletor')) {
-                $query->where('preletor', $request->input('preletor'));
+                $preletorBusca = $request->input('preletor');
+                $query->where(function ($q) use ($preletorBusca) {
+                    $q->whereHas('preletor', function ($sub) use ($preletorBusca) {
+                        $sub->where('nome', 'like', '%' . $preletorBusca . '%');
+                    })->orWhere('preletor_externo', 'like', '%' . $preletorBusca . '%');
+                });
             }
 
             if ($request->filled('evento')) {
@@ -147,9 +190,20 @@ class CultoController extends Controller
         
         $culto->congregacao_id = app('congregacao')->id;
         $culto->data_culto = $request->data_culto . ' ' . $request->horario_inicio;
-        $culto->preletor = $request->preletor;
+        $preletorId = $request->preletor_id ?: null;
+        $preletorExterno = $request->preletor_externo ?: null;
+
+        $categoriaNome = $request->culto_categoria;
+        $categoriaId = $request->culto_categoria_id;
+        if (! $categoriaId && $categoriaNome) {
+            $categoriaId = CultoCategoria::where('nome', $categoriaNome)->value('id');
+        }
+
+        $culto->preletor_id = $preletorId;
+        $culto->preletor_externo = $preletorId ? null : $preletorExterno;
         $culto->quant_visitantes = $request->quantidade_visitantes ?? 0;
         $culto->evento_id = $request->evento_id;
+        $culto->culto_categoria_id = $categoriaId ?: null;
         $culto->tema_sermao = $request->tema_sermao ?? null;
         $culto->texto_base = $request->texto_base ?? null;
         $culto->quant_adultos = $request->quantidade_adultos ?? 0;
@@ -164,14 +218,27 @@ class CultoController extends Controller
 
     public function form_criar(){
         $eventos = Evento::where('congregacao_id', app('congregacao')->id)->get();
-        return view('cultos/includes/form_criar', ['eventos' => $eventos]);
+        $categorias = CultoCategoria::orderBy('nome')->get();
+        $membros = Membro::orderBy('nome')->get();
+        return view('cultos/includes/form_criar', [
+            'eventos' => $eventos,
+            'categorias' => $categorias,
+            'membros' => $membros
+        ]);
     }
 
     public function form_editar($id){
         $culto = Culto::with(['escalas.tipo', 'escalas.itens.membro'])->findOrFail($id);
         $culto->escalas = $culto->escalas->sortBy('data_hora')->values();
         $eventos = Evento::where('congregacao_id', $culto->congregacao_id)->get();
-        return view('cultos/includes/form_editar', ['culto' => $culto, 'eventos' => $eventos]);
+        $categorias = CultoCategoria::orderBy('nome')->get();
+        $membros = Membro::orderBy('nome')->get();
+        return view('cultos/includes/form_editar', [
+            'culto' => $culto,
+            'eventos' => $eventos,
+            'categorias' => $categorias,
+            'membros' => $membros
+        ]);
     }
 
     public function destroy($id){

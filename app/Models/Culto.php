@@ -10,6 +10,8 @@ class Culto extends Model
         'evento_id',
         'data_culto',
         'preletor_id',
+        'preletor_externo',
+        'culto_categoria_id',
     ];
 
     protected $casts = [
@@ -38,5 +40,10 @@ class Culto extends Model
     public function escalas()
     {
         return $this->hasMany(Escala::class);
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(CultoCategoria::class, 'culto_categoria_id');
     }
 }

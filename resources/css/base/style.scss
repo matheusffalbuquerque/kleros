@@ -146,6 +146,73 @@ h1 {
     box-shadow: 0 10px 20px rgba(17, 24, 39, 0.18);
 }
 
+// cards estilo tag
+.card-container .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    min-width: 140px;
+    max-width: 220px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.card-container .tag-item i {
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+.card-container .tag-item small {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+}
+
+/* tags de categorias lado a lado */
+.card-container.categorias-culto-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.card-container.categorias-culto-list .info_item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    min-width: 140px;
+    max-width: 220px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+    font-size: 0.9rem;
+}
+
+.card-container.categorias-culto-list .info_item p {
+    margin: 0;
+}
+
+.card-container.categorias-culto-list .info_item .hint {
+    font-size: 0.8rem;
+}
+
+/* Cor da ação danger nos cards de categorias */
+.categorias-culto-list .btn-icon.danger,
+.categorias-culto-list .btn-icon.danger i {
+    color: var(--danger-color, #ef4444) !important;
+}
+
+.categorias-culto-list .btn-icon.danger:hover {
+    transform: translateY(-1px);
+}
+
 .card {
     position: relative;
     padding: clamp(16px, 2.5vw, 22px);
@@ -1325,4 +1392,3 @@ footer {
 .input-error:focus {
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger-color, #ef4444) 20%, transparent) !important;
 }
-
