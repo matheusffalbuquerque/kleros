@@ -43,7 +43,7 @@
             @endif
         </div>
 
-        <h3 class="mg-top-20">Categorias de Culto</h3>
+        <h3>Categorias de culto:</h3>
         <div class="card-container categorias-culto-list">
             @if(isset($cultoCategorias) && $cultoCategorias->count())
                 @foreach ($cultoCategorias as $categoria)

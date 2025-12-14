@@ -241,8 +241,21 @@ class CultoController extends Controller
         ]);
     }
 
-    public function destroy($id){
-        $culto = Culto::findOrFail($id);
+    public function destroy(Request $request, $id){
+        // Evita exclusões acidentais por requisições incorretas
+        if (! $request->isMethod('DELETE')) {
+            abort(405);
+        }
+
+        $congregacaoId = app('congregacao')->id;
+
+        $culto = Culto::where('congregacao_id', $congregacaoId)->findOrFail($id);
+        logger()->warning('[Culto] Exclusão solicitada', [
+            'culto_id' => $culto->id,
+            'congregacao_id' => $congregacaoId,
+            'route' => $request->path(),
+            'referer' => $request->headers->get('referer'),
+        ]);
         $culto->delete();
 
         return redirect()->to(url()->previous())->with('msg', 'Registro de culto excluído com sucesso.');

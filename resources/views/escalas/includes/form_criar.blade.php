@@ -4,6 +4,14 @@
     $cultosAgendados = isset($cultosAgendados) ? $cultosAgendados : collect();
     $cultoId = optional($culto ?? null)->id;
     $cultoSelecionado = old('culto_id', $cultoId);
+    $cultoSelecionadoObj = $cultoSelecionado ? $cultosAgendados->firstWhere('id', $cultoSelecionado) : null;
+
+    if (!$cultoSelecionadoObj && ($culto ?? null)) {
+        $cultoSelecionadoObj = $culto;
+    }
+
+    $cultoDataFormatada = $cultoSelecionadoObj ? optional($cultoSelecionadoObj->data_culto)->format('d/m/Y H:i') : null;
+    $cultoCategoriaNome = $cultoSelecionadoObj ? optional($cultoSelecionadoObj->categoria)->nome : null;
     $itens = old('itens', [
         ['funcao' => '', 'membro_id' => null, 'responsavel_externo' => ''],
     ]);
@@ -32,27 +40,37 @@
 
                 <div class="form-item">
                     <label for="culto_id">Vincular culto:</label>
-                    @if($cultosAgendados->isEmpty())
+                    @if($cultoSelecionadoObj)
+                        <input type="hidden" name="culto_id" value="{{ $cultoSelecionadoObj->id }}">
+                        <select id="culto_id" disabled>
+                            <option value="{{ $cultoSelecionadoObj->id }}">
+                                {{ $cultoDataFormatada ?? 'Data não informada' }}@if($cultoCategoriaNome) - {{ $cultoCategoriaNome }}@endif
+                            </option>
+                        </select>
+                    @elseif($cultosAgendados->isEmpty())
                         <p class="hint">Nenhum culto agendado para vincular.</p>
                     @else
-                        <select name="culto_id" id="culto_id" class="select2" data-placeholder="Selecione um culto agendado" data-search-placeholder="Pesquise por data ou preletor">
-                            <option></option>
+                        <select name="culto_id" id="culto_id">
+                            <option value="">Selecione um culto agendado</option>
                             @foreach($cultosAgendados as $cultoOp)
                                 @php
                                     $dataCulto = $cultoOp->data_culto ? \Illuminate\Support\Carbon::parse($cultoOp->data_culto)->format('d/m/Y H:i') : null;
+                                    $categoriaNome = optional($cultoOp->categoria)->nome;
                                 @endphp
                                 <option value="{{ $cultoOp->id }}" @selected($cultoSelecionado == $cultoOp->id)>
-                                    {{ $dataCulto ?? 'Data não informada' }} - {{ $cultoOp->preletor ?? 'Culto' }}
+                                    {{ $dataCulto ?? 'Data não informada' }}@if($categoriaNome) - {{ $categoriaNome }}@endif
                                 </option>
                             @endforeach
                         </select>
                     @endif
                 </div>
 
-                <div class="form-item" data-escala-datahora>
-                    <label for="data_hora">Data e hora:</label>
-                    <input type="datetime-local" name="data_hora" id="data_hora" value="{{ old('data_hora') }}">
-                </div>
+                @unless($cultoSelecionadoObj)
+                    <div class="form-item" data-escala-datahora>
+                        <label for="data_hora">Data e hora:</label>
+                        <input type="datetime-local" name="data_hora" id="data_hora" value="{{ old('data_hora') }}">
+                    </div>
+                @endunless
 
                 <div class="form-item">
                     <label for="local">Local:</label>

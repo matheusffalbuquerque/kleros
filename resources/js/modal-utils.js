@@ -757,6 +757,11 @@ export function initModalScripts(container) {
                 return;
             }
 
+            const $existingContainer = $select.next('.select2.select2-container');
+            if ($existingContainer.length) {
+                $existingContainer.remove();
+            }
+
             const placeholder = ($select.data('placeholder') || '').toString().trim();
             const searchPlaceholder = ($select.data('search-placeholder') || '').toString().trim();
 
@@ -917,6 +922,11 @@ export function initModalScripts(container) {
                     return;
                 }
 
+                const $existingContainer = $select.next('.select2.select2-container');
+                if ($existingContainer.length) {
+                    $existingContainer.remove();
+                }
+
                 const placeholder = ($select.data('placeholder') || '').toString().trim();
                 const searchPlaceholder = ($select.data('search-placeholder') || '').toString().trim();
 
@@ -997,6 +1007,158 @@ export function initModalScripts(container) {
             attachSummaryHandler(element);
             updateTitles();
         });
+
+        const modalStackRef = (typeof modalStack !== 'undefined') ? modalStack : window.modalStack;
+        const shouldHandleInlineModal = Array.isArray(modalStackRef) && modalStackRef.length > 0;
+        if (shouldHandleInlineModal) {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalLabel = submitBtn ? submitBtn.innerHTML : '';
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+                }
+
+                const formData = new FormData(form);
+                const method = (form.getAttribute('method') || 'POST').toUpperCase();
+
+                fetch(form.action, {
+                    method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok || data.success === false) {
+                            const errors = data.errors ? Object.values(data.errors).flat() : null;
+                            const message = errors && errors.length
+                                ? errors.join(' ')
+                                : (data.message || 'Erro ao salvar escala.');
+                            throw new Error(message);
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        const detail = {
+                            escalaId: data?.escala?.id,
+                            cultoId: data?.escala?.culto_id || form.querySelector('input[name="culto_id"]')?.value || null,
+                            escalasHtml: data?.escalasHtml || null,
+                            escala: data?.escala || data?.data,
+                            message: data?.message || 'Escala registrada com sucesso!',
+                        };
+
+                        if (typeof showSystemMessage === 'function' && detail.message) {
+                            showSystemMessage(detail.message, 'success');
+                        }
+
+                        if (typeof voltarModalAnterior === 'function') {
+                            voltarModalAnterior();
+
+                            setTimeout(() => {
+                                window.dispatchEvent(new CustomEvent('escalaUpdated', {
+                                    detail
+                                }));
+                            }, 300);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Falha ao salvar escala:', error);
+                        if (typeof showSystemMessage === 'function') {
+                            showSystemMessage(error.message || 'Erro ao salvar escala.', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalLabel || '<i class="bi bi-check-circle"></i> Salvar Escala';
+                        }
+                    });
+            });
+
+            const deleteButton = form.querySelector('[data-escala-delete]');
+            if (deleteButton && !deleteButton.dataset.deleteHandlerAttached) {
+                deleteButton.dataset.deleteHandlerAttached = 'true';
+                deleteButton.addEventListener('click', () => {
+                    const deleteUrl = deleteButton.getAttribute('data-delete-url');
+                    const cultoId = deleteButton.getAttribute('data-culto-id') || null;
+                    const confirmMessage = deleteButton.getAttribute('data-confirm-message') || 'Deseja realmente excluir esta escala?';
+
+                    const confirmPromise = typeof confirmarAcao === 'function'
+                        ? confirmarAcao(confirmMessage)
+                        : Promise.resolve(window.confirm(confirmMessage));
+
+                    confirmPromise.then((confirmed) => {
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        const originalDeleteLabel = deleteButton.innerHTML;
+                        deleteButton.disabled = true;
+                        deleteButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Excluindo...';
+
+                        const token = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
+
+                        fetch(deleteUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'X-HTTP-Method-Override': 'DELETE',
+                            },
+                        })
+                            .then(async (response) => {
+                                const data = await response.json().catch(() => ({}));
+                                if (!response.ok || data.success === false) {
+                                    const errors = data.errors ? Object.values(data.errors).flat() : null;
+                                    const message = errors && errors.length
+                                        ? errors.join(' ')
+                                        : (data.message || 'Erro ao excluir escala.');
+                                    throw new Error(message);
+                                }
+                                return data;
+                            })
+                            .then((data) => {
+                                const detail = {
+                                    cultoId: data?.culto_id || cultoId,
+                                    escalasHtml: data?.escalasHtml || null,
+                                    message: data?.message || 'Escala excluída com sucesso!',
+                                };
+
+                                if (typeof showSystemMessage === 'function' && detail.message) {
+                                    showSystemMessage(detail.message, 'success');
+                                }
+
+                                if (typeof voltarModalAnterior === 'function') {
+                                    voltarModalAnterior();
+
+                                    setTimeout(() => {
+                                        window.dispatchEvent(new CustomEvent('escalaDeleted', {
+                                            detail
+                                        }));
+                                    }, 300);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Falha ao excluir escala:', error);
+                                if (typeof showSystemMessage === 'function') {
+                                    showSystemMessage(error.message || 'Erro ao excluir escala.', 'error');
+                                }
+                            })
+                            .finally(() => {
+                                deleteButton.disabled = false;
+                                deleteButton.innerHTML = originalDeleteLabel;
+                            });
+                    });
+                });
+            }
+        }
     });
 
     // --- gerenciador de participantes das células---
@@ -1215,6 +1377,38 @@ export function initModalScripts(container) {
     // Inicializa scripts para botões de menu nos paineis 
     if (typeof window !== 'undefined' && typeof window.initOptionsMenus === 'function') {
         window.initOptionsMenus(container || document);
+    }
+
+    // --- Atualiza lista de escalas do culto ao criar/excluir em modal aninhado ---
+    if (!window._escalaEventosRegistrados) {
+        window._escalaEventosRegistrados = true;
+
+        const atualizarListaEscalas = (detail) => {
+            const info = detail || {};
+            const { cultoId, escalasHtml, message } = info;
+
+            if (escalasHtml) {
+                document.querySelectorAll('[data-escalas-lista]').forEach((lista) => {
+                    const listaCultoId = lista.getAttribute('data-culto-id');
+                    if (cultoId && listaCultoId && Number(listaCultoId) !== Number(cultoId)) {
+                        return;
+                    }
+                    lista.innerHTML = escalasHtml;
+                    if (typeof initModalScripts === 'function') {
+                        initModalScripts(lista);
+                    }
+                });
+            }
+
+            if (typeof showSystemMessage === 'function' && message) {
+                showSystemMessage(message, 'success');
+            }
+        };
+
+        const eventosEscala = ['escalaCreated', 'escalaDeleted', 'escalaUpdated'];
+        eventosEscala.forEach(evt => {
+            window.addEventListener(evt, (e) => atualizarListaEscalas(e.detail));
+        });
     }
 
     // --- Gestor de Imagens ---

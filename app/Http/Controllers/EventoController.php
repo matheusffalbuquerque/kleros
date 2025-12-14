@@ -207,7 +207,10 @@ class EventoController extends Controller
 
     public function form_editar($id){
         $evento = Evento::with('ocorrencias')->findOrFail($id);
-        $grupos = Agrupamento::where('tipo', 'grupo')->get();
+        $grupos = Agrupamento::where('congregacao_id', $this->congregacao->id)
+            ->where('tipo', 'grupo')
+            ->orderBy('nome')
+            ->get();
         return view('eventos/includes/form_editar', ['evento' => $evento, 'grupos' => $grupos]);
     }
 

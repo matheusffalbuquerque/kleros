@@ -316,11 +316,11 @@
                 </div>
                 <div class="dashboard-card neutral">
                     <span class="label">{{ $cards['service']['label'] }}</span>
-                    @if ($culto_hoje && isset($culto_hoje[0]))
-                        <strong>{{ $culto_hoje[0]->preletor ?? $cards['service']['unknown_preacher'] }}</strong>
+                    @if (!empty($culto_hoje_first))
+                        <strong>{{ $culto_hoje_first->preletor_label ?? $cards['service']['unknown_preacher'] }}</strong>
                         <small>
-                            @if ($culto_hoje[0]->evento_id)
-                                {{ $culto_hoje[0]->evento->titulo }}
+                            @if ($culto_hoje_first->evento_id)
+                                {{ optional($culto_hoje_first->evento)->titulo }}
                             @else
                                 {{ $cards['service']['no_event'] }}
                             @endif
