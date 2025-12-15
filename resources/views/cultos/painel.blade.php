@@ -18,6 +18,10 @@
     $selectedDateLabel = $selectedDateFull ?? $dataFormatada;
     $diaLegenda = $dashboardDayName ?? \Carbon\Carbon::parse($selectedDate)->translatedFormat('l');
     $diaLegenda = mb_convert_case($diaLegenda, MB_CASE_TITLE, 'UTF-8');
+    $preletorNome = $culto
+        ? optional($culto->preletor)->nome
+            ?: ($culto->preletor_externo ?? ($culto->preletor ?? null))
+        : null;
 @endphp
 
 <div class="container">
@@ -35,7 +39,7 @@
             <div class="painel-card neutral">
                 <span class="label">{{ $serviceLabel }}</span>
                 @if ($culto)
-                    <strong>{{ $culto->preletor ?? $serviceUnknownPreacher }}</strong>
+                    <strong>{{ $preletorNome ?? $serviceUnknownPreacher }}</strong>
                     <small>
                         @if ($culto->evento_id && $culto->evento)
                             {{ $culto->evento->titulo }}
@@ -52,40 +56,6 @@
                     </small>
                 @endif
             </div>
-
-            @if ($culto)
-                <div class="painel-card painel-card-detalhes">
-                    <span class="label">Detalhes</span>
-                    <div class="painel-card-detalhes-grid">
-                        <div>
-                            <strong>{{ $culto->tema_sermao ?: '—' }}</strong>
-                            <small>Tema do sermão</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->texto_base ?: '—' }}</strong>
-                            <small>Texto-base</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_adultos ?? 0 }}</strong>
-                            <small>Adultos</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_criancas ?? 0 }}</strong>
-                            <small>Crianças</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_visitantes ?? 0 }}</strong>
-                            <small>Visitantes</small>
-                        </div>
-                    </div>
-                    @if ($culto->observacoes)
-                        <div class="painel-card-detalhes-observacoes">
-                            <small>Observações</small>
-                            <p>{{ $culto->observacoes }}</p>
-                        </div>
-                    @endif
-                </div>
-            @endif
         </div>
 
         <div class="search-panel painel-culto-search painel-culto-meta-actions">
@@ -110,6 +80,40 @@
                 </button>
             </div>
         </div>
+
+        @if ($culto)
+            <div class="painel-card painel-card-detalhes painel-card-detalhes-inline">
+                <span class="label">Detalhes</span>
+                <div class="painel-card-detalhes-grid">
+                    <div>
+                        <strong>{{ $culto->tema_sermao ?: '—' }}</strong>
+                        <small>Tema do sermão</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->texto_base ?: '—' }}</strong>
+                        <small>Texto-base</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_adultos ?? 0 }}</strong>
+                        <small>Adultos</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_criancas ?? 0 }}</strong>
+                        <small>Crianças</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_visitantes ?? 0 }}</strong>
+                        <small>Visitantes</small>
+                    </div>
+                </div>
+                @if ($culto->observacoes)
+                    <div class="painel-card-detalhes-observacoes">
+                        <small>Observações</small>
+                        <p>{{ $culto->observacoes }}</p>
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
 
     <div class="info">
@@ -117,7 +121,7 @@
 
         <div class="card painel-culto-resumo">
             @if ($culto)
-                <p><i class="bi bi-person-circle"></i> Preletor: <strong>{{ $culto->preletor }}</strong></p>
+                <p><i class="bi bi-person-circle"></i> Preletor: <strong>{{ $preletorNome ?? '—' }}</strong></p>
                 <p><i class="bi bi-clock"></i> Início: <strong>{{ $horarioFormatado }}</strong></p>
                 <p><i class="bi bi-book"></i> Tema: <strong>{{ $culto->tema_sermao ?: '—' }}</strong></p>
                 <p><i class="bi bi-journal-text"></i> Evento: <strong>{{ optional($culto->evento)->titulo ?? 'Nenhum' }}</strong></p>
@@ -260,6 +264,10 @@
     .painel-card-detalhes {
         grid-column: 1 / -1;
         gap: 1rem;
+    }
+
+    .painel-card-detalhes-inline {
+        margin-top: 1rem;
     }
 
     .painel-card-detalhes-grid {

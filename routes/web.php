@@ -36,6 +36,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\AreaPastoralController;
 use App\Http\Controllers\ProgramacaoController;
+use App\Http\Controllers\PwaController;
 use App\Http\Middleware\CheckAdminRole;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ExtensaoCatalogoController;
@@ -148,6 +149,11 @@ Route::domain($adminDomain)->middleware('setlocale')->group(function () {
 });
 
 Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
+
+    Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.manifest');
+    Route::get('/offline', function () {
+        return view('offline', ['congregacao' => app('congregacao')]);
+    })->name('pwa.offline');
 
     Route::get('/login', [HomeController::class, 'login'])->name('login');
     Route::get('/cadastrar', [HomeController::class, 'create'])->name('login.create');
