@@ -4,6 +4,10 @@
     font-family: var(--text-font);      
 }
 
+:root {
+    --login-footer-height: 64px;
+}
+
 #login {
     background-position: center;
     background-size: cover;
@@ -14,6 +18,7 @@
     align-items: center;
     position: relative;
     padding: 20px; // Padding mínimo para evitar cortes nas bordas
+    padding-bottom: calc(20px + var(--login-footer-height)); // Compensa a área do rodapé fixo
     box-sizing: border-box;
     overflow-y: auto; // Permite scroll quando necessário
     
@@ -40,7 +45,7 @@
     max-width: 420px;
     position: relative;
     z-index: 2;
-    margin-bottom: 50px; // Espaço para o rodapé fixo
+    margin-bottom: 0;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     
     &:hover {
@@ -201,14 +206,14 @@
 @media (max-width: 768px) {
     #login {
         justify-content: center;
-        align-items: flex-start;
-        padding: 18px 15px 72px;
+        align-items: center;
+        padding: 18px 15px calc(32px + var(--login-footer-height));
     }
     
     #login .login-container {
         max-width: 380px;
         padding: 30px 35px 35px 35px;
-        margin: 10px 0 24px;
+        margin: 10px 0 0;
     }
     
     #login .login-container img {
@@ -235,14 +240,14 @@
 @media (max-width: 480px) {
     #login {
         justify-content: center;
-        align-items: flex-start;
-        padding: 14px 10px 68px;
+        align-items: center;
+        padding: 14px 10px calc(28px + var(--login-footer-height));
     }
     
     #login .login-container {
         max-width: 100%;
         padding: 25px 25px 30px 25px;
-        margin: 8px 0 20px;
+        margin: 8px 0 0;
         border-radius: 12px;
     }
     
@@ -295,13 +300,13 @@
 @media (max-width: 360px) {
     #login {
         justify-content: center;
-        align-items: flex-start;
-        padding: 12px 8px 60px;
+        align-items: center;
+        padding: 12px 8px calc(24px + var(--login-footer-height));
     }
     
     #login .login-container {
         padding: 20px 20px 25px 20px;
-        margin: 6px 0 16px;
+        margin: 6px 0 0;
     }
     
     #login .login-container img {
