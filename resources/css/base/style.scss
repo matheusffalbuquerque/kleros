@@ -736,6 +736,29 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+@media (max-width: 768px) {
+    .data-view {
+        margin: 24px auto;
+        padding: 16px;
+        gap: 24px;
+    }
+
+    .section-grid {
+        grid-template-columns: 1fr;
+        gap: 12px 16px;
+    }
+
+    .field.horizontal {
+        flex-direction: column !important;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .avatar-container {
+        align-self: flex-start;
+    }
+}
+
 /*Listas
 
 Esta lista está dividida em cinco colunas, sendo cada uma de 20% da width
