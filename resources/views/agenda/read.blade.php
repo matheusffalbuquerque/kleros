@@ -91,14 +91,13 @@
                     aniversario: 'bi-cake2',
                 };
 
-                let titleHtml = info.event.title;
                 const iconClass = iconMap[type];
-
-                if (iconClass && !/^<i\b/i.test(titleHtml.trim())) {
-                    titleHtml = '<i class="bi ' + iconClass + '"></i> ' + titleHtml;
+                const safeTitle = titleEl.textContent?.trim() || info.event.title;
+                const iconHtml = iconClass ? '<span class="event-icon event-icon-' + type + '"><i class="bi ' + iconClass + '"></i></span>' : '';
+                titleEl.innerHTML = iconHtml + '<span class="event-title-text">' + safeTitle + '</span>';
+                if (type) {
+                    info.el.classList.add('event-type-' + type);
                 }
-
-                titleEl.innerHTML = titleHtml;
             },
             eventClick: function(info) {
                 info.jsEvent.preventDefault();

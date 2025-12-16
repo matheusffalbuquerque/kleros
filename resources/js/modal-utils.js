@@ -54,11 +54,13 @@ function initCronogramaOcorrenciasCriar(tbody) {
             <td data-label="Horário">
                 <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
             </td>
-            <td data-label="Descrição">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
-            </td>
-            <td data-label="Local">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            <td data-label="Gerar culto" class="gerar-culto-cell">
+                <label class="toggle-pill">
+                    <input type="hidden" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="0">
+                    <input type="checkbox" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="1" checked>
+                    <span class="pill" aria-hidden="true"></span>
+                    <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                </label>
             </td>
             <td data-label="Ações" class="cronograma-acoes">
                 <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
@@ -134,11 +136,13 @@ function initCronogramaOcorrenciasEditar(tbody) {
             <td data-label="Horário">
                 <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
             </td>
-            <td data-label="Descrição">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
-            </td>
-            <td data-label="Local">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            <td data-label="Gerar culto" class="gerar-culto-cell">
+                <label class="toggle-pill">
+                    <input type="hidden" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="0">
+                    <input type="checkbox" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="1" checked>
+                    <span class="pill" aria-hidden="true"></span>
+                    <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                </label>
             </td>
             <td data-label="Ações" class="cronograma-acoes">
                 <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
@@ -225,6 +229,7 @@ export function initModalScripts(container) {
         const descricaoPane = container.querySelector('#evento-descricao');
         const detalhesTab = container.querySelector('.tab-menu li[data-tab="evento-detalhes"]');
         const detalhesPane = container.querySelector('#evento-detalhes');
+        const gerarCultoCells = container.querySelectorAll('.gerar-culto-cell');
 
         const toggleGeracaoCultos = () => {
             const selected = container.querySelector('input[name="evento_recorrente"]:checked');
@@ -239,6 +244,18 @@ export function initModalScripts(container) {
                 manualGeracaoInput.checked = true;
                 manualGeracaoInput.dispatchEvent(new Event('change', { bubbles: true }));
             }
+
+            gerarCultoCells.forEach((cell) => {
+                if (!(cell instanceof HTMLElement)) {
+                    return;
+                }
+                cell.style.display = isRecorrente ? 'none' : '';
+                cell.hidden = isRecorrente;
+                const check = cell.querySelector('input[type="checkbox"]');
+                if (check) {
+                    check.checked = !isRecorrente;
+                }
+            });
 
             // Oculta a aba/painel de cronograma quando recorrente
             if (cronogramaTab instanceof HTMLElement) {
@@ -370,22 +387,28 @@ export function initModalScripts(container) {
             tbody.innerHTML = '';
 
             rows.forEach((dateValue, index) => {
-                const dateStr = dateValue ? dateValue.toISOString().slice(0, 10) : '';
-                const dateFormatted = dateValue ? dateValue.toLocaleDateString('pt-BR', { 
-                    weekday: 'long', 
-                    day: '2-digit', 
-                    month: 'long', 
-                    year: 'numeric' 
-                }) : '';
-                tbody.insertAdjacentHTML('beforeend', `
-                    <tr data-ocorrencia-row>
-                        <td data-label="Dia">
-                            <span class="cronograma-data">${dateFormatted}</span>
-                            <input type="hidden" name="${prefix}[${index}][data_ocorrencia]" value="${dateStr}" data-data-ocorrencia>
+                        const dateStr = dateValue ? dateValue.toISOString().slice(0, 10) : '';
+                        const dateFormatted = dateValue ? dateValue.toLocaleDateString('pt-BR', { 
+                            weekday: 'long', 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric' 
+                        }) : '';
+                        tbody.insertAdjacentHTML('beforeend', `
+                            <tr data-ocorrencia-row>
+                                <td data-label="Dia">
+                                    <span class="cronograma-data">${dateFormatted}</span>
+                                    <input type="hidden" name="${prefix}[${index}][data_ocorrencia]" value="${dateStr}" data-data-ocorrencia>
+                                </td>
+                                <td data-label="Horário"><input type="time" name="${prefix}[${index}][horario_inicio]"></td>
+                                <td data-label="Gerar culto" class="gerar-culto-cell">
+                                    <label class="toggle-pill">
+                                        <input type="hidden" name="${prefix}[${index}][gerar_culto]" value="0">
+                                        <input type="checkbox" name="${prefix}[${index}][gerar_culto]" value="1" checked>
+                                        <span class="pill" aria-hidden="true"></span>
+                                <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                            </label>
                         </td>
-                        <td data-label="Horário"><input type="time" name="${prefix}[${index}][horario_inicio]"></td>
-                        <td data-label="Descrição"><input type="text" name="${prefix}[${index}][descricao]" placeholder="Descrição (opcional)"></td>
-                        <td data-label="Local"><input type="text" name="${prefix}[${index}][local]" placeholder="Local (opcional)"></td>
                         <td data-label="Ações" class="cronograma-acoes">
                             <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
                                 <i class="bi bi-plus-circle"></i>
@@ -1576,10 +1599,12 @@ function initFormCriarEvento(form) {
                 evento: evento
             };
             
+            const hasModalStack = Array.isArray(window.modalStack) && window.modalStack.length > 0;
+
             // Marca que precisa recarregar o modal anterior
             window.recarregarModalAnterior = true;
             
-            if (typeof voltarModalAnterior === 'function') {
+            if (typeof voltarModalAnterior === 'function' && hasModalStack) {
                 voltarModalAnterior();
                 
                 setTimeout(() => {
@@ -1591,6 +1616,9 @@ function initFormCriarEvento(form) {
                         }
                     }));
                 }, 300);
+            } else {
+                // Se não está em uma pilha de modais, recarrega a página para refletir a atualização
+                setTimeout(() => window.location.reload(), 400);
             }
         })
         .catch(error => {

@@ -158,6 +158,67 @@
     }
 }
 
+@media screen and (max-width: 500px) {
+    #calendar {
+        font-size: 0.7em;
+    }
+
+    #calendar .fc-daygrid-event {
+        font-size: 0.65rem;
+        padding: 0 4px;
+    }
+
+    /* Mostra apenas o ponto colorido e o horário */
+    #calendar .fc-daygrid-dot-event .fc-event-title {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-dot-event .fc-event-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+    }
+
+    /* Eventos de dia inteiro (não têm horário) mostram apenas o ícone/ponto */
+    #calendar .fc-daygrid-dot-event.fc-event-all-day .fc-event-time {
+        display: none;
+    }
+
+    /* Cultos: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-culto .event-title-text,
+    #calendar .fc-daygrid-event.event-type-culto .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-culto .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Eventos: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-evento .event-title-text,
+    #calendar .fc-daygrid-event.event-type-evento .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-evento .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Aniversariantes: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-aniversario .event-title-text,
+    #calendar .fc-daygrid-event.event-type-aniversario .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-aniversario .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
 /* --- Visão anual (FullCalendar multiMonth) --- */
 #calendar .fc-multimonth {
     display: grid;

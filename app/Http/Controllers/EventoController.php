@@ -9,6 +9,7 @@ use App\Models\Agrupamento;
 use App\Models\EventoOcorrencia;
 use Illuminate\Http\Request;
 use DateTime;
+use Carbon\Carbon;
 
 class EventoController extends Controller
 {
@@ -93,7 +94,6 @@ class EventoController extends Controller
         $evento->agrupamento_id = $request->grupo_id;
         $evento->descricao = $request->descricao;
         $evento->recorrente = $request->evento_recorrente == "1" ? true : false;
-        $geracao_cultos = $request->geracao_cultos == "1" ? true : false;
         $evento->local = $request->local;
         $evento->requer_inscricao = $request->requer_inscricao == "1" ? true : false;
         
@@ -113,27 +113,33 @@ class EventoController extends Controller
                     'culto_id' => null,
                 ]);
 
-            if ($ocorrencias->isNotEmpty()) {
-                $evento->ocorrencias()->createMany($ocorrencias->toArray());
-            }
+            $createdOcorrencias = $ocorrencias->isNotEmpty()
+                ? collect($evento->ocorrencias()->createMany($ocorrencias->toArray()))
+                : collect();
 
-            if(!$evento->recorrente && $geracao_cultos){
-                $startDate = $evento->data_inicio;                
-                $finalDate = $evento->data_encerramento;
+            if (!$evento->recorrente) {
+                $ocorrenciasParaCulto = collect($request->input('ocorrencias', []))
+                    ->filter(fn ($item) => !empty($item['data_ocorrencia']) && !empty($item['gerar_culto']))
+                    ->values();
 
-                //Calcula quantos dias tem o evento
-                $datas = pegarDiasDeIntervaloDatas($startDate, $finalDate);
-                
-                foreach ($datas as $dia) {
+                foreach ($ocorrenciasParaCulto as $index => $item) {
+                    $horario = $item['horario_inicio'] ?? null;
+                    $dataHora = $horario
+                        ? Carbon::parse($item['data_ocorrencia'] . ' ' . $horario)
+                        : Carbon::parse($item['data_ocorrencia']);
+
                     $culto = new Culto();
-                    
                     $culto->congregacao_id = $this->congregacao->id;
-                    $culto->data_culto = $dia;
-                    $culto->preletor = "A definir";
+                    $culto->data_culto = $dataHora;
+                    $culto->preletor_id = null;
+                    $culto->preletor_externo = 'A definir';
                     $culto->quant_visitantes = 0;
                     $culto->evento_id = $evento->id;
-                    
                     $culto->save();
+
+                    if (isset($createdOcorrencias[$index])) {
+                        $createdOcorrencias[$index]->update(['culto_id' => $culto->id]);
+                    }
                 }
             }
         }
@@ -277,6 +283,59 @@ class EventoController extends Controller
         }
 
         $evento->save();
+
+        // Geração de cultos a partir das ocorrências marcadas
+        if (!$evento->recorrente) {
+            $evento->load('ocorrencias');
+            $ocorrenciasColecao = $evento->ocorrencias;
+            $ocorrenciaUsadas = [];
+
+            $ocorrenciasRequest = collect($request->input('ocorrencias', []))
+                ->filter(fn ($item) => !empty($item['data_ocorrencia']) && !empty($item['gerar_culto']))
+                ->values();
+
+            foreach ($ocorrenciasRequest as $item) {
+                $horario = $item['horario_inicio'] ?? null;
+                $data = $item['data_ocorrencia'];
+                $dataHora = $horario
+                    ? Carbon::parse($data . ' ' . $horario)
+                    : Carbon::parse($data);
+
+                // Tenta achar a ocorrência correspondente
+                $ocorrencia = null;
+                if (!empty($item['id'])) {
+                    $ocorrencia = $ocorrenciasColecao->firstWhere('id', $item['id']);
+                }
+
+                if (!$ocorrencia) {
+                    $ocorrencia = $ocorrenciasColecao->first(function ($oc) use ($data, $horario, &$ocorrenciaUsadas) {
+                        $key = $oc->id;
+                        if (in_array($key, $ocorrenciaUsadas, true)) {
+                            return false;
+                        }
+                        return $oc->data_ocorrencia === $data && $oc->horario_inicio === ($horario ?? null);
+                    });
+                }
+
+                if ($ocorrencia && $ocorrencia->culto_id) {
+                    continue; // Já vinculado
+                }
+
+                $culto = new Culto();
+                $culto->congregacao_id = $this->congregacao->id;
+                $culto->data_culto = $dataHora;
+                $culto->preletor_id = null;
+                $culto->preletor_externo = 'A definir';
+                $culto->quant_visitantes = 0;
+                $culto->evento_id = $evento->id;
+                $culto->save();
+
+                if ($ocorrencia) {
+                    $ocorrencia->update(['culto_id' => $culto->id]);
+                    $ocorrenciaUsadas[] = $ocorrencia->id;
+                }
+            }
+        }
 
         return redirect()->back()->with('msg', 'Evento atualizado com sucesso.');
     }
