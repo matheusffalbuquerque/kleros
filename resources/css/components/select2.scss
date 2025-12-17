@@ -58,6 +58,12 @@
     line-height: 1.45;
 }
 
+/* texto selecionado (single) */
+.form-control .form-item 
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text-color) !important;
+}
+
 /* placeholder */
 .form-control .form-item 
 .select2-container--default .select2-selection__placeholder,

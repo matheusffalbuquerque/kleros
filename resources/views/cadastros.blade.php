@@ -433,7 +433,7 @@
         <div class="card-container">
             @forelse ($caixas as $caixa)
                 <div class="alterlist" id="caixa-{{ $caixa->id }}">
-                    <div class="item-15">
+                    <div class="item-15 caixa-resumo">
                         <div class="card-title">{{ $caixa->nome }}</div>
                         <p class="hint">
                             {{ $sections['finance']['labels']['current_balance'] }}: R$ {{ number_format($caixa->saldo_atual, 2, ',', '.') }}<br>
@@ -447,7 +447,7 @@
                             <div class="card-description">{{ $caixa->descricao }}</div>
                         @endif
                     </div>
-                    <div class="item-2">
+                    <div class="item-2 caixa-resumo">
                         <h4>{{ $sections['finance']['labels']['recent'] }}</h4>
                         @php $ultimos = $caixa->lancamentos->take(5); @endphp
                         @if ($ultimos->count())
@@ -577,7 +577,7 @@
                                 <button type="button" title="{{ $sections['cells']['buttons']['edit'] }}" class="btn-options" onclick="abrirJanelaModal('{{ route('celulas.form_editar', $item->id) }}')">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <form id="delete-celula-{{ $item->id }}" action="{{ route('grupos.destroy', $item->id) }}" method="POST" style="display:inline;">
+                                <form id="delete-celula-{{ $item->id }}" action="{{ route('celulas.destroy', $item->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" title="{{ $common['delete'] }}" class="btn-options danger" onclick="handleSubmit(event, this.form, '{{ __('cadastros.confirmations.delete_cell') }}')">

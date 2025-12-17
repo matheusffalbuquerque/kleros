@@ -860,6 +860,21 @@ Esta lista está dividida em cinco colunas, sendo cada uma de 20% da width
     width: 40%;
 }
 
+.caixa-resumo {
+    font-size: 0.92rem;
+}
+
+.caixa-resumo .card-title {
+    font-size: 1rem;
+}
+
+.caixa-resumo .hint,
+.caixa-resumo .card-description,
+.caixa-resumo table,
+.caixa-resumo table small {
+    font-size: 0.88rem;
+}
+
 /* Footer*/
 footer {
     display: flex;
@@ -1459,6 +1474,15 @@ footer {
     .tabs > .tab-content.card {
         padding: 12px;
         border-radius: 8px;
+    }
+
+    /* Mantém botões do tipo .btn-options
+    * lado a lado em telas pequenas */
+    .list-item .item-15:has(.btn-options) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
     }
 }
 

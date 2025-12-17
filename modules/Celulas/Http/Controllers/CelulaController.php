@@ -379,10 +379,11 @@ class CelulaController extends Controller
         return redirect()->back()->with('msg', 'Célula atualizada com sucesso!');
     }
 
-    public function destroy(Celula $celula)
+    public function destroy($id)
     {
+        $celula = Celula::where('congregacao_id', app('congregacao')->id)->findOrFail($id);
         $celula->delete();
-        return redirect()->back()->with('success', 'Célula removida com sucesso!');
+        return redirect()->back()->with('msg', 'Célula removida com sucesso!');
     }
 
     public function membrosPorCelula($celulaId)
