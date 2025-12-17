@@ -25,7 +25,12 @@
                             @php $data = new DateTime($item->data_culto); @endphp
                             {{ $data->format('d/m') }}
                         </p>
-                        <p><i class="bi bi-mic"></i> {{ $sections['cults']['labels']['preacher'] }}: {{ $item->preletor ?? $common['no_description'] }}</p>
+                        @php
+                            $preletorNome = $item->preletor_label
+                                ?? (optional($item->preletor)->nome
+                                    ?: ($item->preletor_externo ?? $item->preletor ?? $common['no_description']));
+                        @endphp
+                        <p><i class="bi bi-mic"></i> {{ $sections['cults']['labels']['preacher'] }}: {{ $preletorNome }}</p>
                         <p>
                             <b>{{ $sections['cults']['labels']['event'] }}</b>:
                             @if ($item->evento_id)

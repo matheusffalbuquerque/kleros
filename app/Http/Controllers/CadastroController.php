@@ -28,11 +28,17 @@ class CadastroController extends Controller
         $now = now();
 
         //Esta parte verifica se há cultos cadastrados para os próximos dias
-        $cultos = Culto::where('congregacao_id', $congregacaoId)
+        $cultos = Culto::with(['preletor', 'evento'])
+            ->where('congregacao_id', $congregacaoId)
             ->whereDate('data_culto', '>', $now->toDateString())
             ->orderBy('data_culto', 'asc')
             ->limit(3)
-            ->get();
+            ->get()
+            ->map(function (Culto $culto) {
+                $culto->preletor_label = optional($culto->preletor)->nome
+                    ?: ($culto->preletor_externo ?? $culto->preletor);
+                return $culto;
+            });
         
         //Esta parte verifica se há eventos cadastrados para os próximos dias
         $eventos = Evento::where('congregacao_id', $congregacaoId)
