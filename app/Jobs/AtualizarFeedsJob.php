@@ -16,6 +16,15 @@ class AtualizarFeedsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private function ensureHttps(string $url): string
+    {
+        $url = trim($url);
+
+        return str_starts_with($url, 'http://')
+            ? 'https://' . substr($url, 7)
+            : $url;
+    }
+
     public function handle(): void
     {
         $feeds = [
@@ -29,7 +38,7 @@ class AtualizarFeedsJob implements ShouldQueue
 
                 foreach ($xml->channel->item as $item) {
                     $titulo = (string) $item->title;
-                    $link = (string) $item->link;
+                    $link = $this->ensureHttps((string) $item->link);
                     $descricao = (string) ($item->description ?? null);
                     $conteudo = (string) ($item->children('content', true)->encoded ?? $descricao);
 
