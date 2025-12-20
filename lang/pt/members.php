@@ -141,7 +141,7 @@ return [
         'birth_required' => 'Data de nascimento não informada.',
     ],
     'flash' => [
-        'created' => ':name se tornou membro da AD Jerusalém.',
+        'created' => ':name se tornou membro da congregação.',
         'updated' => 'Membro atualizado com sucesso!',
         'deleted' => 'Membro excluído com sucesso.',
         'not_found' => 'Membro não encontrado.',

@@ -201,22 +201,6 @@
                                 @endforeach
                             </select>
                         </label>
-                        <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 flex items-center justify-between">
-                            <div>
-                                <span class="text-xs uppercase tracking-[0.18em] text-white/50">{{ $moduleSection['cells']['title'] }}</span>
-                                <p class="text-white/75 text-sm font-medium mt-1">{{ $moduleSection['cells']['question'] }}</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <label class="inline-flex items-center gap-2 text-sm">
-                                    <input type="radio" name="celulas" value="1" @checked($config->celulas) class="text-[#6449a2] focus:ring-[#6449a2]">
-                                    {{ $moduleSection['cells']['active'] }}
-                                </label>
-                                <label class="inline-flex items-center gap-2 text-sm">
-                                    <input type="radio" name="celulas" value="0" @checked(!$config->celulas) class="text-[#6449a2] focus:ring-[#6449a2]">
-                                    {{ $moduleSection['cells']['inactive'] }}
-                                </label>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>

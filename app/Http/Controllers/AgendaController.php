@@ -97,7 +97,7 @@ class AgendaController extends Controller
 
             return [
                 'id' => 'birthday-' . $membro->id,
-                'title' => '<i class="bi bi-cake2"></i> ' . $membro->nome,
+                'title' => $membro->nome,
                 'start' => $data->toDateString(),
                 'color' => '#d4a017',
                 'backgroundColor' => '#d4a017',

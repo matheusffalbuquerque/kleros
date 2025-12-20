@@ -190,7 +190,7 @@
                                     </div>
                                 @endif
                                 <a href="/perfil"><i class="bi bi-pencil"></i> Editar perfil</a>
-                                <a href="/perfil"><i class="bi bi-bookmark"></i> Favoritos</a>
+                                <a href="{{ route('favoritos.index') }}"><i class="bi bi-bookmark"></i> Favoritos</a>
                                 <a href="#" data-pwa-install><i class="bi bi-phone"></i> Baixar App</a>
                                 <a href="/logout" title="Sair"><i class="bi bi-box-arrow-right"></i> Logout</a>
                             </div>

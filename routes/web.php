@@ -307,6 +307,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/noticias', [FeedController::class, 'noticias'])->name('noticias.painel')->middleware('auth');
         Route::get('/destaques', [FeedController::class, 'destaques'])->name('noticias.destaques')->middleware('auth');
         Route::get('/podcasts', [FeedController::class, 'podcasts'])->name('podcasts.painel')->middleware('auth');
+        Route::view('/favoritos', 'favoritos.index')->name('favoritos.index')->middleware('auth');
         Route::get('/feeds', [FeedController::class, 'index'])->name('feeds.index')->middleware('auth');
         Route::get('/feeds/{slug}', [FeedController::class, 'show'])->name('feeds.show')->middleware('auth');
 

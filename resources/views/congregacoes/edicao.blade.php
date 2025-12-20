@@ -226,19 +226,6 @@
                                 </select>
                             </div>
                             <div class="form-item">
-                                <label>{{ $sections['administrative']['cells']['label'] }}</label>
-                                <div class="form-square">
-                                    <div>
-                                        <input type="radio" id="celula_ativo" name="celulas" value="1" @checked($congregacao->config->celulas == 1)>
-                                        <label for="celula_ativo">{{ $sections['administrative']['cells']['active'] }}</label>
-                                    </div>
-                                    <div>
-                                        <input type="radio" id="celula_inativo" name="celulas" value="0" @checked($congregacao->config->celulas == 0)>
-                                        <label for="celula_inativo">{{ $sections['administrative']['cells']['inactive'] }}</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-item">
                                 <label>{{ $sections['administrative']['language']['label'] }}</label>
                                 <select name="language" id="language">
                                     @foreach($languageOptions as $value => $label)

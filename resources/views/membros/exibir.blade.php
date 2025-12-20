@@ -137,7 +137,7 @@
                 </a>
                 <button class="btn imprimir" type="button"><i class="bi bi-printer"></i> {{ $view['actions']['print'] }}</button>
                 <button class="btn" type="submit"><i class="bi bi-trash"></i> {{ $view['actions']['remove'] }}</button>
-                <a href="{{ route('membros.painel') }}">
+                <a href="javascript:window.history.back()">
                     <button type="button" class="btn"><i class="bi bi-arrow-return-left"></i> {{ $view['actions']['back'] }}</button>
                 </a>
             </div>
