@@ -143,7 +143,7 @@
         align-items: stretch;
         padding: 20px;
         background: var(--background-color);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 18px;
         gap: 20px;
         text-align: left;
@@ -175,16 +175,16 @@
     }
     .programacao-row__weekday {
         font-size: 0.75rem;
-        color: var(--background-color);
+        color: var(--text-color);
     }
     .programacao-row__day {
         font-size: 1.9rem;
-        color: var(--background-color);
+        color: var(--text-color);
         line-height: 1;
     }
     .programacao-row__time {
         font-size: 0.85rem;
-        color: var(--background-color);
+        color: var(--text-color);
     }
 
     .programacao-row__content {
