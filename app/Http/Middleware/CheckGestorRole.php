@@ -22,7 +22,7 @@ class CheckGestorRole
         }
 
         // Verifica se o usuário tem uma das roles permitidas
-        if ($user->hasAnyRole(['gestor', 'kleros', 'admin'])) {
+        if ($user->hasAnyRole(['gestor', 'kleros', 'admin', 'principal', 'lider'])) {
             return $next($request);
         }
 
