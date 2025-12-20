@@ -18,8 +18,8 @@
                 <!-- Menu de abas -->
                 <ul class="tab-menu">
                     <li class="active" data-tab="pessoais"><i class="bi bi-person"></i> Dados Pessoais</li>
+                    <li data-tab="endereco"><i class="bi bi-geo-alt"></i> Endereço</li>
                     <li data-tab="bio"><i class="bi bi-journal-text"></i> Biografia</li>
-                    <li data-tab="tab-foto"><i class="bi bi-image"></i> Foto</li>
                     <li data-tab="seguranca"><i class="bi bi-shield-lock"></i> Segurança</li>
                 </ul>
 
@@ -45,6 +45,35 @@
                         </div>
                     </div>
 
+                    <!-- Aba Endereço -->
+                    <div id="endereco" class="tab-pane form-control">
+                        <div class="form-item">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" name="endereco"
+                                value="{{ old('endereco', optional($membro)->endereco) }}">
+                        </div>
+                        <div class="form-item">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" name="numero"
+                                value="{{ old('numero', optional($membro)->numero) }}">
+                        </div>
+                        <div class="form-item">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro"
+                                value="{{ old('bairro', optional($membro)->bairro) }}">
+                        </div>
+                        <div class="form-item">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento"
+                                value="{{ old('complemento', optional($membro)->complemento) }}">
+                        </div>
+                        <div class="form-item">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep"
+                                value="{{ old('cep', optional($membro)->cep) }}">
+                        </div>
+                    </div>
+
                     <!-- Aba 2 -->
                     <div id="seguranca" class="tab-pane form-control">
                         <h4>Modificar senha</h4>
@@ -62,14 +91,6 @@
 
                     <!-- Aba 3 -->
                     <div id="bio" class="tab-pane form-control">
-                        <div class="form-item">
-                            <label for="bio">Biografia</label>
-                            <textarea id="biografia" name="biografia" rows="6" placeholder="Escreva sua biografia para que outros te conheçam melhor">{{ old('bio', optional($membro)->biografia) }}</textarea>
-                        </div>
-                    </div>
-
-                    <!-- Aba 4 -->
-                    <div id="tab-foto" class="tab-pane form-control">
                         <div class="form-item">
                             <label for="foto">Foto de perfil</label>
 
@@ -94,6 +115,10 @@
                                 <label for="foto" class="btn-line"><i class="bi bi-upload"></i> Upload</label>
                                 <input type="file" name="foto" id="foto" accept="image/*" data-preview-input="foto">
                             </div>
+                        </div>
+                        <div class="form-item">
+                            <label for="bio">Biografia</label>
+                            <textarea id="biografia" name="biografia" rows="6" placeholder="Escreva sua biografia para que outros te conheçam melhor">{{ old('bio', optional($membro)->biografia) }}</textarea>
                         </div>
                     </div>
                     <div class="form-options">
