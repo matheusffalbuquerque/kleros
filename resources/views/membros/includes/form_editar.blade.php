@@ -2,6 +2,10 @@
     $members = trans('members');
     $common = $members['common'];
     $edit = $members['edit'];
+    $permissoesSelecionadas = collect($permissoesSelecionadas ?? optional($membro->user)->getRoleNames()->toArray())
+        ->filter()
+        ->values()
+        ->all();
 @endphp
 
 <h1>{{ $edit['title'] }}</h1>
@@ -100,12 +104,23 @@
                         <input type="text" name="numero" id="numero" placeholder="{{ $common['placeholders']['number'] }}" value="{{ old('numero', $membro->numero) }}">
                     </div>
                     <div class="form-item">
+                        <label for="complemento">{{ $common['fields']['complement'] ?? 'Complemento' }}:</label>
+                        <input type="text" name="complemento" id="complemento" placeholder="{{ $common['placeholders']['complement'] ?? 'Complemento' }}" value="{{ old('complemento', $membro->complemento) }}">
+                    </div>
+                    <div class="form-item">
                         <label for="bairro">{{ $common['fields']['district'] }}:</label>
                         <input type="text" name="bairro" id="bairro" placeholder="{{ $common['placeholders']['district'] }}" value="{{ old('bairro', $membro->bairro) }}">
                     </div>
                 </div>
 
                 <div id="membro-outros" class="tab-pane form-control">
+                    <div class="form-item">
+                        <label for="batizado">{{ $common['fields']['baptized'] ?? 'Batizado' }}:</label>
+                        <select name="batizado" id="batizado">
+                            <option value="1" @selected(old('batizado', $membro->batizado) == true)>Sim</option>
+                            <option value="0" @selected(old('batizado', $membro->batizado) == false)>Não</option>
+                        </select>
+                    </div>
                     <div class="form-item">
                         <label for="data_batismo">{{ $common['fields']['baptism_date'] }}:</label>
                         <input type="date" name="data_batismo" id="data_batismo" value="{{ old('data_batismo', $membro->data_batismo) }}">
@@ -140,6 +155,18 @@
                 </div>
 
                 <div id="membro-configuracoes" class="tab-pane form-control">
+                    <div class="form-item">
+                        <label>{{ $common['fields']['permissions'] ?? 'Permissões' }}:</label>
+                        @if(!empty($permissoesSelecionadas))
+                            <div class="chip-row">
+                                @foreach ($permissoesSelecionadas as $permissao)
+                                    <span class="chip">{{ \Illuminate\Support\Str::headline($permissao) }}</span>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="muted">{{ $common['statuses']['not_informed'] ?? 'Nenhuma permissão definida' }}</div>
+                        @endif
+                    </div>
                     <div class="form-item">
                         <label for="ativo">{{ $common['fields']['status'] ?? 'Situação do Membro' }}:</label>
                         <select name="ativo" id="ativo">
