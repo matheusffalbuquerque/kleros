@@ -28,22 +28,26 @@ class WelcomeNewUser extends Mailable implements ShouldQueue
         $this->congregacao = $congregacao;
     }
 
-    /**
-     * Build the message.
-     */
-    public function build()
-    {
-        $shortName = optional($this->congregacao)->nome_curto ?: config('app.name');
-        $subject = "{$shortName} - Equipe de Boas-Vindas";
+/**
+ * Build the message.
+ */
+public function build()
+{
+    $shortName = optional($this->congregacao)->nome_curto ?: config('app.name');
+    $subject = "{$shortName} - Equipe de Boas-Vindas";
 
-        return $this->subject($subject)
-            ->view('emails.welcome-user')
-            ->with([
-                'membro' => $this->membro,
-                'user' => $this->user,
-                'congregacao' => $this->congregacao,
-                'shortName' => $shortName,
-                'loginUrl' => 'https://'.$this->congregacao->dominio.'/login',
-            ]);
-    }
+    $loginUrl = optional($this->congregacao)->dominio
+        ? 'https://' . optional($this->congregacao)->dominio . '/login'
+        : rtrim(config('app.url'), '/') . '/login';
+
+    return $this->subject($subject)
+        ->view('emails.welcome-user')
+        ->with([
+            'membro' => $this->membro,
+            'user' => $this->user,
+            'congregacao' => $this->congregacao,
+            'shortName' => $shortName,
+            'loginUrl' => $loginUrl,
+        ]);
+}
 }
