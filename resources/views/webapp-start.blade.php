@@ -71,8 +71,36 @@
         <img src="/storage/{{ $congregacao->config->logo_caminho }}" alt="{{ $appName }}">
         <h1>{{ $appName }}</h1>
         <p>Abra este link no seu dispositivo e use “Adicionar à tela inicial” para instalar.</p>
+        <button id="installBtn" style="display:none; margin: 12px auto; padding: 12px 16px; border: none; border-radius: 12px; background: var(--primary-color); color: var(--primary-contrast); font-weight: 700; cursor: pointer;">
+            Instalar agora
+        </button>
         <p class="hint">Se o prompt aparecer, aceite para instalar o app.</p>
         <p class="hint"><a href="{{ $baseUrl }}">Voltar ao site</a></p>
     </div>
+
+    <script>
+        (() => {
+            let deferredPrompt = null;
+            const btn = document.getElementById('installBtn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (btn) {
+                    btn.style.display = 'inline-flex';
+                }
+            });
+
+            if (btn) {
+                btn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const result = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    btn.style.display = 'none';
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
