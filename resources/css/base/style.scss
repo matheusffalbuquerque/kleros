@@ -21,6 +21,7 @@ body {
 
 .content {
     flex: 1;
+    min-width: 0;
 }
 
 /* Header */
@@ -106,6 +107,13 @@ body {
 .layout-wrapper > main {
     display: flex;
     flex-direction: row;
+}
+
+@media (max-width: 900px) {
+    .layout-wrapper > main {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .container {
@@ -819,7 +827,7 @@ Esta lista está dividida em cinco colunas, sendo cada uma de 20% da width
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     transition: background-color 0.2s ease;
     padding-left: 10px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .list-item:last-child {
@@ -929,21 +937,23 @@ footer {
 /* Pagination */
 .pagination {
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: 5px;
-    background-color: var(--primary-color);
-    color: var(--primary-contrast);
-    text-decoration: none;
-    min-width: 300px;
-    height: 50px;
-    list-style: none;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    font-size: 1.2em;
+    gap: 8px;
+    background-color: transparent;
+    color: inherit;
+    text-decoration: none;
+    min-width: auto;
+    height: auto;
+    list-style: none;
+    font-size: 1em;
+    padding: 0;
+    margin: 10px 0;
 }
 
 .pagination a {
-    font-size: .75em;
+    font-size: 0.95em;
     text-decoration: underline;
 }
 
@@ -1500,6 +1510,21 @@ footer {
         flex-wrap: wrap;
         align-items: center;
         gap: 4px;
+    }
+
+    /* Forçar .btn-options lado a lado e permitir scroll horizontal se necessário */
+    .alterlist .item-15 .form-options {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 6px;
+        padding-bottom: 6px;
+    }
+
+    .alterlist .item-15 .form-options .btn-options {
+        white-space: nowrap;
+        flex: 0 0 auto;
+        padding: 0.35rem 0.85rem;
     }
 }
 

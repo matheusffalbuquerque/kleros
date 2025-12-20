@@ -1,4 +1,4 @@
-<h1>Agendar Culto</h1>
+<h1>Registrar Culto</h1>
 <div class="info">
     <form action="{{ route('cultos.store') }}" method="post">
         @csrf

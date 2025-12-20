@@ -3,10 +3,10 @@
         @foreach ($cultos as $item)
         <div class="list-item" onclick="abrirJanelaModal('{{ route('cultos.form_editar', $item->id) }}')">
             <div class="item item-1">
-                <p>{{$item->data_culto}}</p>
+                <p>{{ formatarData($item->data_culto) }}</p>
             </div>
             <div class="item item-15">
-                <p>{{$item->preletor}}</p>
+                <p>{{ $item->preletor_label }}</p>
             </div>
             <div class="item item-1">
                 <p>{{$item->quant_visitantes}}</p>
@@ -23,10 +23,10 @@
         @foreach ($cultos as $item)
         <div class="list-item" onclick="abrirJanelaModal('{{ route('cultos.form_editar', $item->id) }}')">
                 <div class="item item-15">
-                    <p>{{$item->data_culto}}</p>
+                    <p>{{ formatarData($item->data_culto) }}</p>
                 </div>
                 <div class="item item-15">
-                    <p>{{$item->preletor}}</p>
+                    <p>{{ $item->preletor_label }}</p>
                 </div>
                 <div class="item item-15">
                     <p>@if ($item->evento)

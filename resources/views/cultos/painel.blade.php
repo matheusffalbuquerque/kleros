@@ -4,11 +4,13 @@
 
 @section('content')
 @php
-    $dataFormatada = \Carbon\Carbon::parse($selectedDate)->format('d/m/Y');
+    $selectedCarbon = \Carbon\Carbon::parse($selectedDate);
+    $dataFormatada = $selectedCarbon->format('d/m/Y');
     $horarioFormatado = $horarioInicio ? $horarioInicio : '—';
 
     $cards = $dashboardCards ?? [];
     $todayLabel = data_get($cards, 'today.label', 'Hoje');
+    $dateLabel = $selectedCarbon->isToday() ? $todayLabel : 'Data';
     $serviceCard = $cards['service'] ?? [];
     $serviceLabel = data_get($serviceCard, 'label', 'Culto');
     $serviceUnknownPreacher = data_get($serviceCard, 'unknown_preacher', 'Preletor não informado');
@@ -16,7 +18,7 @@
     $serviceNoService = data_get($serviceCard, 'no_service', 'Nenhum culto registrado');
     $serviceCta = data_get($serviceCard, 'cta', 'Agendar culto');
     $selectedDateLabel = $selectedDateFull ?? $dataFormatada;
-    $diaLegenda = $dashboardDayName ?? \Carbon\Carbon::parse($selectedDate)->translatedFormat('l');
+    $diaLegenda = $dashboardDayName ?? $selectedCarbon->translatedFormat('l');
     $diaLegenda = mb_convert_case($diaLegenda, MB_CASE_TITLE, 'UTF-8');
     $preletorNome = $culto
         ? optional($culto->preletor)->nome
@@ -32,7 +34,7 @@
 
         <div class="painel-culto-cards">
             <div class="painel-card neutral">
-                <span class="label">{{ $todayLabel }}</span>
+                <span class="label">{{ $dateLabel }}</span>
                 <strong>{{ $selectedDateLabel }}</strong>
                 <small>{{ $diaLegenda }}</small>
             </div>
@@ -66,7 +68,11 @@
             <div class="search-panel-item">
                 <button class="btn" type="button" id="painel-btn-editar-culto"
                     @if(!$culto) data-fallback="true" @endif>
-                    <i class="bi bi-pencil-square"></i> Editar culto
+                    @if (!$culto)
+                        <i class="bi bi-plus-circle"></i> Registrar culto
+                    @else
+                        <i class="bi bi-pencil-square"></i> Editar culto
+                    @endif
                 </button>
             </div>
             <div class="search-panel-item">
@@ -211,7 +217,7 @@
         </div>
     </div>
 
-    @if (module_enabled('recados'))
+    @if (module_enabled('recados') && $culto)
         <a href="{{ url('/recados/adicionar') }}" class="float-btn nao-imprimir" title="Recados">
             <i class="bi bi-chat-left-dots"></i>
         </a>
@@ -301,6 +307,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         align-items: center;
+        margin-top: 1rem;
     }
 
     .painel-culto-search .search-panel-item {

@@ -19,9 +19,15 @@ class CultoController extends Controller
 
         $congregacaoId = app('congregacao')->id;
 
-        $cultos = Culto::where('congregacao_id', $congregacaoId)
+        $cultos = Culto::with(['preletor', 'evento'])
+            ->where('congregacao_id', $congregacaoId)
             ->whereDate('data_culto', '<', date('Y-m-d'))
             ->paginate(10);
+
+        $cultos->getCollection()->transform(function (Culto $culto) {
+            $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo;
+            return $culto;
+        });
         
         if($cultos->isEmpty()){
             $cultos = '';
@@ -61,10 +67,16 @@ class CultoController extends Controller
         $congregacao = app('congregacao');
         $congregacaoId = $congregacao->id;
 
-        $cultos = Culto::where('congregacao_id', $congregacaoId)
+        $cultos = Culto::with(['preletor', 'evento'])
+            ->where('congregacao_id', $congregacaoId)
             ->whereDate('data_culto', '>=', date('Y-m-d'))
             ->orderBy('data_culto')
             ->paginate(10);
+
+        $cultos->getCollection()->transform(function (Culto $culto) {
+            $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo;
+            return $culto;
+        });
 
         $eventosFiltro = Evento::where('congregacao_id', $congregacaoId)
             ->whereDate('data_inicio', '>=', date('Y-m-d'))
@@ -73,8 +85,8 @@ class CultoController extends Controller
 
         $categorias = CultoCategoria::orderBy('nome')->get();
         $membros = Membro::orderBy('nome')->get();
-        $preletoresMembros = Membro::whereIn(
-                'id',
+        $preletoresMembros = Membro::where('congregacao_id', $congregacaoId)
+        ->whereIn('id',
                 Culto::where('congregacao_id', $congregacaoId)
                     ->whereNotNull('preletor_id')
                     ->pluck('preletor_id')
@@ -145,7 +157,7 @@ class CultoController extends Controller
         $origin = $request->origin;
         $congregacaoId = app('congregacao')->id;
 
-        $query = Culto::with('evento')
+        $query = Culto::with(['evento', 'preletor'])
             ->where('congregacao_id', $congregacaoId);
 
         if ($origin === 'historico') {
@@ -175,7 +187,11 @@ class CultoController extends Controller
             }
         }
 
-        $cultosCollection = $query->orderBy('data_culto')->get();
+        $cultosCollection = $query->orderBy('data_culto')->get()
+            ->map(function (Culto $culto) {
+                $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo;
+                return $culto;
+            });
         $cultos = $cultosCollection->isEmpty() ? '' : $cultosCollection;
 
         $view = view('cultos/cultos_search', ['cultos' => $cultos, 'origin' => $origin])->render();
