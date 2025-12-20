@@ -29,6 +29,9 @@
                         </div>
                         <div class="avatar-container">
                             <img class="avatar_perfil" id="avatarPerfil" src="{{ asset('storage/' . ($membro->foto ?? 'images/newuser.png')) }}" alt="Avatar">
+                            <div class="status-chip {{ $membro->batizado ? 'is-true' : 'is-false' }}">
+                                {{ $membro->batizado ? 'Batizado' : 'Não Batizado' }}
+                            </div>
                             @if($membro->foto)
                             <div class="avatar-dropdown" id="avatarDropdown" hidden>
                                 <button type="button" class="btn" data-action="remove-photo" data-member-id="{{ $membro->id }}">

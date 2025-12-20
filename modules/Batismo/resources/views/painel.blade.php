@@ -76,14 +76,14 @@
                         @php
                             $agendamentoPendente = $pendentesPorMembro[$item->id] ?? null;
                             $dataBatismoExibida = $agendamentoPendente?->data_batismo ?? $item->data_batismo;
-                            $statusBadge = 'badge-warning';
-                            $statusLabel = 'Não batizado';
+                            $statusBadge = 'batismo-badge batismo-nao';
+                            $statusLabel = $item->batizado ? 'Batizado' : 'Não batizado';
 
                             if ($agendamentoPendente) {
-                                $statusBadge = 'badge-info';
+                                $statusBadge = 'batismo-badge batismo-pre';
                                 $statusLabel = 'Em preparação';
-                            } elseif ($item->data_batismo) {
-                                $statusBadge = 'badge-success';
+                            } elseif ($item->batizado) {
+                                $statusBadge = 'batismo-badge batismo-sim';
                                 $statusLabel = 'Batizado';
                             }
                         @endphp
@@ -91,7 +91,7 @@
                             <p>{{ $dataBatismoExibida ? $dataBatismoExibida->format('d/m/Y') : '—' }}</p>
                         </div>
                         <div class="item item-1">
-                            <span class="tag badge {{ $statusBadge }}">
+                            <span class="tag {{ $statusBadge }}">
                                 {{ $statusLabel }}
                             </span>
                         </div>
@@ -112,6 +112,37 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .batismo-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.01em;
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    }
+    .batismo-badge.batismo-sim {
+        background: linear-gradient(135deg, rgba(196, 222, 255, 0.52), rgba(171, 209, 255, 0.42));
+        color: rgba(32, 73, 118, 0.95);
+        border-color: rgba(126, 176, 230, 0.5);
+    }
+    .batismo-badge.batismo-nao {
+        background: linear-gradient(135deg, rgba(99, 179, 237, 0.32), rgba(56, 149, 237, 0.26));
+        color: rgba(15, 68, 116, 0.98);
+        border-color: rgba(43, 132, 212, 0.45);
+    }
+    .batismo-badge.batismo-pre {
+        background: linear-gradient(135deg, rgba(148, 201, 255, 0.4), rgba(113, 184, 255, 0.36));
+        color: rgba(27, 86, 141, 0.97);
+        border-color: rgba(84, 164, 232, 0.5);
+    }
+</style>
+@endpush
 
 @push('scripts')
 @if(Route::has('batismo.agendar.modal'))

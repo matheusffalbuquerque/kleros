@@ -34,6 +34,7 @@ class Membro extends Model
         'ativo',
         'congregacao_id',
         'setor_id',
+        'batizado',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class Membro extends Model
         'data_cadastro' => 'date',
         'data_consagracao' => 'date',
         'ativo' => 'boolean',
+        'batizado' => 'boolean',
     ];
 
     protected static function booted() {

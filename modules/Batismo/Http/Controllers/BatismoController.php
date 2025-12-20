@@ -27,7 +27,7 @@ class BatismoController extends Controller
 
         $validPending = $pendingAgendamentos->filter(function (BatismoAgendado $agendamento) {
             $membro = $agendamento->membro;
-            return $membro && $membro->data_batismo === null;
+            return $membro && ! $membro->batizado;
         });
 
         $pendingMemberIds = $validPending->pluck('membro_id')->unique()->values()->all();
@@ -47,14 +47,14 @@ class BatismoController extends Controller
             ->where('ativo', true);
 
         if ($statusFilter === 'batizados') {
-            $membrosQuery->whereNotNull('data_batismo');
+            $membrosQuery->where('batizado', true);
         } elseif ($statusFilter === 'nao_batizados') {
-            $membrosQuery->whereNull('data_batismo');
+            $membrosQuery->where('batizado', false);
             if (! empty($pendingMemberIds)) {
                 $membrosQuery->whereNotIn('id', $pendingMemberIds);
             }
         } elseif ($statusFilter === 'em_preparacao') {
-            $membrosQuery->whereNull('data_batismo');
+            $membrosQuery->where('batizado', false);
             $membrosQuery->whereIn('id', ! empty($pendingMemberIds) ? $pendingMemberIds : [-1]);
         }
 
@@ -82,7 +82,7 @@ class BatismoController extends Controller
 
         $membrosSemBatismo = Membro::daCongregacao()
             ->where('ativo', true)
-            ->whereNull('data_batismo')
+            ->where('batizado', false)
             ->orderBy('nome')
             ->get(['id', 'nome']);
 
@@ -165,8 +165,9 @@ class BatismoController extends Controller
             'concluido' => $isConcluido,
         ]);
 
-        if ($isConcluido && $agendamento->membro && ! $agendamento->membro->data_batismo) {
+        if ($isConcluido && $agendamento->membro && ! $agendamento->membro->batizado) {
             $agendamento->membro->data_batismo = $agendamento->data_batismo;
+            $agendamento->membro->batizado = true;
             $agendamento->membro->save();
         }
 
