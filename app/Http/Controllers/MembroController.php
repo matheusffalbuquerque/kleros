@@ -79,7 +79,7 @@ class MembroController extends Controller
         $membro->updated_at = date('Y-m-d H:i:s');
 
         $msg = __('members.flash.created', ['name' => $request->nome]);
-        if($membro->save()){
+        if($membro->save() && !empty($membro->email)){
             $user = new User;
 
             $partes = explode(' ', trim($request->nome));
@@ -91,10 +91,8 @@ class MembroController extends Controller
 
             $user->save();
 
-            if (!empty($membro->email)) {
-                Mail::to($membro->email)->queue(new WelcomeNewUser($membro, $user, $this->congregacao));
-            }
-
+            Mail::to($membro->email)->queue(new WelcomeNewUser($membro, $user, $this->congregacao));
+            
             $responsavel = optional(Auth::user())->membro;
 
             MembroStatusHistorico::create([
