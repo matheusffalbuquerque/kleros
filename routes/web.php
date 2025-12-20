@@ -150,12 +150,18 @@ Route::domain($adminDomain)->middleware('setlocale')->group(function () {
 
 Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
-    Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.manifest');
-    Route::get('/offline', function () {
-        return view('offline', ['congregacao' => app('congregacao')]);
-    })->name('pwa.offline');
+        Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.manifest');
+        Route::get('/offline', function () {
+            return view('offline', ['congregacao' => app('congregacao')]);
+        })->name('pwa.offline');
+        Route::get('/webapp', function () {
+            return view('webapp', ['congregacao' => app('congregacao')]);
+        })->name('webapp');
+        Route::get('/webapp/start', function () {
+            return view('webapp-start', ['congregacao' => app('congregacao')]);
+        })->name('webapp.start');
 
-    Route::get('/login', [HomeController::class, 'login'])->name('login');
+        Route::get('/login', [HomeController::class, 'login'])->name('login');
     Route::get('/cadastrar', [HomeController::class, 'create'])->name('login.create');
     Route::post('/cadastrar', [HomeController::class, 'store'])->name('login.store');
     Route::post('/login', [HomeController::class, 'authenticate']);

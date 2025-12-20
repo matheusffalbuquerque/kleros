@@ -34,6 +34,10 @@
                         Acessar agora
                     </a>
                 </div>
+                <p style="margin:0 0 12px 0; color:#475569; line-height:1.6;">
+                    Quer usar como aplicativo? Instale o web app:
+                    <a href="{{ 'https://'.$this->congregacao->dominio.'/webapp' }}" style="color:#2563eb; font-weight:700; text-decoration:none;">{{ url('/webapp') }}</a>
+                </p>
                 <p style="margin:0; color:#94a3b8; font-size:13px;">Qualquer dúvida, fale com a equipe da congregação.</p>
             </td>
         </tr>

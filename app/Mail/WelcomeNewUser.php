@@ -43,7 +43,7 @@ class WelcomeNewUser extends Mailable implements ShouldQueue
                 'user' => $this->user,
                 'congregacao' => $this->congregacao,
                 'shortName' => $shortName,
-                'loginUrl' => url('/login'),
+                'loginUrl' => 'https://'.$this->congregacao->dominio.'/login',
             ]);
     }
 }
