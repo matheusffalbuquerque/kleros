@@ -156,6 +156,21 @@
 
                 <div id="membro-configuracoes" class="tab-pane form-control">
                     <div class="form-item">
+                        <label for="criar-usuario-btn">{{ $edit['create_user']['title'] ?? 'Usuário' }}:
+                            @if(!$membro->user)
+                                <div class="muted">{{ $edit['create_user']['description'] ?? 'Crie um acesso para este membro.' }}</div>
+                            @endif
+                        </label>
+                        @if($membro->user)
+                            <p class="muted">{{ $membro->user->name }}</p>
+                        @else
+                            <div class="alert alert-danger" id="criar-usuario-alert" style="display: {{ old('email', $membro->email) ? 'none' : 'block' }};">
+                                {{ $members['validation']['email_needed_for_user'] ?? 'Cadastre um email único e válido para criar um usuário.' }}
+                            </div>
+                            <button class="btn-small" type="button" id="criar-usuario-btn"><i class="bi bi-person-plus"></i> {{ $common['buttons']['create_user'] ?? 'Criar usuário' }}</button>
+                        @endif
+                    </div>
+                    <div class="form-item mg-top-10">
                         <label>{{ $common['fields']['permissions'] ?? 'Permissões' }}:</label>
                         @if(!empty($permissoesSelecionadas))
                             <div class="chip-row">
@@ -182,8 +197,17 @@
 
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> {{ $common['buttons']['update_member'] }}</button>
+                
                 <button type="button" onclick="fecharJanelaModal()" class="btn"><i class="bi bi-x-circle"></i> {{ $common['buttons']['cancel'] }}</button>
             </div>
         </div>
     </form>
 </div>
+
+@if(!$membro->user)
+    <form id="criar-usuario-form" action="{{ route('membros.criar_usuario', $membro->id) }}" method="POST" style="display:none;">
+        @csrf
+        <input type="hidden" name="email" id="criar-usuario-email" value="{{ old('email', $membro->email) }}">
+    </form>
+    {{-- JS inicializado via modal-utils.js --}}
+@endif

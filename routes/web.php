@@ -205,6 +205,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/membros/exibir/{id}', [MembroController::class, 'show']);
         Route::get('/membros/editar/{id}', [MembroController::class, 'form_editar'])->name('membros.form_editar');
         Route::put('/membros/{id}', [MembroController::class, 'update'])->name('membros.atualizar');
+        Route::post('/membros/{id}/criar-usuario', [MembroController::class, 'criarUsuario'])->name('membros.criar_usuario');
         Route::delete('/membros/{id}', [MembroController::class, 'destroy'])->name('membros.destroy');
         Route::delete('/membros/{id}/remover-foto', [MembroController::class, 'removerFoto'])->name('membros.remover_foto');
 

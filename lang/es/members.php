@@ -44,6 +44,7 @@ return [
             'edit' => 'Editar',
             'remove' => 'Eliminar',
             'schedule' => 'Agendar',
+            'create_user' => 'Crear usuario',
         ],
         'statuses' => [
             'not_informed' => 'No informado',
@@ -90,6 +91,10 @@ return [
             'address' => 'Dirección',
             'other' => 'Otros datos',
         ],
+        'create_user' => [
+            'title' => 'Usuario',
+            'description' => 'Crea un usuario para que este miembro acceda a la aplicación.',
+        ],
     ],
     'view' => [
         'title' => 'Información del miembro',
@@ -131,6 +136,10 @@ return [
         'name_required' => 'El nombre del miembro es obligatorio.',
         'phone_required' => 'El número de teléfono es obligatorio.',
         'birth_required' => 'La fecha de nacimiento es obligatoria.',
+        'email_required' => 'El correo electrónico es obligatorio.',
+        'email_invalid' => 'Proporciona un correo electrónico válido.',
+        'email_unique' => 'Este correo electrónico ya está en uso.',
+        'email_needed_for_user' => 'Agrega un correo electrónico válido y único para crear un usuario.',
     ],
     'flash' => [
         'created' => ':name se convirtió en miembro de AD Jerusalém.',
@@ -141,6 +150,8 @@ return [
         'profile_updated' => 'Perfil actualizado con éxito.',
         'profile_error' => 'No se pudo actualizar el perfil.',
         'password_mismatch' => 'La contraseña actual no coincide.',
+        'user_created' => 'Usuario creado para :name.',
+        'user_already_exists' => 'Este miembro ya tiene un usuario.',
     ],
     'export' => [
         'filename_prefix' => 'miembros_',

@@ -207,6 +207,58 @@ export function initModalScripts(container) {
         initFormCriarEvento(formCriarEvento);
     }
 
+    // Botão de criar usuário em modais de edição de membro
+    const createUserBtn = container.querySelector('#criar-usuario-btn');
+    const createUserForm = container.querySelector('#criar-usuario-form');
+    const createUserAlert = container.querySelector('#criar-usuario-alert');
+    const createUserHiddenEmail = container.querySelector('#criar-usuario-email');
+    const createUserEmailInput = container.querySelector('#email');
+
+    if (createUserBtn && createUserForm && !createUserBtn.dataset.initialized) {
+        createUserBtn.dataset.initialized = 'true';
+
+        const syncEmail = () => {
+            if (createUserHiddenEmail && createUserEmailInput) {
+                createUserHiddenEmail.value = createUserEmailInput.value.trim();
+            }
+        };
+
+        const toggleAlert = () => {
+            if (!createUserAlert) {
+                return;
+            }
+            const hasEmail = !!(createUserEmailInput && createUserEmailInput.value.trim());
+            createUserAlert.style.display = hasEmail ? 'none' : 'block';
+        };
+
+        if (createUserEmailInput) {
+            createUserEmailInput.addEventListener('input', () => {
+                syncEmail();
+                toggleAlert();
+            });
+        }
+
+        createUserForm.addEventListener('submit', (event) => {
+            syncEmail();
+            if (createUserEmailInput && createUserEmailInput.value.trim() === '') {
+                event.preventDefault();
+                toggleAlert();
+            }
+        });
+
+        createUserBtn.addEventListener('click', () => {
+            syncEmail();
+            if (createUserEmailInput && createUserEmailInput.value.trim() === '') {
+                toggleAlert();
+                return;
+            }
+            createUserForm.submit();
+        });
+
+        toggleAlert();
+        syncEmail();
+    }
+
     // Controles de preletor (alternar entre membro select2 e campo externo)
     const preletorContainers = container.querySelectorAll('[data-preletor-container]');
     preletorContainers.forEach((scope) => {
