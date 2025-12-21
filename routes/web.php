@@ -152,13 +152,16 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
         Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.manifest');
         Route::get('/offline', function () {
-            return view('offline', ['congregacao' => app('congregacao')]);
+            return view('public.offline', ['congregacao' => app('congregacao')]);
         })->name('pwa.offline');
+        Route::get('/checkin', function(){
+            return view('public.checkin', ['congregacao' => app('congregacao')]);
+        })->name('checkin');
         Route::get('/webapp', function () {
-            return view('webapp', ['congregacao' => app('congregacao')]);
+            return view('public.webapp', ['congregacao' => app('congregacao')]);
         })->name('webapp');
         Route::get('/webapp/start', function () {
-            return view('webapp-start', ['congregacao' => app('congregacao')]);
+            return view('public.webapp-start', ['congregacao' => app('congregacao')]);
         })->name('webapp.start');
 
         Route::get('/login', [HomeController::class, 'login'])->name('login');
@@ -400,6 +403,10 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/teste-livewire', function () {
             return view('teste-livewire');
         })->name('teste.livewire')->middleware('auth');
+
+        Route::get('/congregacoes/links/modal', function () {
+            return view('congregacoes.includes.links-modal');
+        })->name('congregacoes.links.modal')->middleware('auth');
 
         // Gestor de imagens com Livewire (para modais)
         Route::get('/arquivos/imagens-livewire', [ArquivoController::class, 'gestorImagensLivewire'])

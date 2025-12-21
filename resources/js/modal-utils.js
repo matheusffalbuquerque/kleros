@@ -201,6 +201,45 @@ function initCronogramaOcorrenciasEditar(tbody) {
 }
 
 export function initModalScripts(container) {
+    // Modal genérico para adicionar links de congregação
+    const linkModalForm = container.querySelector('#link-modal-form');
+    if (linkModalForm && !linkModalForm.dataset.initialized) {
+        linkModalForm.dataset.initialized = 'true';
+        const linksList = window.linkModalContext?.linksList || document.getElementById('links-list');
+        const linkEmpty = window.linkModalContext?.linksEmpty || document.getElementById('links-empty');
+
+        const slugify = (text) => text.toLowerCase().trim()
+            .replace(/[^a-z0-9_-]+/g, '-')
+            .replace(/^-+|-+$/g, '') || 'link';
+
+        const addLinkRow = (key, url) => {
+            if (!linksList) return;
+            if (linkEmpty) linkEmpty.remove();
+            const row = document.createElement('div');
+            row.className = 'link-row';
+            row.innerHTML = `
+                <span class="tag">${key}</span>
+                <a href="${url}" class="link-standard"><i>${url}</i></a>
+                <input type="hidden" name="links[${key}]" value="${url}">
+                <button type="button" class="btn-options danger link-remove" title="Remover link"><i class="bi bi-trash"></i></button>
+            `;
+            linksList.appendChild(row);
+        };
+
+        linkModalForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const keyInput = container.querySelector('#link-key');
+            const urlInput = container.querySelector('#link-url');
+            const rawKey = (keyInput?.value || '').trim();
+            const url = (urlInput?.value || '').trim();
+            if (!rawKey || !url) return;
+            const key = slugify(rawKey);
+            addLinkRow(key, url);
+            linkModalForm.reset();
+            fecharJanelaModal();
+        });
+    }
+
     // Inicializa formulário de criar evento se existir
     const formCriarEvento = container.querySelector('#form-criar-evento');
     if (formCriarEvento && !formCriarEvento.dataset.ajaxInitialized) {

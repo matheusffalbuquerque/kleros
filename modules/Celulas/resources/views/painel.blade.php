@@ -17,7 +17,6 @@
             <div class="search-panel-item">
                 <button class="" onclick="window.location.href='{{ route('celulas.encontros') }}'"><i class="bi bi-calendar-event"></i> Encontros</button>
                 <button class="" onclick="abrirJanelaModal('{{route('celulas.form_criar')}}')"><i class="bi bi-plus-circle"></i> Adicionar</button>
-                <button class="" onclick="window.history.back()"><i class="bi bi-arrow-return-left"></i> Voltar</button>
             </div>
         </div>
 

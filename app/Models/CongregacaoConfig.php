@@ -16,10 +16,12 @@ class CongregacaoConfig extends Model
         'congregacao_id',
         'agrupamentos',
         'language',
+        'links',
     ];
 
     protected $casts = [
         'conjunto_cores' => 'array',
+        'links' => 'array',
     ];
 
     public function congregacao()

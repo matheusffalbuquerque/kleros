@@ -40,10 +40,11 @@
         .panel {
             max-width: 520px;
             width: 100%;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0,0,0,0.85);
             border-radius: 16px;
             padding: 24px;
             box-shadow: 0 16px 50px rgba(0,0,0,0.45);
+            color: #e2e8f0;
             text-align: center;
         }
         .panel img {
@@ -58,7 +59,7 @@
             margin: 0 0 10px;
         }
         .panel a {
-            color: var(--primary-contrast);
+            color: white;
         }
         .hint {
             margin-top: 14px;

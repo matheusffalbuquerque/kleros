@@ -53,6 +53,26 @@
                                 <label for="telefone">{{ $sections['institutional']['fields']['phone'] }}</label>
                                 <input type="tel" name="telefone" id="telefone" value="{{ $congregacao->telefone }}" placeholder="{{ $placeholders['phone'] }}">
                             </div>
+                            <div class="form-item">
+                                <label for="links">Links: <button type="button" class="btn-small" id="open-link-modal">Adicionar link</button></label>
+                                <div class="form-square links-list" id="links-list">
+                                    @php
+                                        $links = optional($congregacao->config)->links ?? [];
+                                    @endphp
+                                    @if (empty($links))
+                                        <small id="links-empty">Não há links para serem exibidos</small>
+                                    @else
+                                        @foreach ($links as $chave => $link)
+                                            <div class="link-row">
+                                                <span class="tag">{{ $chave }}</span>
+                                                <a href="{{ $link }}" class="link-standard"><i>{{ $link }}</i></a>
+                                                <input type="hidden" name="links[{{ $chave }}]" value="{{ $link }}">
+                                                <button type="button" class="btn-options danger link-remove" title="Remover link"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         <h3>{{ $sections['location']['title'] }}</h3>
                         <div class="form-control">
@@ -304,6 +324,18 @@
         color: #fff;
         font-weight: bold;
     }
+.links-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.link-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
     .card {
         border-radius: 0 8px 8px 8px;
         padding: 20px;
@@ -425,6 +457,31 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const translations = @json($scripts);
+
+        const linksList = document.getElementById('links-list');
+        const linkEmpty = document.getElementById('links-empty');
+        const openLinkBtn = document.getElementById('open-link-modal');
+        if (openLinkBtn) {
+            openLinkBtn.addEventListener('click', () => {
+                window.linkModalContext = { linksList, linksEmpty: linkEmpty };
+                abrirJanelaModal('{{ route('congregacoes.links.modal') }}');
+            });
+        }
+
+        if (linksList) {
+            linksList.addEventListener('click', (event) => {
+                const removeBtn = event.target.closest('.link-remove');
+                if (!removeBtn) return;
+                const row = removeBtn.closest('.link-row');
+                row?.remove();
+                if (!linksList.querySelector('.link-row')) {
+                    const empty = document.createElement('small');
+                    empty.id = 'links-empty';
+                    empty.textContent = 'Não há links para serem exibidos';
+                    linksList.appendChild(empty);
+                }
+            });
+        }
 
         // Inicializa Select2 para os selects de membros
         if (typeof $.fn.select2 !== 'undefined') {
@@ -649,4 +706,3 @@
 </script>
 @endpush
 @endsection
-

@@ -154,7 +154,7 @@
                     <button class="btn" type="submit" @disabled(!$selectedCelulaId)>
                         <i class="bi bi-save"></i> Salvar encontro
                     </button>
-                    <button class="btn btn-outline" type="reset">
+                    <button class="btn" type="reset">
                         <i class="bi bi-arrow-counterclockwise"></i> Limpar
                     </button>
                 </div>
@@ -401,11 +401,6 @@
 
     .encontros-historico .list-item {
         cursor: default;
-    }
-
-    .btn.btn-outline {
-        background: transparent;
-        border: 1px solid currentColor;
     }
 
     .encontros-filtros__celula select,
