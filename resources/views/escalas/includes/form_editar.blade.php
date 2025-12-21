@@ -54,8 +54,11 @@
                                 @php
                                     $dataCulto = $cultoOp->data_culto ? \Illuminate\Support\Carbon::parse($cultoOp->data_culto)->format('d/m/Y H:i') : null;
                                 @endphp
+                                @php
+                                    $preletorNome = optional($cultoOp->preletor)->nome ?: ($cultoOp->preletor_externo ?: 'Culto');
+                                @endphp
                                 <option value="{{ $cultoOp->id }}" @selected($cultoSelecionado == $cultoOp->id)>
-                                    {{ $dataCulto ?? 'Data não informada' }} - {{ $cultoOp->preletor ?? 'Culto' }}
+                                    {{ $dataCulto ?? 'Data não informada' }} - {{ $preletorNome }}
                                 </option>
                             @endforeach
                         </select>
