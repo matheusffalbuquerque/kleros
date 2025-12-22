@@ -111,7 +111,7 @@ class HomeController extends Controller
             Se não houver ele envia uma informação vazia, com mensagem sobre a ausencia de eventos.
         */
         
-        $eventos = Evento::where('recorrente', false)->whereDate('data_inicio', '>', date('Y/m/d'))->limit(4)->orderBy('data_inicio', 'asc')->get();
+        $eventos = Evento::where('congregacao_id', $congregacao->id)->where('recorrente', false)->whereDate('data_inicio', '>', date('Y/m/d'))->limit(4)->orderBy('data_inicio', 'asc')->get();
         
         if($eventos->isEmpty()) {
             $eventos = '';

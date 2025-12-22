@@ -81,7 +81,8 @@ class CadastroController extends Controller
             ->orderBy('nome')
             ->get();
 
-        $cultoCategorias = CultoCategoria::orderBy('nome')->get();
+        $cultoCategorias = CultoCategoria::where('congregacao_id', $congregacaoId)
+            ->orderBy('nome')->get();
 
         /*Essa parte verifica o tal de visitantes do mês, se não houver ele receberá uma string vazia*/
         $visitantes_mes = Visitante::where('congregacao_id', $congregacaoId)
