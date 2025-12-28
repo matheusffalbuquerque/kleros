@@ -129,9 +129,6 @@
         <button class="btn mg-top-10" onclick="abrirJanelaModal('{{ route('escalas.form_criar') }}')">
             <i class="bi bi-plus-circle-fill"></i> {{ $sections['scales']['buttons']['generate'] }}
         </button>
-        <button id="escalas" class="imprimir btn mg-top-10" data-action="0">
-            <i class="bi bi-printer"></i> {{ $sections['scales']['buttons']['print'] }}
-        </button>
     </div>
 
     {{-- Eventos --}}
