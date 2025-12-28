@@ -1275,6 +1275,83 @@ export function initModalScripts(container) {
         }
     });
 
+    // --- exclusão de escalas fora do formulário (evita forms aninhados) ---
+    container.querySelectorAll('[data-escala-delete]').forEach(button => {
+        if (button.dataset.deleteHandlerAttached) {
+            return;
+        }
+
+        const deleteUrl = button.getAttribute('data-delete-url');
+        if (!deleteUrl) {
+            return;
+        }
+
+        button.dataset.deleteHandlerAttached = 'true';
+        button.addEventListener('click', () => {
+            const confirmMessage = button.getAttribute('data-confirm-message') || 'Deseja realmente excluir esta escala?';
+            const cultoId = button.getAttribute('data-culto-id') || null;
+
+            const confirmPromise = typeof confirmarAcao === 'function'
+                ? confirmarAcao(confirmMessage)
+                : Promise.resolve(window.confirm(confirmMessage));
+
+            confirmPromise.then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+
+                const originalLabel = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split"></i> Excluindo...';
+
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                fetch(deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok || data.success === false) {
+                            const errors = data.errors ? Object.values(data.errors).flat() : null;
+                            const message = errors && errors.length
+                                ? errors.join(' ')
+                                : (data.message || 'Erro ao excluir escala.');
+                            throw new Error(message);
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        const detail = {
+                            cultoId: data?.culto_id || cultoId,
+                            escalasHtml: data?.escalasHtml || null,
+                            message: data?.message || 'Escala excluída com sucesso!',
+                        };
+
+                        if (typeof showSystemMessage === 'function' && detail.message) {
+                            showSystemMessage(detail.message, 'success');
+                        }
+
+                        window.dispatchEvent(new CustomEvent('escalaDeleted', { detail }));
+                    })
+                    .catch((error) => {
+                        console.error('Falha ao excluir escala:', error);
+                        if (typeof showSystemMessage === 'function') {
+                            showSystemMessage(error.message || 'Erro ao excluir escala.', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalLabel;
+                    });
+            });
+        });
+    });
+
     // --- gerenciador de participantes das células---
     const participanteTab = container.querySelector('#participantes[data-participantes]');
     if (participanteTab && !participanteTab.dataset.managerInitialized) {
