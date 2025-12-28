@@ -12,6 +12,7 @@ class CultoCategoria extends Model
     protected $fillable = [
         'nome',
         'descricao',
+        'congregacao_id',
     ];
 
     public function cultos()

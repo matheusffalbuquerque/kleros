@@ -10,7 +10,10 @@ class CultoCategoriaController extends Controller
 {
     public function index()
     {
-        $categorias = CultoCategoria::orderBy('nome')->get();
+        $congregacaoId = app('congregacao')->id;
+        $categorias = CultoCategoria::where('congregacao_id', $congregacaoId)
+            ->orderBy('nome')
+            ->get();
         return view('cultos.includes.categorias_modal', compact('categorias'));
     }
 
@@ -24,6 +27,7 @@ class CultoCategoriaController extends Controller
         CultoCategoria::create([
             'nome' => $request->nome,
             'descricao' => $request->descricao,
+            'congregacao_id' => app('congregacao')->id,
         ]);
 
         return redirect()->back()->with('msg', 'Categoria adicionada com sucesso.');
@@ -31,7 +35,8 @@ class CultoCategoriaController extends Controller
 
     public function destroy($id)
     {
-        $categoria = CultoCategoria::findOrFail($id);
+        $categoria = CultoCategoria::where('congregacao_id', app('congregacao')->id)
+            ->findOrFail($id);
         $categoria->delete();
 
         return redirect()->back()->with('msg', 'Categoria removida com sucesso.');
@@ -44,7 +49,8 @@ class CultoCategoriaController extends Controller
             'descricao' => 'nullable|string|max:255',
         ]);
 
-        $categoria = CultoCategoria::findOrFail($id);
+        $categoria = CultoCategoria::where('congregacao_id', app('congregacao')->id)
+            ->findOrFail($id);
         $categoria->update([
             'nome' => $request->nome,
             'descricao' => $request->descricao,

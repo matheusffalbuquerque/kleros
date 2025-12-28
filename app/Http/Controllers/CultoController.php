@@ -50,7 +50,9 @@ class CultoController extends Controller
             ->orderBy('titulo')
             ->get();
 
-        $categorias = CultoCategoria::orderBy('nome')->get();
+        $categorias = CultoCategoria::where('congregacao_id', $congregacao->id)
+            ->orderBy('nome')
+            ->get();
         $membros = Membro::orderBy('nome')->get();
 
         return view('cultos/checkin', [
@@ -83,7 +85,9 @@ class CultoController extends Controller
             ->orderBy('titulo')
             ->get(['id', 'titulo']);
 
-        $categorias = CultoCategoria::orderBy('nome')->get();
+        $categorias = CultoCategoria::where('congregacao_id', $congregacaoId)
+            ->orderBy('nome')
+            ->get();
         $membros = Membro::orderBy('nome')->get();
         $preletoresMembros = Membro::where('congregacao_id', $congregacaoId)
         ->whereIn('id',
