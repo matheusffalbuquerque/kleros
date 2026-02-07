@@ -17,6 +17,11 @@
                     </div>
 
                     <div class="form-item">
+                        <label for="horario_culto">Horário do culto: </label>
+                        <input type="time" name="horario_culto" id="horario_culto" value="{{ old('horario_culto', '19:00') }}">
+                    </div>
+
+                    <div class="form-item">
                         <label for="culto_categoria">Categoria: </label>
                         <select name="culto_categoria" id="culto_categoria">
                             <option value="">Regular</option>

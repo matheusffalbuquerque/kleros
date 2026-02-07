@@ -121,7 +121,10 @@ class CultoController extends Controller
 
         $culto = new Culto;
 
-        $culto->data_culto = $request->data_culto . ' ' . $request->horario_inicio;
+        // Combinar data e horário
+        $horario = $request->horario_culto ?? $request->horario_inicio ?? '19:00';
+        $culto->data_culto = $request->data_culto . ' ' . $horario;
+        
         $preletorId = $request->preletor_id ?: null;
         $preletorExterno = $request->preletor_externo ?: null;
 
@@ -209,7 +212,11 @@ class CultoController extends Controller
         $culto = Culto::findOrFail($id);
         
         $culto->congregacao_id = app('congregacao')->id;
-        $culto->data_culto = $request->data_culto . ' ' . $request->horario_inicio;
+        
+        // Combinar data e horário
+        $horario = $request->horario_culto ?? $request->horario_inicio ?? '19:00';
+        $culto->data_culto = $request->data_culto . ' ' . $horario;
+        
         $preletorId = $request->preletor_id ?: null;
         $preletorExterno = $request->preletor_externo ?: null;
 
@@ -238,8 +245,8 @@ class CultoController extends Controller
 
     public function form_criar(){
         $eventos = Evento::where('congregacao_id', app('congregacao')->id)->get();
-        $categorias = CultoCategoria::orderBy('nome')->get();
-        $membros = Membro::orderBy('nome')->get();
+        $categorias = CultoCategoria::where('congregacao_id', app('congregacao')->id)->orderBy('nome')->get();
+        $membros = Membro::where('congregacao_id', app('congregacao')->id)->orderBy('nome')->get();
         return view('cultos/includes/form_criar', [
             'eventos' => $eventos,
             'categorias' => $categorias,
@@ -251,8 +258,8 @@ class CultoController extends Controller
         $culto = Culto::with(['escalas.tipo', 'escalas.itens.membro'])->findOrFail($id);
         $culto->escalas = $culto->escalas->sortBy('data_hora')->values();
         $eventos = Evento::where('congregacao_id', $culto->congregacao_id)->get();
-        $categorias = CultoCategoria::orderBy('nome')->get();
-        $membros = Membro::orderBy('nome')->get();
+        $categorias = CultoCategoria::where('congregacao_id', $culto->congregacao_id)->orderBy('nome')->get();
+        $membros = Membro::where('congregacao_id', $culto->congregacao_id)->orderBy('nome')->get();
         return view('cultos/includes/form_editar', [
             'culto' => $culto,
             'eventos' => $eventos,
@@ -285,6 +292,7 @@ class CultoController extends Controller
     {
         $congregacao = app('congregacao');
         $selectedDateInput = $request->input('data');
+        $cultoIndex = $request->input('culto_index', 0);
 
         try {
             $selectedDate = $selectedDateInput
@@ -294,10 +302,16 @@ class CultoController extends Controller
             $selectedDate = Carbon::today()->format('Y-m-d');
         }
 
-        $culto = Culto::where('congregacao_id', $congregacao->id)
+        // Buscar todos os cultos do dia
+        $cultosDoDia = Culto::where('congregacao_id', $congregacao->id)
             ->whereDate('data_culto', $selectedDate)
-            ->orderByDesc('data_culto')
-            ->first();
+            ->orderBy('data_culto')
+            ->get();
+
+        $totalCultosDia = $cultosDoDia->count();
+        $cultoIndex = max(0, min($cultoIndex, $totalCultosDia - 1));
+        
+        $culto = $cultosDoDia->get($cultoIndex);
 
         $eventos = Evento::where('congregacao_id', $congregacao->id)
             ->orderBy('titulo')
@@ -352,6 +366,8 @@ class CultoController extends Controller
             'dashboardCards' => $dashboardCards,
             'dashboardDayName' => $dashboardDayName,
             'selectedDateFull' => $selectedDateFull,
+            'totalCultosDia' => $totalCultosDia,
+            'cultoIndex' => $cultoIndex,
         ]);
     }
 }

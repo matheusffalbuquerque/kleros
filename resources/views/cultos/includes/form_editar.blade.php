@@ -23,8 +23,8 @@
                         <input type="date" name="data_culto" id="data_culto" value="{{ old('data_culto', $dataCulto) }}" required>
                     </div>
                     <div class="form-item">
-                        <label for="horario_inicio">Horário de início: </label>
-                        <input type="time" name="horario_inicio" id="horario_inicio" value="{{ old('horario_inicio', $horaCulto) }}">
+                        <label for="horario_culto">Horário do culto: </label>
+                        <input type="time" name="horario_culto" id="horario_culto" value="{{ old('horario_culto', $horaCulto) }}">
                     </div>
                     <div class="form-item">
                         <label for="culto_categoria">Categoria: </label>

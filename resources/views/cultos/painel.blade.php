@@ -64,6 +64,27 @@
             <form action="{{ route('cultos.painel') }}" method="get" class="search-panel-item painel-culto-meta-date" id="painel-culto-data-form">
                 <label for="culto-data">Data</label>
                 <input type="date" id="culto-data" name="data" value="{{ $selectedDate }}">
+                <input type="hidden" id="culto-index" name="culto_index" value="{{ $cultoIndex ?? 0 }}">
+                
+                @if(($totalCultosDia ?? 0) > 1)
+                    <div class="culto-navegacao">
+                        <button type="button" 
+                                class="culto-nav-btn" 
+                                id="culto-prev"
+                                @if($cultoIndex <= 0) disabled @endif
+                                title="Culto anterior">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span class="culto-contador">{{ ($cultoIndex ?? 0) + 1 }}/{{ $totalCultosDia ?? 1 }}</span>
+                        <button type="button" 
+                                class="culto-nav-btn" 
+                                id="culto-next"
+                                @if($cultoIndex >= ($totalCultosDia - 1)) disabled @endif
+                                title="Próximo culto">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                @endif
             </form>
             <div class="search-panel-item">
                 <button class="btn" type="button" id="painel-btn-editar-culto"
@@ -335,6 +356,50 @@
         background-color: rgba(255, 255, 255, 0.08);
     }
 
+    .culto-navegacao {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+        border-left: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .culto-nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        color: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .culto-nav-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(0, 0, 0, 0.25);
+    }
+
+    .culto-nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .culto-nav-btn i {
+        font-size: 1rem;
+    }
+
+    .culto-contador {
+        font-size: 0.85rem;
+        font-weight: 600;
+        min-width: 40px;
+        text-align: center;
+    }
+
     .painel-culto-search__input {
         flex: 1 1 320px;
         display: flex;
@@ -521,6 +586,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         const dateForm = document.getElementById('painel-culto-data-form');
         const dateInput = document.getElementById('culto-data');
+        const cultoIndexInput = document.getElementById('culto-index');
+        const prevButton = document.getElementById('culto-prev');
+        const nextButton = document.getElementById('culto-next');
         const registrarButton = document.getElementById('painel-btn-registrar-visitante');
         const novoVisitanteButton = document.getElementById('painel-btn-novo-visitante');
         const editarCultoButton = document.getElementById('painel-btn-editar-culto');
@@ -542,7 +610,33 @@
         let suppressClearFeedback = false;
 
         if (dateForm && dateInput) {
-            dateInput.addEventListener('change', () => dateForm.submit());
+            dateInput.addEventListener('change', () => {
+                if (cultoIndexInput) {
+                    cultoIndexInput.value = 0;
+                }
+                dateForm.submit();
+            });
+        }
+
+        // Navegação entre cultos
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (cultoIndexInput) {
+                    const currentIndex = parseInt(cultoIndexInput.value) || 0;
+                    cultoIndexInput.value = Math.max(0, currentIndex - 1);
+                    dateForm.submit();
+                }
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                if (cultoIndexInput) {
+                    const currentIndex = parseInt(cultoIndexInput.value) || 0;
+                    cultoIndexInput.value = currentIndex + 1;
+                    dateForm.submit();
+                }
+            });
         }
 
         function showFeedback(message, type = 'info') {
