@@ -19,7 +19,7 @@ jobs:
         extensions: mbstring, dom, fileinfo, mysql, gd
 
     - name: Install Composer Dependencies
-      run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction
+      run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts
 
     - name: Install NPM Dependencies
       run: npm ci
