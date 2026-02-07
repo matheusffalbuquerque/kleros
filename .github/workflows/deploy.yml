@@ -1,0 +1,78 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, dom, fileinfo, mysql, gd
+
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction
+
+    - name: Install NPM Dependencies
+      run: npm ci
+
+    - name: Build Assets for Production
+      run: npm run build
+
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          cd ${{ secrets.APP_PATH || '/var/www/kleros' }}
+          
+          echo "🔄 Ativando modo manutenção..."
+          php artisan down || true
+          
+          echo "📥 Atualizando código..."
+          git pull origin main
+          
+          echo "📦 Instalando dependências..."
+          composer install --no-dev --optimize-autoloader --no-interaction
+          
+          echo "🎨 Compilando assets..."
+          npm ci --omit=dev
+          npm run build
+          
+          echo "🗄️ Executando migrations..."
+          php artisan migrate --force
+          
+          echo "🧹 Limpando cache..."
+          php artisan optimize:clear
+          
+          echo "⚡ Otimizando aplicação..."
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          echo "🔄 Reiniciando queue workers..."
+          php artisan queue:restart
+          
+          echo "✅ Desativando modo manutenção..."
+          php artisan up
+          
+          echo "🎉 Deploy concluído com sucesso!"
+
+    - name: Deployment Success Notification
+      if: success()
+      run: echo "✅ Deploy para produção concluído com sucesso!"
+
+    - name: Deployment Failure Notification
+      if: failure()
+      run: echo "❌ Falha no deploy! Verifique os logs."
