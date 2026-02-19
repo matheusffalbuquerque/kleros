@@ -25,7 +25,7 @@ return [
     'hero' => [
         'title' => 'Unity that reaches. Management that transforms.',
         'description' => 'Kleros is a modern and complete ecosystem for churches: services, events, members, groups, and finances — with charts, calendar, notifications, and reports. Expand with extensions and connect your denomination on a single web and mobile platform.',
-        'primary_cta' => 'Subscribe for R$110/month',
+        'primary_cta' => 'Subscribe for US$19/month',
         'secondary_cta' => 'Explore resources',
         'subdomain_hint' => 'Instant subdomain: :subdomain. Custom domain optional.',
     ],
@@ -97,7 +97,7 @@ return [
         'plans' => [
             'starter' => [
                 'name' => 'Starter plan',
-                'price' => 'R$110/month',
+                'price' => '$19/month',
                 'items' => [
                     'Services, events, and members',
                     'Meetings and groups',
@@ -115,7 +115,7 @@ return [
     ],
     'cta' => [
         'title' => 'Ready to organize and connect your church?',
-        'description' => 'Subscribe for R$110/month and get your subdomain instantly.',
+        'description' => 'Subscribe for $19/month and get your subdomain instantly.',
         'primary' => 'Talk to Youcan',
         'secondary' => 'Watch demo',
     ],

@@ -11,7 +11,7 @@ return [
         'unsupported' => 'Idioma selecionado não está disponível.',
     ],
     'header' => [
-        'brand_tagline' => 'por Youcan Serviços Empresariais',
+        'brand_tagline' => 'Ecossistema para Igrejas',
         'nav' => [
             'resources' => 'Recursos',
             'extensions' => 'Extensões',
@@ -19,13 +19,13 @@ return [
             'pricing' => 'Preço',
             'faq' => 'FAQ',
         ],
-        'demo' => 'Ver demonstração',
+        'demo' => 'Agendar demonstração',
         'cta' => 'Começar agora',
     ],
     'hero' => [
         'title' => 'Unidade que alcança. Gestão que transforma.',
         'description' => 'O Kleros é um ecossistema moderno e completo para igrejas: gestão de cultos, eventos, membros, grupos e finanças — com gráficos, agenda, notificações e relatórios. Expanda com extensões e integre sua denominação em uma só plataforma web e mobile.',
-        'primary_cta' => 'Assinar por R$110/mês',
+        'primary_cta' => 'Assinar por R$79/mês',
         'secondary_cta' => 'Explorar recursos',
         'subdomain_hint' => 'Subdomínio imediato: :subdomain. Domínio próprio opcional.',
     ],
@@ -42,7 +42,7 @@ return [
                 'description' => 'Conteúdo missionário e conexões entre membros e congregações.',
             ],
             [
-                'title' => 'Ecossistema expandível',
+                'title' => 'Ecossistema expansível',
                 'description' => 'Extensões instaláveis elevam a gestão local e da denominação.',
             ],
         ],
@@ -97,7 +97,7 @@ return [
         'plans' => [
             'starter' => [
                 'name' => 'Plano Inicial',
-                'price' => 'R$110/mês',
+                'price' => 'R$79/mês',
                 'items' => [
                     'Eventos, cultos e membros',
                     'Reuniões e grupos',
@@ -115,9 +115,9 @@ return [
     ],
     'cta' => [
         'title' => 'Pronto para organizar e integrar sua igreja?',
-        'description' => 'Assine por R$110/mês e receba seu subdomínio imediatamente.',
-        'primary' => 'Falar com a Youcan',
-        'secondary' => 'Ver demonstração',
+        'description' => 'Assine por R$79/mês e receba seu subdomínio imediatamente.',
+        'primary' => 'Agendar demonstração',
+        'secondary' => 'Conhecer mais',
     ],
     'footer' => [
         'legal' => 'Kleros — Ecossistema para Igrejas. Desenvolvido por <strong>Youcan Serviços Empresariais</strong>.',

@@ -18,6 +18,9 @@
     ];
 
     $subdomainExample = $subdomainHints[$currentLocale] ?? 'yourchurch.kleros.com.br';
+    
+    // Link para contato/demonstração (WhatsApp)
+    $demoContactLink = 'https://wa.me/5518991683104?text=' . urlencode('Olá! Gostaria de agendar uma demonstração do sistema Kleros.');
 @endphp
 <div class="min-h-screen bg-[#1a1821] text-[#f4f3f6] font-[Segoe_UI,Roboto,system-ui,-apple-system,Arial,sans-serif]">
     {{-- HEADER --}}
@@ -36,12 +39,12 @@
                 <a href="#extensoes" class="hover:text-white">{{ __('site.header.nav.extensions') }}</a>
                 <a href="#proposito" class="hover:text-white">{{ __('site.header.nav.ecosystem') }}</a>
                 <a href="#precos" class="hover:text-white">{{ __('site.header.nav.pricing') }}</a>
-                <a href="#assinar" class="hover:text-white">{{ __('site.header.nav.faq') }}</a>
+                <!--<a href="#assinar" class="hover:text-white">{{ __('site.header.nav.faq') }}</a>-->
             </nav>
 
             <div class="flex items-center gap-3">
                 @include('site.partials.language-switcher', ['formClass' => 'hidden sm:block', 'selectId' => 'locale-home'])
-                <a href="#demo" class="hidden sm:inline-flex px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 text-sm">
+                <a href="{{ $demoContactLink }}" target="_blank" class="hidden sm:inline-flex px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 text-sm">
                     {{ __('site.header.demo') }}
                 </a>
                 <a href="{{ route('congregacoes.cadastro') }}" class="px-4 py-2 rounded-lg bg-[#6449a2] hover:bg-[#584091] text-sm font-medium shadow-md">
@@ -67,11 +70,10 @@
             <p class="mt-3 text-xs text-white/60">{!! __('site.hero.subdomain_hint', ['subdomain' => '<span class="font-mono">' . $subdomainExample . '</span>']) !!}</p>
         </div>
 
-        <div class="bg-white/5 border border-white/10 p-5 rounded-2xl">
-            <div class="grid grid-cols-3 gap-3">
-                <div class="col-span-2 bg-white/10 h-40 rounded-lg"></div>
-                <div class="bg-white/10 h-40 rounded-lg"></div>
-            </div>
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+            <img src="{{ asset('images/site/kleros-dashboard-monitor.png') }}" 
+                 alt="Kleros Dashboard - Sistema de Gestão Eclesiástica" 
+                 class="w-full h-auto object-cover">
         </div>
     </section>
 
@@ -89,6 +91,33 @@
                         <p class="text-white/80 text-sm mt-2">{{ $card['description'] }}</p>
                     </div>
                 @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- SHOWCASE TABLET - AGENDA INTEGRADA --}}
+    <section class="py-16 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Tablet - Agenda -->
+                <div class="relative rounded-2xl overflow-hidden shadow-xl">
+                    <img src="{{ asset('images/site/kleros-agenda-tablet.png') }}" 
+                         alt="Kleros - Agenda Integrada em Tablet" 
+                         class="w-full h-auto object-cover">
+                    <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+                        <p class="text-white text-sm font-medium">Agenda Integrada</p>
+                    </div>
+                </div>
+
+                <!-- Laptop - Calculadora -->
+                <div class="relative rounded-2xl overflow-hidden shadow-xl">
+                    <img src="{{ asset('images/site/kleros-financeiro-laptop.png') }}" 
+                         alt="Kleros - Sistema Financeiro Prático e Privado" 
+                         class="w-full h-auto object-cover">
+                    <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+                        <p class="text-white text-sm font-medium">Gestão Financeira</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -125,6 +154,21 @@
         </div>
     </section>
 
+    {{-- SHOWCASE MOBILE - MULTIPLATAFORMA --}}
+    <section class="py-16 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-semibold">Acesse de qualquer lugar</h2>
+                <p class="text-white/80 mt-2">Sistema responsivo que funciona perfeitamente em todos os dispositivos</p>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img src="{{ asset('images/site/kleros-mobile-phones.png') }}" 
+                     alt="Kleros - Sistema Responsivo em Dispositivos Móveis" 
+                     class="w-full h-auto object-cover">
+            </div>
+        </div>
+    </section>
+
     {{-- PREÇO --}}
     <section id="precos" class="py-16 border-t border-white/10">
         <div class="max-w-5xl mx-auto px-4 text-center">
@@ -143,7 +187,7 @@
                 <div class="bg-white/5 p-8 rounded-xl border border-white/10">
                     <h3 class="text-lg font-semibold">{{ __('site.pricing.plans.custom.name') }}</h3>
                     <p class="text-white/80 mt-2">{{ __('site.pricing.plans.custom.description') }}</p>
-                    <a href="#contato" class="inline-block mt-5 px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
+                    <a href="{{ $demoContactLink }}" class="inline-block mt-5 px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
                         {{ __('site.pricing.plans.custom.cta') }}
                     </a>
                 </div>
@@ -156,10 +200,10 @@
         <h2 class="text-2xl font-semibold">{{ __('site.cta.title') }}</h2>
         <p class="text-white/80 mt-3">{{ __('site.cta.description') }}</p>
         <div class="mt-6 flex justify-center gap-4 flex-wrap">
-            <a href="#contato" class="px-5 py-3 rounded-lg bg-[#6449a2] hover:bg-[#584091] font-medium">
+            <a href="{{ $demoContactLink }}" target="_blank" class="px-5 py-3 rounded-lg bg-[#6449a2] hover:bg-[#584091] font-medium">
                 {{ __('site.cta.primary') }}
             </a>
-            <a href="#demo" class="px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
+            <a href="#conhecer" class="px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
                 {{ __('site.cta.secondary') }}
             </a>
         </div>
