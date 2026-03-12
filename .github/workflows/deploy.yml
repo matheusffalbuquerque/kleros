@@ -1,9 +1,9 @@
 name: Deploy to Production
 
 on:
-  # push:  # Desabilitado: deploy automático
-  #   branches: [ main ]
-  workflow_dispatch:  # Apenas deploy manual
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Também permite deploy manual
 
 jobs:
   deploy:
