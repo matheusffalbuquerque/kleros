@@ -145,8 +145,8 @@
                                 <img src="" alt="Pré-visualização do logo" class="hidden h-full w-full object-cover" data-preview-image>
                                 <i class="bi bi-image text-2xl text-white/40" data-preview-placeholder></i>
                             </div>
-                            <div class="flex-1 space-y-2">
-                                <span data-preview-filename="logo" data-placeholder="{{ $visualSection['logo_placeholder'] }}" class="block text-sm text-white/60">{{ $visualSection['logo_placeholder'] }}</span>
+                            <div class="min-w-0 flex-1 space-y-2">
+                                <span data-preview-filename="logo" data-placeholder="{{ $visualSection['logo_placeholder'] }}" class="block truncate text-sm text-white/60" title="{{ $visualSection['logo_placeholder'] }}">{{ $visualSection['logo_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $visualSection['upload'] }}
                                     <input type="file" name="logo" id="logo" class="hidden" accept="image/*" data-preview-input="logo">
@@ -163,8 +163,8 @@
                                 <img src="" alt="Pré-visualização do banner" class="hidden h-full w-full object-cover" data-preview-image>
                                 <i class="bi bi-images text-2xl text-white/40" data-preview-placeholder></i>
                             </div>
-                            <div class="flex-1 space-y-2">
-                                <span data-preview-filename="banner" data-placeholder="{{ $visualSection['banner_placeholder'] }}" class="block text-sm text-white/60">{{ $visualSection['banner_placeholder'] }}</span>
+                            <div class="min-w-0 flex-1 space-y-2">
+                                <span data-preview-filename="banner" data-placeholder="{{ $visualSection['banner_placeholder'] }}" class="block truncate text-sm text-white/60" title="{{ $visualSection['banner_placeholder'] }}">{{ $visualSection['banner_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $visualSection['upload'] }}
                                     <input type="file" name="banner" id="banner" class="hidden" accept="image/*" data-preview-input="banner">
@@ -325,7 +325,9 @@
                 const file = input.files && input.files[0] ? input.files[0] : null;
 
                 if (filenameLabel) {
-                    filenameLabel.textContent = file ? file.name : placeholderText;
+                    const labelText = file ? file.name : placeholderText;
+                    filenameLabel.textContent = labelText;
+                    filenameLabel.title = labelText;
                 }
 
                 if (file) {
