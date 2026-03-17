@@ -394,3 +394,31 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
     });
 });
+
+// Rota de teste para debug de domínios (REMOVER EM PRODUÇÃO)
+Route::get('/test-domain', function () {
+    $host = request()->getHost();
+    $publicDomain = config('domains.public', 'kleros.local');
+    $adminDomain = config('domains.admin', 'admin.local');
+    
+    $dominio = \App\Models\Dominio::with('congregacao.config')
+        ->where('dominio', $host)
+        ->where('ativo', true)
+        ->first();
+    
+    return response()->json([
+        'request_host' => $host,
+        'public_domain' => $publicDomain,
+        'admin_domain' => $adminDomain,
+        'is_public' => in_array($host, [$publicDomain, $adminDomain], true),
+        'dominio_found' => $dominio ? true : false,
+        'dominio_data' => $dominio ? [
+            'id' => $dominio->id,
+            'dominio' => $dominio->dominio,
+            'ativo' => $dominio->ativo,
+            'congregacao_id' => $dominio->congregacao_id,
+            'congregacao' => $dominio->congregacao ? $dominio->congregacao->identificacao : null,
+        ] : null,
+        'all_domains_in_db' => \App\Models\Dominio::select('id', 'dominio', 'ativo', 'congregacao_id')->get(),
+    ]);
+})->middleware('web');

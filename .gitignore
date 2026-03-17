@@ -22,3 +22,4 @@ yarn-error.log
 /.vscode
 /.zed
 startkleros.sh
+kleros_db.sql
