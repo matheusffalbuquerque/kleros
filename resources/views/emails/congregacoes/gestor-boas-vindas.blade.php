@@ -45,6 +45,7 @@
 
     $congregacaoTelefone = $formatPhone(optional($congregacao)->telefone);
     $congregacaoEmail = optional($congregacao)->email;
+    $congregacaoDominio = optional(optional($congregacao)->dominio)->dominio;
 
     $enderecoPartes = array_filter([
         optional($congregacao)->endereco,
@@ -82,6 +83,9 @@
                             @endif
                             @if($congregacaoEmail)
                                 <li>{{ __('congregations.emails.gestor_welcome.items.email', ['valor' => $congregacaoEmail]) }}</li>
+                            @endif
+                            @if($congregacaoDominio)
+                                <li>{{ __('congregations.emails.gestor_welcome.items.dominio', ['valor' => $congregacaoDominio]) }}</li>
                             @endif
                             @if($enderecoLinha)
                                 <li>{{ __('congregations.emails.gestor_welcome.items.endereco', ['valor' => $enderecoLinha]) }}</li>

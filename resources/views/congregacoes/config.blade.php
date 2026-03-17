@@ -10,6 +10,13 @@
     $colorSection = $configTexts['sections']['colors'];
     $moduleSection = $configTexts['sections']['modules'];
     $groupingOptions = $moduleSection['grouping_options'];
+    $supportLink = 'https://wa.me/5518991683104?text=' . urlencode('Olá! Tive um problema com o email de recebimento e gostaria de uma ajuda.');
+    $logoPath = ltrim((string) data_get($config, 'logo_caminho', ''), '/');
+    $bannerPath = ltrim((string) data_get($config, 'banner_caminho', ''), '/');
+    $logoPath = str_starts_with($logoPath, 'public/') ? substr($logoPath, 7) : $logoPath;
+    $bannerPath = str_starts_with($bannerPath, 'public/') ? substr($bannerPath, 7) : $bannerPath;
+    $logoUrl = $logoPath !== '' ? url('/storage/' . $logoPath) : null;
+    $bannerUrl = $bannerPath !== '' ? url('/storage/' . $bannerPath) : null;
 @endphp
 <div class="min-h-screen bg-[#1a1821] text-[#f4f3f6] font-[Segoe_UI,Roboto,system-ui,-apple-system,Arial,sans-serif]">
     <header class="sticky top-0 z-40 bg-[#1a1821]/95 border-b border-white/10">
@@ -56,8 +63,8 @@
                     <a href="{{ route('congregacoes.cadastro') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-white/80 hover:border-white/40">
                         <i class="bi bi-arrow-left"></i> {{ $configTexts['next_steps']['back'] }}
                     </a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#6449a2] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#6449a2]/40 hover:bg-[#8261c2]">
-                        <i class="bi bi-box-arrow-in-right"></i> {{ $configTexts['next_steps']['login'] }}
+                    <a href="{{ $supportLink }}" @if($supportLink !== '#') target="_blank" rel="noopener" @endif class="inline-flex items-center gap-2 rounded-xl bg-[#6449a2] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#6449a2]/40 hover:bg-[#8261c2]">
+                        <i class="bi bi-whatsapp"></i> {{ $configTexts['next_steps']['login'] }}
                     </a>
                 </div>
             </div>
@@ -91,18 +98,15 @@
                     <label class="block">
                         <span class="text-sm font-medium text-white/80">{{ $identitySection['logo_label'] }}</span>
                         <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div class="h-16 w-16 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
-                                @if ($config->logo_caminho)
-                                    <img src="/storage/{{ $config->logo_caminho }}" alt="Logo" class="h-full w-full object-cover">
-                                @else
-                                    <i class="bi bi-image text-2xl text-white/40"></i>
-                                @endif
+                            <div class="relative h-16 w-16 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden" data-preview-container="logo">
+                                <img src="{{ $logoUrl ?? '' }}" alt="Logo" class="{{ $logoUrl ? '' : 'hidden ' }}h-full w-full object-cover" data-preview-image>
+                                <i class="bi bi-image text-2xl text-white/40 {{ $logoUrl ? 'hidden' : '' }}" data-preview-placeholder></i>
                             </div>
                             <div class="flex-1 space-y-2">
-                                <span id="logo-filename" class="block text-sm text-white/60">{{ $identitySection['logo_placeholder'] }}</span>
+                                <span id="logo-filename" class="block text-sm text-white/60">{{ $logoPath !== '' ? basename($logoPath) : $identitySection['logo_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $identitySection['upload'] }}
-                                    <input type="file" name="logo" id="logo" class="hidden" accept="image/*">
+                                    <input type="file" name="logo" id="logo" class="hidden" accept="image/*" data-preview-input="logo">
                                 </label>
                             </div>
                         </div>
@@ -111,18 +115,15 @@
                     <label class="block">
                         <span class="text-sm font-medium text-white/80">{{ $identitySection['banner_label'] }}</span>
                         <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div class="h-16 w-24 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
-                                @if ($config->banner_caminho)
-                                    <img src="/storage/{{ $config->banner_caminho }}" alt="Banner" class="h-full w-full object-cover">
-                                @else
-                                    <i class="bi bi-images text-2xl text-white/40"></i>
-                                @endif
+                            <div class="relative h-16 w-24 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden" data-preview-container="banner">
+                                <img src="{{ $bannerUrl ?? '' }}" alt="Banner" class="{{ $bannerUrl ? '' : 'hidden ' }}h-full w-full object-cover" data-preview-image>
+                                <i class="bi bi-images text-2xl text-white/40 {{ $bannerUrl ? 'hidden' : '' }}" data-preview-placeholder></i>
                             </div>
                             <div class="flex-1 space-y-2">
-                                <span id="banner-filename" class="block text-sm text-white/60">{{ $identitySection['banner_placeholder'] }}</span>
+                                <span id="banner-filename" class="block text-sm text-white/60">{{ $bannerPath !== '' ? basename($bannerPath) : $identitySection['banner_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $identitySection['upload'] }}
-                                    <input type="file" name="banner" id="banner" class="hidden" accept="image/*">
+                                    <input type="file" name="banner" id="banner" class="hidden" accept="image/*" data-preview-input="banner">
                                 </label>
                             </div>
                         </div>
@@ -150,21 +151,6 @@
                         <input type="color" name="conjunto_cores[terciaria]" value="{{ $config->conjunto_cores['terciaria'] ?? '#cbb6ff' }}" class="mt-3 h-12 w-full rounded-xl border border-white/10 bg-white/5 cursor-pointer">
                     </label>
                 </div>
-                <div class="grid gap-5 md:grid-cols-2">
-                    <label class="block">
-                        <span class="text-sm font-medium text-white/80">{{ $colorSection['fields']['font'] }}</span>
-                        <select name="font_family" class="mt-3 w-full rounded-xl bg-white text-[#1a1821] border border-white/15 px-4 py-3 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40">
-                            @foreach($fontes as $fonte)
-                                <option value="{{ $fonte }}" @selected($config->font_family === $fonte)>{{ $fonte }}</option>
-                            @endforeach
-                        </select>
-                    </label>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
-                        <span class="text-xs uppercase tracking-[0.18em] text-white/50">{{ $colorSection['fields']['preview_badge'] }}</span>
-                        <p class="mt-3 text-white/80 text-sm font-medium">{{ $colorSection['fields']['preview_quote'] }}</p>
-                        <p class="text-white/50 text-xs mt-1">{{ $config->font_family }}</p>
-                    </div>
-                </div>
             </section>
 
             <section class="space-y-6">
@@ -173,35 +159,15 @@
                     <h2 class="mt-2 text-xl font-semibold">{{ $moduleSection['title'] }}</h2>
                     <p class="text-white/60 text-sm mt-2">{{ $moduleSection['description'] }}</p>
                 </div>
-                <div class="space-y-6">
-                    <div class="grid gap-4 md:grid-cols-3">
-                        @foreach($temas as $tema)
-                            <label class="rounded-2xl border border-white/15 bg-white/5 p-4 flex flex-col gap-3 cursor-pointer hover:border-white/40 transition">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium">{{ $tema->nome }}</span>
-                                    <input type="radio" name="tema_id" value="{{ $tema->id }}" @checked($config->tema_id == $tema->id)>
-                                </div>
-                                <div class="flex gap-2">
-                                    @if(is_array($tema->propriedades))
-                                        @foreach($tema->propriedades['amostras'] ?? [] as $cor)
-                                            <span class="h-6 w-6 rounded-full border border-white/10" style="background: {{ $cor }};"></span>
-                                        @endforeach
-                                    @endif
-                                </div>
-                            </label>
-                        @endforeach
-                    </div>
-
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <label class="block">
-                            <span class="text-sm font-medium text-white/80">{{ $moduleSection['grouping'] }}</span>
-                            <select name="agrupamentos" class="mt-3 w-full rounded-xl bg-white text-[#1a1821] border border-white/15 px-4 py-3 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40">
-                                @foreach($groupingOptions as $key => $label)
-                                    <option value="{{ $key }}" @selected($config->agrupamentos === $key)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                    </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-medium text-white/80">{{ $moduleSection['grouping'] }}</span>
+                        <select name="agrupamentos" class="mt-3 w-full rounded-xl bg-white text-[#1a1821] border border-white/15 px-4 py-3 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40">
+                            @foreach($groupingOptions as $key => $label)
+                                <option value="{{ $key }}" @selected($config->agrupamentos === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
                 </div>
             </section>
 
@@ -235,6 +201,40 @@
                 labelEl.textContent = file ? file.name : '{{ $configTexts['file_placeholder'] }}';
             });
         }
+    });
+
+    document.querySelectorAll('[data-preview-input]').forEach((inputEl) => {
+        const key = inputEl.dataset.previewInput;
+        const container = document.querySelector(`[data-preview-container="${key}"]`);
+
+        if (!container) {
+            return;
+        }
+
+        const previewImage = container.querySelector('[data-preview-image]');
+        const placeholder = container.querySelector('[data-preview-placeholder]');
+
+        inputEl.addEventListener('change', (event) => {
+            const [file] = event.target.files;
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                if (previewImage) {
+                    previewImage.src = loadEvent.target?.result || '';
+                    previewImage.classList.remove('hidden');
+                }
+
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
     });
 </script>
 @endpush

@@ -39,15 +39,6 @@ return [
                 'site' => ['label' => 'Institutional website (optional)', 'placeholder' => 'https://www.yourchurch.com'],
             ],
         ],
-        'visual' => [
-            'title' => 'Visual identity',
-            'subtitle' => 'Select logo and banner files to preview them before finishing the registration.',
-            'logo_label' => 'Congregation logo',
-            'logo_placeholder' => 'Select a PNG or SVG file',
-            'banner_label' => 'Login screen banner',
-            'banner_placeholder' => 'Horizontal image (JPG or PNG)',
-            'upload' => 'Choose file',
-        ],
         'manager' => [
             'title' => 'Responsible manager',
             'subtitle' => 'This person will receive full access to the dashboard and act as the main contact.',
@@ -94,7 +85,7 @@ return [
             'title' => 'Next steps',
             'description' => 'You can review the registration or access the dashboard when ready.',
             'back' => 'Back to registration',
-            'login' => 'Go to login',
+            'login' => 'Get Support',
         ],
         'sections' => [
             'identity' => [
@@ -121,9 +112,9 @@ return [
                 ],
             ],
             'modules' => [
-                'badge' => 'Themes and modules',
-                'title' => 'Organize the operational structure',
-                'description' => 'Enable modules and choose the visual theme that will welcome your members.',
+                'badge' => 'Modules',
+                'title' => 'Configure the operational structure',
+                'description' => '',
                 'grouping' => 'Grouping structure',
                 'grouping_options' => [
                     'grupo' => 'Groups only',
@@ -150,6 +141,7 @@ return [
         'telefone_required' => 'Please provide a contact phone number.',
         'email_required' => 'Please provide a valid email address.',
         'email_unique' => 'This email address is already registered.',
+        'nome_curto_unique' => 'This short name is already in use. Choose another one to generate a unique domain.',
         'gestor_nome_required' => 'Please provide the manager full name.',
         'gestor_telefone_required' => 'Please provide the manager phone number.',
         'gestor_data_nascimento_required' => 'Please provide the manager date of birth.',

@@ -27,15 +27,30 @@ class CongregacaoGestorBoasVindas extends Mailable
      */
     public function build(): self
     {
-        $loginUrl = route('login', [], true);
+        $congregacao = $this->congregacao->fresh([
+            'dominio',
+            'denominacao',
+            'cidade',
+            'estado',
+            'pais',
+        ]) ?? $this->congregacao;
+
+        $gestor = $this->gestor->fresh(['membro']) ?? $this->gestor;
+
+        $scheme = parse_url(config('app.url'), PHP_URL_SCHEME) ?: 'https';
+        $port = parse_url(config('app.url'), PHP_URL_PORT);
+        $portSuffix = $port ? ':' . $port : '';
+        $loginUrl = optional($congregacao->dominio)->dominio
+            ? "{$scheme}://" . $congregacao->dominio->dominio . $portSuffix . '/login'
+            : route('login', [], true);
 
         return $this
             ->subject(__('congregations.emails.gestor_welcome.subject'))
             ->view('emails.congregacoes.gestor-boas-vindas')
             ->with([
-                'congregacao' => $this->congregacao,
-                'gestor' => $this->gestor,
-                'membro' => $this->membro,
+                'congregacao' => $congregacao,
+                'gestor' => $gestor,
+                'membro' => $gestor->membro ?? $this->membro,
                 'senhaTemporaria' => $this->senhaTemporaria,
                 'loginUrl' => $loginUrl,
             ]);
