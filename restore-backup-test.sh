@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 
 # Configurações
 TEST_DIR="/var/www/klerostest"
-DB_NAME="kleros_test_db"
+DB_NAME="klerostest_db"
 DB_USER="kleros_user"
 DB_PASS="Kleros135@admin"
 
