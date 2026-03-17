@@ -23,12 +23,17 @@
                         <input type="date" name="data_culto" id="data_culto" value="{{ old('data_culto', $dataCulto) }}" required>
                     </div>
                     <div class="form-item">
-                        <label for="horario_inicio">Horário de início: </label>
-                        <input type="time" name="horario_inicio" id="horario_inicio" value="{{ old('horario_inicio', $horaCulto) }}">
+                        <label for="horario_culto">Horário do culto: </label>
+                        <input type="time" name="horario_culto" id="horario_culto" value="{{ old('horario_culto', $horaCulto) }}">
                     </div>
                     <div class="form-item">
-                        <label for="preletor">Preletor: </label>
-                        <input type="text" name="preletor" id="preletor" value="{{ old('preletor', $culto->preletor) }}" required>
+                        <label for="culto_categoria">Categoria: </label>
+                        <select name="culto_categoria" id="culto_categoria">
+                            <option value="">Regular</option>
+                            @foreach ($categorias as $categoria)
+                                <option value="{{ $categoria->nome }}" @selected(old('culto_categoria', optional($culto->categoria)->nome) == $categoria->nome)>{{ $categoria->nome }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-item">
                         <label for="evento_id">Evento: </label>
@@ -50,6 +55,24 @@
                 </div>
 
                 <div id="culto-detalhes" class="tab-pane form-control">
+                    <div class="form-item" data-preletor-container>
+                        <label for="preletor_id">
+                            Preletor:
+                            <button type="button" class="btn-small" data-preletor-toggle>Inserir externo</button>
+                        </label>
+                        <select name="preletor_id" id="preletor_id" class="select2" data-placeholder="Selecione um preletor" data-preletor-select>
+                            <option value="">Selecione um preletor</option>
+                            @foreach($membros as $membro)
+                                @php
+                                    $ministerioNome = optional($membro->ministerio)->nome;
+                                @endphp
+                                <option value="{{ $membro->id }}" @selected(old('preletor_id', $culto->preletor_id) == $membro->id)>
+                                    {{ $membro->nome }}@if($ministerioNome) <small style="color:#666;"> ({{ $ministerioNome }})</small>@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <input type="text" name="preletor_externo" id="preletor_externo" value="{{ old('preletor_externo', $culto->preletor_externo) }}" placeholder="Nome do preletor externo" data-preletor-external-input style="display: none;" disabled>
+                    </div>
                     <div class="form-item">
                         <label for="tema_sermao">Tema do sermão</label>
                         <input type="text" placeholder="Tema central do sermão" name="tema_sermao" id="tema_sermao" value="{{ old('tema_sermao', $culto->tema_sermao) }}">
@@ -86,63 +109,9 @@
                         <button type="button" class="btn" onclick="abrirJanelaModal('{{ route('escalas.form_criar', ['culto' => $culto->id]) }}')"><i class="bi bi-plus-circle"></i> Nova escala</button>
                     </div>
 
-                    @if($culto->escalas->isEmpty())
-                        <div class="card">
-                            <p><i class="bi bi-info-circle"></i> Nenhuma escala cadastrada para este culto.</p>
-                        </div>
-                    @else
-                        <div class="list">
-                            <div class="list-title">
-                                <div class="item-1"><b>Tipo</b></div>
-                                <div class="item-2"><b>Detalhes</b></div>
-                                <div class="item-1"><b>Ações</b></div>
-                            </div>
-                            @foreach($culto->escalas as $escala)
-                                <div class="list-item">
-                                    <div class="item item-1">
-                                        <p>{{ optional($escala->tipo)->nome ?? 'Sem tipo' }}</p>
-                                        <small class="hint">
-                                            @if($escala->data_hora)
-                                                {{ $escala->data_hora->format('d/m/Y H:i') }}
-                                            @else
-                                                Data não definida
-                                            @endif
-                                            @if($escala->local)
-                                                • {{ $escala->local }}
-                                            @endif
-                                        </small>
-                                    </div>
-                                    <div class="item item-2">
-                                        @if($escala->observacoes)
-                                            <p>{{ $escala->observacoes }}</p>
-                                        @endif
-                                        <ul class="hint">
-                                            @foreach($escala->itens as $item)
-                                                <li>
-                                                    <strong>{{ $item->funcao }}</strong>
-                                                    @if($item->membro)
-                                                        — {{ $item->membro->nome }}
-                                                    @elseif($item->responsavel_externo)
-                                                        — {{ $item->responsavel_externo }}
-                                                    @endif
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                    <div class="item item-1">
-                                        <div class="form-options column">
-                                            <button type="button" class="btn" onclick="abrirJanelaModal('{{ route('escalas.form_editar', $escala->id) }}')"><i class="bi bi-pencil-square"></i> Editar</button>
-                                            <form action="{{ route('escalas.destroy', $escala->id) }}" method="post" onsubmit="return handleSubmit(event, this, 'Deseja excluir esta escala?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn danger"><i class="bi bi-trash"></i> Excluir</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+                    <div data-escalas-lista data-culto-id="{{ $culto->id }}">
+                        @include('cultos.includes.partials.escalas_lista', ['escalas' => $culto->escalas])
+                    </div>
                 </div>
             </div>
 
@@ -154,6 +123,7 @@
         </div>
     </form>
 </div>
+
 
 <form id="delete-culto-{{ $culto->id }}" action="{{ route('cultos.destroy', $culto->id) }}" method="POST" style="display:none;">
     @csrf
@@ -247,5 +217,8 @@
             adicionarEventoAoSelect(eventoId, eventoTitulo);
         }, 300);
     });
+
+    // Escuta criação de escalas vindas de modais aninhados
+    const escalasListaContainer = document.querySelector('[data-escalas-lista]');
 })();
 </script>

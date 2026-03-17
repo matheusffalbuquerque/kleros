@@ -26,6 +26,13 @@
                         </select>
                     </div>
                     <div class="form-item">
+                        <label for="descricao">Descrição: </label>
+                        <textarea name="descricao" placeholder="Descrição do evento"></textarea>
+                    </div>
+                </div>
+
+                <div id="evento-detalhes" class="tab-pane form-control">
+                    <div class="form-item">
                         <label for="evento_recorrente">Natureza do evento: </label>
                         <div class="form-square">
                             <div>
@@ -39,13 +46,6 @@
                         </div>
                     </div>
                     <div class="form-item">
-                        <label for="descricao">Descrição: </label>
-                        <textarea name="descricao" placeholder="Descrição do evento"></textarea>
-                    </div>
-                </div>
-
-                <div id="evento-detalhes" class="tab-pane form-control">
-                    <div class="form-item">
                         <label for="requer_inscricao">Tipo de Acesso: </label>
                         <div class="form-square">
                             <div>
@@ -58,19 +58,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-item geracao_cultos">
-                        <label for="geracao_cultos">Geração de cultos: </label>
-                        <div class="form-square">
-                            <div>
-                                <input type="radio" id="geracao_automatica" name="geracao_cultos" value="1" checked>
-                                <label for="geracao_automatica">Automática</label>
-                            </div>
-                            <div>
-                                <input type="radio" id="geracao_manual" name="geracao_cultos" value="0">
-                                <label for="geracao_manual">Manual</label>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="evento-cronograma" class="tab-pane form-control">
@@ -80,8 +67,7 @@
                                 <tr>
                                     <th>Dia</th>
                                     <th>Horário de início (opcional)</th>
-                                    <th>Descrição (opcional)</th>
-                                    <th>Local (opcional)</th>
+                                    <th class="col-gerar-culto">Gerar culto</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>

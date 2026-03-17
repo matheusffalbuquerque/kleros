@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
+use App\Models\Agrupamento;
 use Illuminate\Database\Eloquent\Model;
 
 class Caixa extends Model
 {
-    protected $fillable = ['nome', 'descricao', 'congregacao_id'];
+    protected $fillable = ['nome', 'descricao', 'responsaveis', 'agrupamento_id', 'congregacao_id'];
+
+    protected $casts = [
+        'responsaveis' => 'array',
+    ];
 
     public function congregacao()
     {
         return $this->belongsTo(Congregacao::class);
+    }
+
+    public function agrupamento()
+    {
+        return $this->belongsTo(Agrupamento::class);
     }
 
     public function lancamentos()

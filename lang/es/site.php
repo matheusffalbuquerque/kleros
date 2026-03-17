@@ -11,7 +11,7 @@ return [
         'unsupported' => 'El idioma seleccionado no está disponible.',
     ],
     'header' => [
-        'brand_tagline' => 'por Youcan Servicios Empresariales',
+        'brand_tagline' => 'Ecosistema para Iglesias',
         'nav' => [
             'resources' => 'Recursos',
             'extensions' => 'Extensiones',
@@ -25,7 +25,7 @@ return [
     'hero' => [
         'title' => 'Unidad que alcanza. Gestión que transforma.',
         'description' => 'Kleros es un ecosistema moderno y completo para iglesias: cultos, eventos, miembros, grupos y finanzas — con gráficos, agenda, notificaciones e informes. Expande con extensiones e integra tu denominación en una sola plataforma web y móvil.',
-        'primary_cta' => 'Suscribirse por R$110/mes',
+        'primary_cta' => 'Suscribirse por US$19/mes',
         'secondary_cta' => 'Explorar recursos',
         'subdomain_hint' => 'Subdominio inmediato: :subdomain. Dominio propio opcional.',
     ],
@@ -97,7 +97,7 @@ return [
         'plans' => [
             'starter' => [
                 'name' => 'Plan Inicial',
-                'price' => 'R$110/mes',
+                'price' => '$19/mes',
                 'items' => [
                     'Eventos, cultos y miembros',
                     'Reuniones y grupos',

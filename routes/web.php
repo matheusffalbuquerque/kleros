@@ -36,6 +36,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\AreaPastoralController;
 use App\Http\Controllers\ProgramacaoController;
+use App\Http\Controllers\PwaController;
 use App\Http\Middleware\CheckAdminRole;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ExtensaoCatalogoController;
@@ -149,7 +150,21 @@ Route::domain($adminDomain)->middleware('setlocale')->group(function () {
 
 Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
 
-    Route::get('/login', [HomeController::class, 'login'])->name('login');
+        Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.manifest');
+        Route::get('/offline', function () {
+            return view('public.offline', ['congregacao' => app('congregacao')]);
+        })->name('pwa.offline');
+        Route::get('/checkin', function(){
+            return view('public.checkin', ['congregacao' => app('congregacao')]);
+        })->name('checkin');
+        Route::get('/webapp', function () {
+            return view('public.webapp', ['congregacao' => app('congregacao')]);
+        })->name('webapp');
+        Route::get('/webapp/start', function () {
+            return view('public.webapp-start', ['congregacao' => app('congregacao')]);
+        })->name('webapp.start');
+
+        Route::get('/login', [HomeController::class, 'login'])->name('login');
     Route::get('/cadastrar', [HomeController::class, 'create'])->name('login.create');
     Route::post('/cadastrar', [HomeController::class, 'store'])->name('login.store');
     Route::post('/login', [HomeController::class, 'authenticate']);
@@ -193,6 +208,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/membros/exibir/{id}', [MembroController::class, 'show']);
         Route::get('/membros/editar/{id}', [MembroController::class, 'form_editar'])->name('membros.form_editar');
         Route::put('/membros/{id}', [MembroController::class, 'update'])->name('membros.atualizar');
+        Route::post('/membros/{id}/criar-usuario', [MembroController::class, 'criarUsuario'])->name('membros.criar_usuario');
         Route::delete('/membros/{id}', [MembroController::class, 'destroy'])->name('membros.destroy');
         Route::delete('/membros/{id}/remover-foto', [MembroController::class, 'removerFoto'])->name('membros.remover_foto');
 
@@ -239,6 +255,10 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::post('cultos/search', [CultoController::class, 'search'])->name('cultos.search');
         Route::get('/cultos/agendamento', [CultoController::class, 'create'])->name('cultos.create');
         Route::get('/cultos/novo', [CultoController::class, 'form_criar'])->name('cultos.form_criar');
+        Route::get('/cultos/categorias', [\App\Http\Controllers\CultoCategoriaController::class, 'index'])->name('cultos.categorias.index');
+        Route::post('/cultos/categorias', [\App\Http\Controllers\CultoCategoriaController::class, 'store'])->name('cultos.categorias.store');
+        Route::put('/cultos/categorias/{id}', [\App\Http\Controllers\CultoCategoriaController::class, 'update'])->name('cultos.categorias.update');
+        Route::delete('/cultos/categorias/{id}', [\App\Http\Controllers\CultoCategoriaController::class, 'destroy'])->name('cultos.categorias.destroy');
         Route::get('/cultos/{id}', [CultoController::class, 'complete'])->name('cultos.complete');
         Route::get('/cultos/editar/{id}', [CultoController::class, 'form_editar'])->name('cultos.form_editar');
         Route::put('/cultos/{id}', [CultoController::class, 'update'])->name('cultos.update');
@@ -297,6 +317,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/noticias', [FeedController::class, 'noticias'])->name('noticias.painel')->middleware('auth');
         Route::get('/destaques', [FeedController::class, 'destaques'])->name('noticias.destaques')->middleware('auth');
         Route::get('/podcasts', [FeedController::class, 'podcasts'])->name('podcasts.painel')->middleware('auth');
+        Route::view('/favoritos', 'favoritos.index')->name('favoritos.index')->middleware('auth');
         Route::get('/feeds', [FeedController::class, 'index'])->name('feeds.index')->middleware('auth');
         Route::get('/feeds/{slug}', [FeedController::class, 'show'])->name('feeds.show')->middleware('auth');
 
@@ -382,6 +403,10 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/teste-livewire', function () {
             return view('teste-livewire');
         })->name('teste.livewire')->middleware('auth');
+
+        Route::get('/congregacoes/links/modal', function () {
+            return view('congregacoes.includes.links-modal');
+        })->name('congregacoes.links.modal')->middleware('auth');
 
         // Gestor de imagens com Livewire (para modais)
         Route::get('/arquivos/imagens-livewire', [ArquivoController::class, 'gestorImagensLivewire'])

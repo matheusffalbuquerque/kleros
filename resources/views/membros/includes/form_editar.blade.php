@@ -2,6 +2,10 @@
     $members = trans('members');
     $common = $members['common'];
     $edit = $members['edit'];
+    $permissoesSelecionadas = collect($permissoesSelecionadas ?? optional($membro->user)->getRoleNames()->toArray())
+        ->filter()
+        ->values()
+        ->all();
 @endphp
 
 <h1>{{ $edit['title'] }}</h1>
@@ -100,12 +104,23 @@
                         <input type="text" name="numero" id="numero" placeholder="{{ $common['placeholders']['number'] }}" value="{{ old('numero', $membro->numero) }}">
                     </div>
                     <div class="form-item">
+                        <label for="complemento">{{ $common['fields']['complement'] ?? 'Complemento' }}:</label>
+                        <input type="text" name="complemento" id="complemento" placeholder="{{ $common['placeholders']['complement'] ?? 'Complemento' }}" value="{{ old('complemento', $membro->complemento) }}">
+                    </div>
+                    <div class="form-item">
                         <label for="bairro">{{ $common['fields']['district'] }}:</label>
                         <input type="text" name="bairro" id="bairro" placeholder="{{ $common['placeholders']['district'] }}" value="{{ old('bairro', $membro->bairro) }}">
                     </div>
                 </div>
 
                 <div id="membro-outros" class="tab-pane form-control">
+                    <div class="form-item">
+                        <label for="batizado">{{ $common['fields']['baptized'] ?? 'Batizado' }}:</label>
+                        <select name="batizado" id="batizado">
+                            <option value="1" @selected(old('batizado', $membro->batizado) == true)>Sim</option>
+                            <option value="0" @selected(old('batizado', $membro->batizado) == false)>Não</option>
+                        </select>
+                    </div>
                     <div class="form-item">
                         <label for="data_batismo">{{ $common['fields']['baptism_date'] }}:</label>
                         <input type="date" name="data_batismo" id="data_batismo" value="{{ old('data_batismo', $membro->data_batismo) }}">
@@ -141,6 +156,33 @@
 
                 <div id="membro-configuracoes" class="tab-pane form-control">
                     <div class="form-item">
+                        <label for="criar-usuario-btn">{{ $edit['create_user']['title'] ?? 'Usuário' }}:
+                            @if(!$membro->user)
+                                <div class="muted">{{ $edit['create_user']['description'] ?? 'Crie um acesso para este membro.' }}</div>
+                            @endif
+                        </label>
+                        @if($membro->user)
+                            <p class="muted">{{ $membro->user->name }}</p>
+                        @else
+                            <div class="alert alert-danger" id="criar-usuario-alert" style="display: {{ old('email', $membro->email) ? 'none' : 'block' }};">
+                                {{ $members['validation']['email_needed_for_user'] ?? 'Cadastre um email único e válido para criar um usuário.' }}
+                            </div>
+                            <button class="btn-small" type="button" id="criar-usuario-btn"><i class="bi bi-person-plus"></i> {{ $common['buttons']['create_user'] ?? 'Criar usuário' }}</button>
+                        @endif
+                    </div>
+                    <div class="form-item mg-top-10">
+                        <label>{{ $common['fields']['permissions'] ?? 'Permissões' }}:</label>
+                        @if(!empty($permissoesSelecionadas))
+                            <div class="chip-row">
+                                @foreach ($permissoesSelecionadas as $permissao)
+                                    <span class="chip">{{ \Illuminate\Support\Str::headline($permissao) }}</span>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="muted">{{ $common['statuses']['not_informed'] ?? 'Nenhuma permissão definida' }}</div>
+                        @endif
+                    </div>
+                    <div class="form-item">
                         <label for="ativo">{{ $common['fields']['status'] ?? 'Situação do Membro' }}:</label>
                         <select name="ativo" id="ativo">
                             <option value="1" @selected(old('ativo', $membro->ativo) == 1)>{{ $common['status']['active'] ?? 'Ativo' }}</option>
@@ -155,8 +197,17 @@
 
             <div class="form-options center">
                 <button class="btn" type="submit"><i class="bi bi-arrow-clockwise"></i> {{ $common['buttons']['update_member'] }}</button>
+                
                 <button type="button" onclick="fecharJanelaModal()" class="btn"><i class="bi bi-x-circle"></i> {{ $common['buttons']['cancel'] }}</button>
             </div>
         </div>
     </form>
 </div>
+
+@if(!$membro->user)
+    <form id="criar-usuario-form" action="{{ route('membros.criar_usuario', $membro->id) }}" method="POST" style="display:none;">
+        @csrf
+        <input type="hidden" name="email" id="criar-usuario-email" value="{{ old('email', $membro->email) }}">
+    </form>
+    {{-- JS inicializado via modal-utils.js --}}
+@endif

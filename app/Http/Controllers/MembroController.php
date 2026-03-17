@@ -11,10 +11,13 @@ use App\Models\Ministerio;
 use App\Models\User;
 use App\Models\Feed;
 use App\Models\MensagemPersonalizada;
+use App\Mail\WelcomeNewUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class MembroController extends Controller
 {
@@ -27,7 +30,7 @@ class MembroController extends Controller
 
     public function adicionar() {
         $escolaridade = Escolaridade::all();
-        $ministerios = Ministerio::all();
+        $ministerios = Ministerio::where('denominacao_id', $this->congregacao->denominacao_id)->get();
         $estado_civil = EstadoCiv::all();
 
         return view('/membros/cadastro', [
@@ -47,10 +50,13 @@ class MembroController extends Controller
             'telefone' => ['required', 'string', 'max:100'],
             'data_nascimento' => ['required', 'date'],
             'sexo' => ['nullable', 'in:Masculino,Feminino'],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('membros', 'email')],
         ], [
             'nome.required' => __('members.validation.name_required'),
             'telefone.required' => __('members.validation.phone_required'),
             'data_nascimento.required' => __('members.validation.birth_required'),
+            'email.unique' => __('members.validation.email_unique'),
+            'email.email' => __('members.validation.email_invalid'),
         ]);
 
         $membro->congregacao_id = $this->congregacao->id;
@@ -72,11 +78,16 @@ class MembroController extends Controller
         $membro->ministerio_id = $request->ministerio;
         $membro->nome_paterno = $request->nome_paterno;
         $membro->nome_materno = $request->nome_materno;
+        if($request->data_batismo || $request->input('batizado', false)){
+            $membro->batizado = true;
+        } else {
+            $membro->batizado = false;
+        }
         $membro->created_at = date('Y-m-d H:i:s');
         $membro->updated_at = date('Y-m-d H:i:s');
 
         $msg = __('members.flash.created', ['name' => $request->nome]);
-        if($membro->save()){
+        if($membro->save() && !empty($membro->email)){
             $user = new User;
 
             $partes = explode(' ', trim($request->nome));
@@ -88,6 +99,8 @@ class MembroController extends Controller
 
             $user->save();
 
+            Mail::to($membro->email)->queue(new WelcomeNewUser($membro, $user, $this->congregacao));
+            
             $responsavel = optional(Auth::user())->membro;
 
             MembroStatusHistorico::create([
@@ -311,6 +324,7 @@ class MembroController extends Controller
         $estado_civil = EstadoCiv::all();;
         $escolaridade = Escolaridade::all();
         $ministerio = Ministerio::daDenominacao()->get();
+        $permissoesSelecionadas = optional($membro->user)->getRoleNames() ?? collect();
         $ultimoHistoricoDesligado = $membro->statusHistorico()
             ->where('status', MembroStatusHistorico::STATUS_DESLIGADO)
             ->latest('data_status')
@@ -323,6 +337,7 @@ class MembroController extends Controller
             'ministerios' => $ministerio,
             'congregacao' => $this->congregacao,
             'ultimoMotivoDesligamento' => optional($ultimoHistoricoDesligado)->descricao,
+            'permissoesSelecionadas' => $permissoesSelecionadas,
         ]);
     }
 
@@ -332,6 +347,7 @@ class MembroController extends Controller
         $estado_civil = EstadoCiv::all();;
         $escolaridade = Escolaridade::all();
         $ministerio = Ministerio::daDenominacao()->get();
+        $permissoesSelecionadas = optional($membro->user)->getRoleNames() ?? collect();
         $ultimoHistoricoDesligado = $membro->statusHistorico()
             ->where('status', MembroStatusHistorico::STATUS_DESLIGADO)
             ->latest('data_status')
@@ -344,6 +360,7 @@ class MembroController extends Controller
             'ministerios' => $ministerio,
             'congregacao' => $this->congregacao,
             'ultimoMotivoDesligamento' => optional($ultimoHistoricoDesligado)->descricao,
+            'permissoesSelecionadas' => $permissoesSelecionadas,
         ]);
     }
 
@@ -356,10 +373,13 @@ class MembroController extends Controller
             'telefone' => ['required', 'string', 'max:100'],
             'data_nascimento' => ['required', 'date'],
             'sexo' => ['nullable', 'in:Masculino,Feminino'],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('membros', 'email')->ignore($membro->id)],
         ], [
             'nome.required' => __('members.validation.name_required'),
             'telefone.required' => __('members.validation.phone_required'),
             'data_nascimento.required' => __('members.validation.birth_required'),
+            'email.unique' => __('members.validation.email_unique'),
+            'email.email' => __('members.validation.email_invalid'),
         ]);
 
         $statusAnterior = (int) $membro->getOriginal('ativo');
@@ -390,6 +410,7 @@ class MembroController extends Controller
             'nome_paterno' => $request->nome_paterno,
             'nome_materno' => $request->nome_materno,
             'ativo' => $novoStatusAtivo,
+            'batizado' => (bool) $request->input('batizado', $membro->batizado),
         ]);
 
         // Salva as alterações
@@ -419,6 +440,45 @@ class MembroController extends Controller
 
             return redirect()->back()->with('msg', __('members.flash.updated'));
         }
+    }
+
+    public function criarUsuario(Request $request, $id)
+    {
+        $membro = Membro::findOrFail($id);
+
+        if ($membro->user) {
+            return redirect()->back()->with('msg-error', __('members.flash.user_already_exists'));
+        }
+
+        $dados = $request->validate([
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+        ], [
+            'email.required' => __('members.validation.email_required'),
+            'email.email' => __('members.validation.email_invalid'),
+            'email.unique' => __('members.validation.email_unique'),
+        ]);
+
+        $email = trim($dados['email']);
+        $partesNome = preg_split('/\s+/', trim((string) $membro->nome));
+        $primeiroNome = $partesNome[0] ?? 'user';
+        $ultimoNome = count($partesNome) > 1 ? end($partesNome) : $primeiroNome;
+
+        $user = new User;
+        $user->name = strtolower($primeiroNome . '.' . $ultimoNome) . $membro->id;
+        $user->email = $email;
+        $user->password = bcrypt('1q2w3e4r');
+        $user->congregacao_id = $membro->congregacao_id ?? $this->congregacao->id;
+        $user->membro_id = $membro->id;
+        $user->save();
+
+        if ($membro->email !== $email) {
+            $membro->email = $email;
+            $membro->save();
+        }
+
+        Mail::to($user->email)->queue(new WelcomeNewUser($membro, $user, $this->congregacao));
+
+        return redirect()->back()->with('msg', __('members.flash.user_created', ['name' => $membro->nome]));
     }
     
     public function destroy($id) {
@@ -462,6 +522,11 @@ class MembroController extends Controller
         $membro->telefone = $request->telefone;
         $membro->email = $request->email;
         $membro->biografia = $request->biografia;
+        $membro->endereco = $request->endereco;
+        $membro->numero = $request->numero;
+        $membro->bairro = $request->bairro;
+        $membro->complemento = $request->complemento;
+        $membro->cep = $request->cep;
         $membro->foto = $request->file('foto') ? $request->file('foto')->store('fotos', 'public') : $membro->foto;
         // $membro->estado_civ_id = $request->estado_civil;
         // $membro->escolaridade_id = $request->escolaridade;

@@ -2,7 +2,7 @@
     $setores = isset($setores) ? $setores : collect();
     $agrupamentoConfig = optional(optional($congregacao)->config)->agrupamentos;
     $mostrarSelecaoSetor = $agrupamentoConfig === 'setor';
-    $selectedSetor = old('agrupamento_pai_id');
+    $setorSelecionado = old('setor_id');
 @endphp
 
 <div class="container">

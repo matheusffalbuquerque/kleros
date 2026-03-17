@@ -15,13 +15,13 @@ class CongregacaoConfig extends Model
         'tema_id',
         'congregacao_id',
         'agrupamentos',
-        'celulas',
         'language',
+        'links',
     ];
 
     protected $casts = [
         'conjunto_cores' => 'array',
-        'celulas' => 'boolean',
+        'links' => 'array',
     ];
 
     public function congregacao()

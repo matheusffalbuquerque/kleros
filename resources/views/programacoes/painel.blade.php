@@ -80,7 +80,7 @@
             </div>
 
             <div class="programacao-pagination">
-                {{ $programacoes->withQueryString()->links() }}
+                {{ $programacoes->links('vendor.pagination.simple-default') }}
             </div>
         @else
             <div class="empty-state">
@@ -143,7 +143,7 @@
         align-items: stretch;
         padding: 20px;
         background: var(--background-color);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 18px;
         gap: 20px;
         text-align: left;
@@ -175,16 +175,16 @@
     }
     .programacao-row__weekday {
         font-size: 0.75rem;
-        color: var(--background-color);
+        color: var(--text-color);
     }
     .programacao-row__day {
         font-size: 1.9rem;
-        color: var(--background-color);
+        color: var(--text-color);
         line-height: 1;
     }
     .programacao-row__time {
         font-size: 0.85rem;
-        color: var(--background-color);
+        color: var(--text-color);
     }
 
     .programacao-row__content {
@@ -269,6 +269,59 @@
     .programacao-pagination nav {
         display: flex;
         justify-content: center;
+    }
+    .programacao-pagination .pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Botões anterior/próximo */
+    .programacao-pagination .pagination li a,
+    .programacao-pagination .pagination li span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        font-size: 0 !important;
+        text-decoration: none;
+        transition: background 0.18s ease, border-color 0.18s ease;
+        cursor: pointer;
+    }
+
+    .programacao-pagination .pagination li a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Ícone Anterior */
+    .programacao-pagination .pagination li:first-child a::before,
+    .programacao-pagination .pagination li:first-child span::before {
+        content: "\F284";
+        font-family: "bootstrap-icons";
+        font-size: 1rem;
+    }
+
+    /* Ícone Próximo */
+    .programacao-pagination .pagination li:last-child a::after,
+    .programacao-pagination .pagination li:last-child span::after {
+        content: "\F285";
+        font-family: "bootstrap-icons";
+        font-size: 1rem;
+    }
+
+    /* Desabilitado */
+    .programacao-pagination .pagination li.disabled span {
+        opacity: 0.35;
+        cursor: not-allowed;
     }
 
     .empty-state {

@@ -51,10 +51,10 @@
                             <p><i class="bi bi-bell"></i> {{ formatarData($item->data_culto) }}</p>
                         </div>
                         <div class="item item-15">
-                            <p>{{$item->preletor}}</p>
+                            <p>{{ $item->preletor_label }}</p>
                         </div>
                         <div class="item item-1">
-                            <p>{{$item->quant_visitantes}}</p>
+                            <p class="tag">{{$item->quant_visitantes}}</p>
                         </div>
                         <div class="item item-1">
                             <p>@if ($item->evento)

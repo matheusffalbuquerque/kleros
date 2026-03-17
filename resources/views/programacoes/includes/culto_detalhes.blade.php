@@ -19,10 +19,10 @@
                 </div>
             @endif
 
-            @if (!empty($culto->preletor))
+            @if (!empty($culto->preletor_label))
                 <div>
                     <dt><i class="bi bi-mic"></i> Preletor</dt>
-                    <dd>{{ $culto->preletor }}</dd>
+                    <dd>{{ $culto->preletor_label }}</dd>
                 </div>
             @endif
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Caixa;
 use App\Models\LancamentoFinanceiro;
+use App\Models\Agrupamento;
+use App\Models\Membro;
 use App\Models\TipoLancamento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,14 +16,21 @@ class FinanceiroController extends Controller
 {
     public function formCaixa()
     {
-        return view('financeiro.includes.form_caixa');
+        $congregacaoId = app('congregacao')->id;
+        $agrupamentos = Agrupamento::where('congregacao_id', $congregacaoId)->orderBy('nome')->get();
+        $membros = Membro::where('congregacao_id', $congregacaoId)->orderBy('nome')->get();
+
+        return view('financeiro.includes.form_caixa', compact('agrupamentos', 'membros'));
     }
 
     public function formCaixaEditar(int $id)
     {
-        $caixa = Caixa::where('congregacao_id', app('congregacao')->id)->findOrFail($id);
+        $congregacaoId = app('congregacao')->id;
+        $caixa = Caixa::where('congregacao_id', $congregacaoId)->findOrFail($id);
+        $agrupamentos = Agrupamento::where('congregacao_id', $congregacaoId)->orderBy('nome')->get();
+        $membros = Membro::where('congregacao_id', $congregacaoId)->orderBy('nome')->get();
 
-        return view('financeiro.includes.form_caixa_editar', compact('caixa'));
+        return view('financeiro.includes.form_caixa_editar', compact('caixa', 'agrupamentos', 'membros'));
     }
 
     public function storeCaixa(Request $request): RedirectResponse
@@ -31,9 +40,29 @@ class FinanceiroController extends Controller
         $data = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
+            'agrupamento_id' => [
+                'nullable',
+                'integer',
+                function ($attribute, $value, $fail) use ($congregacaoId) {
+                    if (! Agrupamento::where('congregacao_id', $congregacaoId)->where('id', $value)->exists()) {
+                        $fail('Agrupamento inválido para esta congregação.');
+                    }
+                },
+            ],
+            'responsaveis' => 'nullable|array',
+            'responsaveis.*' => [
+                'integer',
+                function ($attribute, $value, $fail) use ($congregacaoId) {
+                    if (! Membro::where('congregacao_id', $congregacaoId)->where('id', $value)->exists()) {
+                        $fail('Responsável inválido para esta congregação.');
+                    }
+                },
+            ],
         ]);
 
         $data['congregacao_id'] = $congregacaoId;
+        $data['agrupamento_id'] = $request->filled('agrupamento_id') ? (int) $request->input('agrupamento_id') : null;
+        $data['responsaveis'] = $this->sanitizeResponsaveis($request->input('responsaveis'));
 
         Caixa::create($data);
 
@@ -47,7 +76,28 @@ class FinanceiroController extends Controller
         $data = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
+            'agrupamento_id' => [
+                'nullable',
+                'integer',
+                function ($attribute, $value, $fail) use ($caixa) {
+                    if (! Agrupamento::where('congregacao_id', $caixa->congregacao_id)->where('id', $value)->exists()) {
+                        $fail('Agrupamento inválido para esta congregação.');
+                    }
+                },
+            ],
+            'responsaveis' => 'nullable|array',
+            'responsaveis.*' => [
+                'integer',
+                function ($attribute, $value, $fail) use ($caixa) {
+                    if (! Membro::where('congregacao_id', $caixa->congregacao_id)->where('id', $value)->exists()) {
+                        $fail('Responsável inválido para esta congregação.');
+                    }
+                },
+            ],
         ]);
+
+        $data['agrupamento_id'] = $request->filled('agrupamento_id') ? (int) $request->input('agrupamento_id') : null;
+        $data['responsaveis'] = $this->sanitizeResponsaveis($request->input('responsaveis'));
 
         $caixa->update($data);
 
@@ -60,6 +110,17 @@ class FinanceiroController extends Controller
         $caixa->delete();
 
         return redirect()->back()->with('msg', 'Caixa excluído com sucesso!');
+    }
+
+    private function sanitizeResponsaveis($responsaveis): ?array
+    {
+        if (! is_array($responsaveis)) {
+            return null;
+        }
+
+        $filtered = array_values(array_filter($responsaveis, fn ($id) => ! is_null($id)));
+
+        return count($filtered) ? $filtered : null;
     }
 
     public function formTipo()

@@ -56,7 +56,7 @@
                     <!--Pode ser necessário, caso seja um evento recorrente-->
                     @if ($emptyOcorrencias)
                         <div class="card">
-                            <p><i class="bi bi-info-circle"></i> Não há ocorrências cadastradas. As datas serão sugeridas pelo intervalo de início e encerramento para você ajustar.</p>
+                            <p><i class="bi bi-info-circle"></i> Não há ocorrências cadastradas.</p>
                         </div>
                     @endif
                     
@@ -66,12 +66,12 @@
                                 <tr>
                                     <th>Dia</th>
                                     <th>Horário de início (opcional)</th>
-                                    <th>Descrição (opcional)</th>
-                                    <th>Local (opcional)</th>
+                                    <th class="col-gerar-culto">Gerar culto</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             @if (!$emptyOcorrencias)
+                                <!--Posteriormente pode ser introduzida uma descrição e local-->
                                 <tbody id="cronograma-body-editar">
                                     @foreach ($cronograma as $index => $oc)
                                         <tr data-ocorrencia-row>
@@ -80,8 +80,14 @@
                                                 <input type="date" name="ocorrencias[{{ $index }}][data_ocorrencia]" value="{{ $oc->data_ocorrencia ? \Illuminate\Support\Carbon::parse($oc->data_ocorrencia)->format('Y-m-d') : '' }}" required>
                                             </td>
                                             <td data-label="Horário"><input type="time" name="ocorrencias[{{ $index }}][horario_inicio]" value="{{ $oc->horario_inicio }}"></td>
-                                            <td data-label="Descrição"><input type="text" name="ocorrencias[{{ $index }}][descricao]" value="{{ $oc->descricao }}" placeholder="Descrição (opcional)"></td>
-                                            <td data-label="Local"><input type="text" name="ocorrencias[{{ $index }}][local]" value="{{ $oc->local }}" placeholder="Local (opcional)"></td>
+                                            <td data-label="Gerar culto" class="gerar-culto-cell">
+                                                <label class="toggle-pill">
+                                                    <input type="hidden" name="ocorrencias[{{ $index }}][gerar_culto]" value="0">
+                                                    <input type="checkbox" name="ocorrencias[{{ $index }}][gerar_culto]" value="1" checked>
+                                                    <span class="pill" aria-hidden="true"></span>
+                                                    <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                                                </label>
+                                            </td>
                                             <td data-label="Ações" class="cronograma-acoes">
                                                 <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
                                                     <i class="bi bi-plus-circle"></i>
@@ -121,14 +127,20 @@
 <script>
     (function() {
         function toggleGeracaoCultos() {
-            // Se "Recorrente" (valor 1) estiver selecionado
-            if ($('input[name="evento_recorrente"]:checked').val() === '1') {
-                $('.geracao_cultos').hide();
-                // Força a seleção de "Manual" (valor 0) para geracao_cultos
-                $('input[name="geracao_cultos"][value="0"]').prop('checked', true);
-            } else {
-                // Caso contrário, exibe a opção
-                $('.geracao_cultos').show();
+            const isRecorrente = $('input[name="evento_recorrente"]:checked').val() === '1';
+            const $geracaoField = $('.geracao_cultos');
+            const $gerarCells = $('.gerar-culto-cell');
+
+            if ($geracaoField.length) {
+                $geracaoField.toggle(!isRecorrente);
+                if (isRecorrente) {
+                    $('input[name="geracao_cultos"][value="0"]').prop('checked', true);
+                }
+            }
+
+            if ($gerarCells.length) {
+                $gerarCells.toggle(!isRecorrente);
+                $gerarCells.find('input[type="checkbox"]').prop('checked', !isRecorrente);
             }
         }
 

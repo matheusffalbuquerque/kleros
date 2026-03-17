@@ -155,14 +155,18 @@
             }
 
             .extension-card {
-                border: 1px solid rgba(10, 25, 41, 0.12);
+                --card-surface: color-mix(in srgb, #ffffff 82%, rgba(10, 25, 41, 0.18));
+                --card-border: color-mix(in srgb, rgba(10, 25, 41, 0.12) 60%, #ffffff 40%);
+                border: 1px solid var(--card-border);
                 border-radius: 12px;
                 padding: 1.5rem;
-                background: rgba(255, 255, 255, 0.8);
+                background: linear-gradient(145deg, var(--card-surface), color-mix(in srgb, var(--card-surface) 92%, rgba(255,255,255,0.3)));
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
-                box-shadow: 0 12px 30px -28px rgba(10, 25, 41, 0.7);
+                box-shadow: 0 12px 30px -28px rgba(10, 25, 41, 0.55);
+                backdrop-filter: blur(8px) saturate(1.08);
+                -webkit-backdrop-filter: blur(8px) saturate(1.08);
             }
 
             .extension-card.is-inactive {
@@ -343,6 +347,76 @@
             .extension-card .btn.btn-disabled {
                 cursor: not-allowed;
                 opacity: 0.6;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .extension-card {
+                    --card-surface: color-mix(in srgb, #0f1624 78%, rgba(255, 255, 255, 0.18));
+                    --card-border: rgba(255, 255, 255, 0.08);
+                    box-shadow: 0 16px 38px -30px rgba(0, 0, 0, 0.9);
+                }
+
+                .extension-card-meta-info h4 {
+                    color: rgba(255, 255, 255, 0.92);
+                }
+
+                .extension-category {
+                    color: rgba(255, 255, 255, 0.6);
+                }
+
+                .extension-price {
+                    color: rgba(255, 255, 255, 0.9);
+                }
+
+                .extension-type {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+                .extension-status {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: rgba(255, 255, 255, 0.75);
+                }
+
+                .extension-status.is-live {
+                    background: rgba(33, 207, 136, 0.24);
+                    color: rgba(107, 244, 193, 0.95);
+                }
+
+                .extension-status.is-open {
+                    background: rgba(68, 160, 255, 0.18);
+                    color: rgba(158, 209, 255, 0.95);
+                }
+
+                .extension-status.is-coming {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: rgba(255, 255, 255, 0.68);
+                }
+
+                .extension-description {
+                    color: rgba(255, 255, 255, 0.82);
+                }
+
+                .extension-highlights li {
+                    color: rgba(255, 255, 255, 0.78);
+                }
+
+                .extension-footnote {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+                .footnote-pill {
+                    background: rgba(255, 255, 255, 0.08);
+                }
+
+                .footnote-pill.is-installed {
+                    background: rgba(100, 73, 162, 0.22);
+                    color: rgba(202, 183, 255, 0.95);
+                }
+
+                .footnote-pill.is-remote {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: rgba(255, 255, 255, 0.68);
+                }
             }
         </style>
     @endpush

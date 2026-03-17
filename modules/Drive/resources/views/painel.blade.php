@@ -288,6 +288,7 @@
 
     .drive-item {
         display: flex;
+        flex-wrap: nowrap;
         justify-content: space-between;
         align-items: flex-start;
         gap: 1rem;
@@ -310,6 +311,7 @@
         flex-direction: column;
         gap: 0.35rem;
         flex: 1;
+        min-width: 0;
     }
 
     .drive-item__link {
@@ -340,11 +342,14 @@
 
     .drive-item__actions {
         display: inline-flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 0.4rem;
         row-gap: 0.35rem;
         justify-content: flex-end;
-        max-width: 9rem;
+        max-width: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-left: auto;
     }
 
     .drive-item__action {
@@ -355,8 +360,8 @@
         height: 2.25rem;
         border-radius: 8px;
         border: 1px solid rgba(10, 25, 41, 0.14);
-        background: rgba(255, 255, 255, 0.92);
-        color: rgba(10, 25, 41, 0.75);
+        background: var(--primary-color);
+        color: var(--primary-contrast);
         transition: all 0.2s ease;
     }
 
@@ -405,15 +410,6 @@
         .drive-toolbar {
             flex-direction: column;
             align-items: flex-start;
-        }
-
-        .drive-item {
-            flex-direction: column;
-        }
-
-        .drive-item__actions {
-            width: 100%;
-            justify-content: flex-start;
         }
 
         .drive-item__name {

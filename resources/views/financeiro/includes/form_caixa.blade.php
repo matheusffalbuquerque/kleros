@@ -10,6 +10,27 @@
             <label for="descricao">Descrição</label>
             <textarea name="descricao" id="descricao" rows="3" placeholder="Detalhes, finalidade ou observações">{{ old('descricao') }}</textarea>
         </div>
+        <div class="form-item">
+            <label for="agrupamento_id">Agrupamento</label>
+            <select name="agrupamento_id" id="agrupamento_id" class="select2" data-placeholder="Selecione um agrupamento">
+                <option value="">Sem agrupamento</option>
+                @foreach($agrupamentos as $agrupamento)
+                    <option value="{{ $agrupamento->id }}" @selected(old('agrupamento_id') == $agrupamento->id)>
+                        {{ $agrupamento->nome }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-item">
+            <label for="responsaveis">Responsáveis pelo caixa</label>
+            <select name="responsaveis[]" id="responsaveis" class="select2 select2-membros" data-placeholder="Selecione os responsáveis" multiple>
+                @foreach($membros as $membro)
+                    <option value="{{ $membro->id }}" @selected(collect(old('responsaveis', []))->contains($membro->id))>
+                        {{ $membro->nome }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <div class="form-options">
             <button type="submit" class="btn"><i class="bi bi-plus-circle"></i> Criar caixa</button>
             <button type="button" class="btn" onclick="fecharJanelaModal()"><i class="bi bi-x-circle"></i> Cancelar</button>

@@ -64,10 +64,10 @@
                 @foreach ($cultos as $item)
                     <div onclick="abrirJanelaModal('{{route('cultos.form_editar', $item->id)}}')" class="list-item">
                         <div class="item item-15">
-                            <p><i class="bi bi-bell"></i> {{$item->data_culto}}</p>
+                            <p><i class="bi bi-bell"></i> {{ formatarData($item->data_culto) }}</p>
                         </div>
                         <div class="item item-15">
-                            <p>{{$item->preletor}}</p>
+                            <p>{{ $item->preletor_label }}</p>
                         </div>
                         <div class="item item-15">
                             <p>@if ($item->evento)

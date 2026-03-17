@@ -62,6 +62,7 @@ class ProgramacaoController extends Controller
             ->toBase();
 
         $cultos = Culto::query()
+            ->with('preletor')
             ->where('congregacao_id', $congregacao->id)
             ->whereNotNull('data_culto')
             ->where('data_culto', '>=', $agora)
@@ -69,7 +70,8 @@ class ProgramacaoController extends Controller
             ->get([
                 'id',
                 'data_culto',
-                'preletor',
+                'preletor_id',
+                'preletor_externo',
                 'tema_sermao',
                 'texto_base',
                 'observacoes',
@@ -77,6 +79,7 @@ class ProgramacaoController extends Controller
             ])
             ->map(function (Culto $culto) {
                 $inicio = Carbon::parse($culto->data_culto);
+                $preletorLabel = optional($culto->preletor)->nome ?: $culto->preletor_externo;
 
                 return [
                     'id' => $culto->id,
@@ -89,7 +92,7 @@ class ProgramacaoController extends Controller
                     'local' => null,
                     'requer_inscricao' => false,
                     'modal_url' => route('programacoes.cultos.show', $culto, false),
-                    'preletor' => $culto->preletor,
+                    'preletor' => $preletorLabel,
                     'texto_base' => $culto->texto_base,
                 ];
             })
@@ -149,7 +152,8 @@ class ProgramacaoController extends Controller
 
         abort_if($culto->congregacao_id !== $congregacao->id, 404);
 
-        $culto->loadMissing('evento');
+        $culto->loadMissing(['evento', 'preletor']);
+        $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo;
 
         return view('programacoes.includes.culto_detalhes', [
             'culto' => $culto,

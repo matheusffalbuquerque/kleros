@@ -54,11 +54,13 @@ function initCronogramaOcorrenciasCriar(tbody) {
             <td data-label="Horário">
                 <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
             </td>
-            <td data-label="Descrição">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
-            </td>
-            <td data-label="Local">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            <td data-label="Gerar culto" class="gerar-culto-cell">
+                <label class="toggle-pill">
+                    <input type="hidden" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="0">
+                    <input type="checkbox" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="1" checked>
+                    <span class="pill" aria-hidden="true"></span>
+                    <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                </label>
             </td>
             <td data-label="Ações" class="cronograma-acoes">
                 <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
@@ -134,11 +136,13 @@ function initCronogramaOcorrenciasEditar(tbody) {
             <td data-label="Horário">
                 <input type="time" name="ocorrencias[${ocorrenciaCount}][horario_inicio]">
             </td>
-            <td data-label="Descrição">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][descricao]" placeholder="Descrição (opcional)">
-            </td>
-            <td data-label="Local">
-                <input type="text" name="ocorrencias[${ocorrenciaCount}][local]" placeholder="Local (opcional)">
+            <td data-label="Gerar culto" class="gerar-culto-cell">
+                <label class="toggle-pill">
+                    <input type="hidden" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="0">
+                    <input type="checkbox" name="ocorrencias[${ocorrenciaCount}][gerar_culto]" value="1" checked>
+                    <span class="pill" aria-hidden="true"></span>
+                    <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                </label>
             </td>
             <td data-label="Ações" class="cronograma-acoes">
                 <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
@@ -197,10 +201,188 @@ function initCronogramaOcorrenciasEditar(tbody) {
 }
 
 export function initModalScripts(container) {
+    // Modal genérico para adicionar links de congregação
+    const linkModalForm = container.querySelector('#link-modal-form');
+    if (linkModalForm && !linkModalForm.dataset.initialized) {
+        linkModalForm.dataset.initialized = 'true';
+        const linksList = window.linkModalContext?.linksList || document.getElementById('links-list');
+        const linkEmpty = window.linkModalContext?.linksEmpty || document.getElementById('links-empty');
+
+        const slugify = (text) => text.toLowerCase().trim()
+            .replace(/[^a-z0-9_-]+/g, '-')
+            .replace(/^-+|-+$/g, '') || 'link';
+
+        const addLinkRow = (key, url) => {
+            if (!linksList) return;
+            if (linkEmpty) linkEmpty.remove();
+            const row = document.createElement('div');
+            row.className = 'link-row';
+            row.innerHTML = `
+                <span class="tag">${key}</span>
+                <a href="${url}" class="link-standard"><i>${url}</i></a>
+                <input type="hidden" name="links[${key}]" value="${url}">
+                <button type="button" class="btn-options danger link-remove" title="Remover link"><i class="bi bi-trash"></i></button>
+            `;
+            linksList.appendChild(row);
+        };
+
+        linkModalForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const keyInput = container.querySelector('#link-key');
+            const urlInput = container.querySelector('#link-url');
+            const rawKey = (keyInput?.value || '').trim();
+            const url = (urlInput?.value || '').trim();
+            if (!rawKey || !url) return;
+            const key = slugify(rawKey);
+            addLinkRow(key, url);
+            linkModalForm.reset();
+            fecharJanelaModal();
+        });
+    }
+
     // Inicializa formulário de criar evento se existir
     const formCriarEvento = container.querySelector('#form-criar-evento');
     if (formCriarEvento && !formCriarEvento.dataset.ajaxInitialized) {
         initFormCriarEvento(formCriarEvento);
+    }
+
+    // Botão de criar usuário em modais de edição de membro
+    const createUserBtn = container.querySelector('#criar-usuario-btn');
+    const createUserForm = container.querySelector('#criar-usuario-form');
+    const createUserAlert = container.querySelector('#criar-usuario-alert');
+    const createUserHiddenEmail = container.querySelector('#criar-usuario-email');
+    const createUserEmailInput = container.querySelector('#email');
+
+    if (createUserBtn && createUserForm && !createUserBtn.dataset.initialized) {
+        createUserBtn.dataset.initialized = 'true';
+
+        const syncEmail = () => {
+            if (createUserHiddenEmail && createUserEmailInput) {
+                createUserHiddenEmail.value = createUserEmailInput.value.trim();
+            }
+        };
+
+        const toggleAlert = () => {
+            if (!createUserAlert) {
+                return;
+            }
+            const hasEmail = !!(createUserEmailInput && createUserEmailInput.value.trim());
+            createUserAlert.style.display = hasEmail ? 'none' : 'block';
+        };
+
+        if (createUserEmailInput) {
+            createUserEmailInput.addEventListener('input', () => {
+                syncEmail();
+                toggleAlert();
+            });
+        }
+
+        createUserForm.addEventListener('submit', (event) => {
+            syncEmail();
+            if (createUserEmailInput && createUserEmailInput.value.trim() === '') {
+                event.preventDefault();
+                toggleAlert();
+            }
+        });
+
+        createUserBtn.addEventListener('click', () => {
+            syncEmail();
+            if (createUserEmailInput && createUserEmailInput.value.trim() === '') {
+                toggleAlert();
+                return;
+            }
+            createUserForm.submit();
+        });
+
+        toggleAlert();
+        syncEmail();
+    }
+
+    // Controles de preletor (alternar entre membro select2 e campo externo)
+    const preletorContainers = container.querySelectorAll('[data-preletor-container]');
+    preletorContainers.forEach((scope) => {
+        if (scope.dataset.preletorToggleInitialized === 'true') {
+            return;
+        }
+        scope.dataset.preletorToggleInitialized = 'true';
+        initPreletorToggle(scope);
+    });
+
+    // Controle de geração de cultos quando o evento for marcado como recorrente
+    const geracaoCultosField = container.querySelector('.geracao_cultos');
+    const eventoRecorrenteRadios = container.querySelectorAll('input[name="evento_recorrente"]');
+    if (geracaoCultosField && eventoRecorrenteRadios.length && geracaoCultosField.dataset.recorrenteToggleInitialized !== 'true') {
+        geracaoCultosField.dataset.recorrenteToggleInitialized = 'true';
+        const manualGeracaoInput = container.querySelector('input[name="geracao_cultos"][value="0"]');
+        const cronogramaTab = container.querySelector('.tab-menu li[data-tab="evento-cronograma"]');
+        const cronogramaPane = container.querySelector('#evento-cronograma');
+        const descricaoTab = container.querySelector('.tab-menu li[data-tab="evento-descricao"]');
+        const descricaoPane = container.querySelector('#evento-descricao');
+        const detalhesTab = container.querySelector('.tab-menu li[data-tab="evento-detalhes"]');
+        const detalhesPane = container.querySelector('#evento-detalhes');
+        const gerarCultoCells = container.querySelectorAll('.gerar-culto-cell');
+
+        const toggleGeracaoCultos = () => {
+            const selected = container.querySelector('input[name="evento_recorrente"]:checked');
+            const isRecorrente = selected && selected.value === '1';
+
+            if (geracaoCultosField instanceof HTMLElement) {
+                geracaoCultosField.style.display = isRecorrente ? 'none' : '';
+                geracaoCultosField.hidden = isRecorrente;
+            }
+
+            if (isRecorrente && manualGeracaoInput) {
+                manualGeracaoInput.checked = true;
+                manualGeracaoInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            gerarCultoCells.forEach((cell) => {
+                if (!(cell instanceof HTMLElement)) {
+                    return;
+                }
+                cell.style.display = isRecorrente ? 'none' : '';
+                cell.hidden = isRecorrente;
+                const check = cell.querySelector('input[type="checkbox"]');
+                if (check) {
+                    check.checked = !isRecorrente;
+                }
+            });
+
+            // Oculta a aba/painel de cronograma quando recorrente
+            if (cronogramaTab instanceof HTMLElement) {
+                cronogramaTab.style.display = isRecorrente ? 'none' : '';
+                cronogramaTab.hidden = isRecorrente;
+                cronogramaTab.classList.toggle('active', !isRecorrente && cronogramaTab.classList.contains('active'));
+            }
+            if (cronogramaPane instanceof HTMLElement) {
+                cronogramaPane.style.display = isRecorrente ? 'none' : '';
+                cronogramaPane.hidden = isRecorrente;
+                cronogramaPane.classList.toggle('active', !isRecorrente && cronogramaPane.classList.contains('active'));
+            }
+
+            // Se o cronograma estava ativo, troca para outra aba visível
+            if (isRecorrente && cronogramaTab && cronogramaTab.classList.contains('active')) {
+                const fallbackTab = detalhesTab || descricaoTab;
+                const fallbackPane = detalhesPane || descricaoPane;
+
+                cronogramaTab.classList.remove('active');
+                cronogramaPane?.classList.remove('active');
+                if (fallbackTab) {
+                    fallbackTab.classList.add('active');
+                }
+                if (fallbackPane) {
+                    fallbackPane.hidden = false;
+                    fallbackPane.style.display = '';
+                    fallbackPane.classList.add('active');
+                }
+            }
+        };
+
+        eventoRecorrenteRadios.forEach((radio) => {
+            radio.addEventListener('change', toggleGeracaoCultos);
+        });
+
+        toggleGeracaoCultos();
     }
     
     // Inicializa cronograma de ocorrências para criar evento
@@ -296,22 +478,28 @@ export function initModalScripts(container) {
             tbody.innerHTML = '';
 
             rows.forEach((dateValue, index) => {
-                const dateStr = dateValue ? dateValue.toISOString().slice(0, 10) : '';
-                const dateFormatted = dateValue ? dateValue.toLocaleDateString('pt-BR', { 
-                    weekday: 'long', 
-                    day: '2-digit', 
-                    month: 'long', 
-                    year: 'numeric' 
-                }) : '';
-                tbody.insertAdjacentHTML('beforeend', `
-                    <tr data-ocorrencia-row>
-                        <td data-label="Dia">
-                            <span class="cronograma-data">${dateFormatted}</span>
-                            <input type="hidden" name="${prefix}[${index}][data_ocorrencia]" value="${dateStr}" data-data-ocorrencia>
+                        const dateStr = dateValue ? dateValue.toISOString().slice(0, 10) : '';
+                        const dateFormatted = dateValue ? dateValue.toLocaleDateString('pt-BR', { 
+                            weekday: 'long', 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric' 
+                        }) : '';
+                        tbody.insertAdjacentHTML('beforeend', `
+                            <tr data-ocorrencia-row>
+                                <td data-label="Dia">
+                                    <span class="cronograma-data">${dateFormatted}</span>
+                                    <input type="hidden" name="${prefix}[${index}][data_ocorrencia]" value="${dateStr}" data-data-ocorrencia>
+                                </td>
+                                <td data-label="Horário"><input type="time" name="${prefix}[${index}][horario_inicio]"></td>
+                                <td data-label="Gerar culto" class="gerar-culto-cell">
+                                    <label class="toggle-pill">
+                                        <input type="hidden" name="${prefix}[${index}][gerar_culto]" value="0">
+                                        <input type="checkbox" name="${prefix}[${index}][gerar_culto]" value="1" checked>
+                                        <span class="pill" aria-hidden="true"></span>
+                                <span class="toggle-text" data-on="Sim" data-off="Não"></span>
+                            </label>
                         </td>
-                        <td data-label="Horário"><input type="time" name="${prefix}[${index}][horario_inicio]"></td>
-                        <td data-label="Descrição"><input type="text" name="${prefix}[${index}][descricao]" placeholder="Descrição (opcional)"></td>
-                        <td data-label="Local"><input type="text" name="${prefix}[${index}][local]" placeholder="Local (opcional)"></td>
                         <td data-label="Ações" class="cronograma-acoes">
                             <button type="button" class="btn-icon btn-add-ocorrencia" title="Duplicar ocorrência">
                                 <i class="bi bi-plus-circle"></i>
@@ -666,11 +854,26 @@ export function initModalScripts(container) {
         const $selectScope = isDocumentContainer ? $dropdownParent : $container;
         const $selects = $selectScope.find('select.select2');
 
+        // Força dropdown sempre para baixo
+        if (!window.__select2ForceBelowBound) {
+            window.__select2ForceBelowBound = true;
+            $(document).on('select2:open', () => {
+                const $openDropdown = $('.select2-container--open .select2-dropdown');
+                $openDropdown.removeClass('select2-dropdown--above').addClass('select2-dropdown--below');
+                $openDropdown.css({ top: '100%' });
+            });
+        }
+
         $selects.each(function () {
             const $select = $(this);
 
             if ($select.data('select2')) {
                 return;
+            }
+
+            const $existingContainer = $select.next('.select2.select2-container');
+            if ($existingContainer.length) {
+                $existingContainer.remove();
             }
 
             const placeholder = ($select.data('placeholder') || '').toString().trim();
@@ -833,6 +1036,11 @@ export function initModalScripts(container) {
                     return;
                 }
 
+                const $existingContainer = $select.next('.select2.select2-container');
+                if ($existingContainer.length) {
+                    $existingContainer.remove();
+                }
+
                 const placeholder = ($select.data('placeholder') || '').toString().trim();
                 const searchPlaceholder = ($select.data('search-placeholder') || '').toString().trim();
 
@@ -912,6 +1120,235 @@ export function initModalScripts(container) {
             attachRemoveHandler(element);
             attachSummaryHandler(element);
             updateTitles();
+        });
+
+        const modalStackRef = (typeof modalStack !== 'undefined') ? modalStack : window.modalStack;
+        const shouldHandleInlineModal = Array.isArray(modalStackRef) && modalStackRef.length > 0;
+        if (shouldHandleInlineModal) {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalLabel = submitBtn ? submitBtn.innerHTML : '';
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+                }
+
+                const formData = new FormData(form);
+                const method = (form.getAttribute('method') || 'POST').toUpperCase();
+
+                fetch(form.action, {
+                    method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok || data.success === false) {
+                            const errors = data.errors ? Object.values(data.errors).flat() : null;
+                            const message = errors && errors.length
+                                ? errors.join(' ')
+                                : (data.message || 'Erro ao salvar escala.');
+                            throw new Error(message);
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        const detail = {
+                            escalaId: data?.escala?.id,
+                            cultoId: data?.escala?.culto_id || form.querySelector('input[name="culto_id"]')?.value || null,
+                            escalasHtml: data?.escalasHtml || null,
+                            escala: data?.escala || data?.data,
+                            message: data?.message || 'Escala registrada com sucesso!',
+                        };
+
+                        if (typeof showSystemMessage === 'function' && detail.message) {
+                            showSystemMessage(detail.message, 'success');
+                        }
+
+                        if (typeof voltarModalAnterior === 'function') {
+                            voltarModalAnterior();
+
+                            setTimeout(() => {
+                                window.dispatchEvent(new CustomEvent('escalaUpdated', {
+                                    detail
+                                }));
+                            }, 300);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Falha ao salvar escala:', error);
+                        if (typeof showSystemMessage === 'function') {
+                            showSystemMessage(error.message || 'Erro ao salvar escala.', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalLabel || '<i class="bi bi-check-circle"></i> Salvar Escala';
+                        }
+                    });
+            });
+
+            const deleteButton = form.querySelector('[data-escala-delete]');
+            if (deleteButton && !deleteButton.dataset.deleteHandlerAttached) {
+                deleteButton.dataset.deleteHandlerAttached = 'true';
+                deleteButton.addEventListener('click', () => {
+                    const deleteUrl = deleteButton.getAttribute('data-delete-url');
+                    const cultoId = deleteButton.getAttribute('data-culto-id') || null;
+                    const confirmMessage = deleteButton.getAttribute('data-confirm-message') || 'Deseja realmente excluir esta escala?';
+
+                    const confirmPromise = typeof confirmarAcao === 'function'
+                        ? confirmarAcao(confirmMessage)
+                        : Promise.resolve(window.confirm(confirmMessage));
+
+                    confirmPromise.then((confirmed) => {
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        const originalDeleteLabel = deleteButton.innerHTML;
+                        deleteButton.disabled = true;
+                        deleteButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Excluindo...';
+
+                        const token = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
+
+                        fetch(deleteUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'X-HTTP-Method-Override': 'DELETE',
+                            },
+                        })
+                            .then(async (response) => {
+                                const data = await response.json().catch(() => ({}));
+                                if (!response.ok || data.success === false) {
+                                    const errors = data.errors ? Object.values(data.errors).flat() : null;
+                                    const message = errors && errors.length
+                                        ? errors.join(' ')
+                                        : (data.message || 'Erro ao excluir escala.');
+                                    throw new Error(message);
+                                }
+                                return data;
+                            })
+                            .then((data) => {
+                                const detail = {
+                                    cultoId: data?.culto_id || cultoId,
+                                    escalasHtml: data?.escalasHtml || null,
+                                    message: data?.message || 'Escala excluída com sucesso!',
+                                };
+
+                                if (typeof showSystemMessage === 'function' && detail.message) {
+                                    showSystemMessage(detail.message, 'success');
+                                }
+
+                                if (typeof voltarModalAnterior === 'function') {
+                                    voltarModalAnterior();
+
+                                    setTimeout(() => {
+                                        window.dispatchEvent(new CustomEvent('escalaDeleted', {
+                                            detail
+                                        }));
+                                    }, 300);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Falha ao excluir escala:', error);
+                                if (typeof showSystemMessage === 'function') {
+                                    showSystemMessage(error.message || 'Erro ao excluir escala.', 'error');
+                                }
+                            })
+                            .finally(() => {
+                                deleteButton.disabled = false;
+                                deleteButton.innerHTML = originalDeleteLabel;
+                            });
+                    });
+                });
+            }
+        }
+    });
+
+    // --- exclusão de escalas fora do formulário (evita forms aninhados) ---
+    container.querySelectorAll('[data-escala-delete]').forEach(button => {
+        if (button.dataset.deleteHandlerAttached) {
+            return;
+        }
+
+        const deleteUrl = button.getAttribute('data-delete-url');
+        if (!deleteUrl) {
+            return;
+        }
+
+        button.dataset.deleteHandlerAttached = 'true';
+        button.addEventListener('click', () => {
+            const confirmMessage = button.getAttribute('data-confirm-message') || 'Deseja realmente excluir esta escala?';
+            const cultoId = button.getAttribute('data-culto-id') || null;
+
+            const confirmPromise = typeof confirmarAcao === 'function'
+                ? confirmarAcao(confirmMessage)
+                : Promise.resolve(window.confirm(confirmMessage));
+
+            confirmPromise.then((confirmed) => {
+                if (!confirmed) {
+                    return;
+                }
+
+                const originalLabel = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split"></i> Excluindo...';
+
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                fetch(deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok || data.success === false) {
+                            const errors = data.errors ? Object.values(data.errors).flat() : null;
+                            const message = errors && errors.length
+                                ? errors.join(' ')
+                                : (data.message || 'Erro ao excluir escala.');
+                            throw new Error(message);
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        const detail = {
+                            cultoId: data?.culto_id || cultoId,
+                            escalasHtml: data?.escalasHtml || null,
+                            message: data?.message || 'Escala excluída com sucesso!',
+                        };
+
+                        if (typeof showSystemMessage === 'function' && detail.message) {
+                            showSystemMessage(detail.message, 'success');
+                        }
+
+                        window.dispatchEvent(new CustomEvent('escalaDeleted', { detail }));
+                    })
+                    .catch((error) => {
+                        console.error('Falha ao excluir escala:', error);
+                        if (typeof showSystemMessage === 'function') {
+                            showSystemMessage(error.message || 'Erro ao excluir escala.', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalLabel;
+                    });
+            });
         });
     });
 
@@ -1133,6 +1570,38 @@ export function initModalScripts(container) {
         window.initOptionsMenus(container || document);
     }
 
+    // --- Atualiza lista de escalas do culto ao criar/excluir em modal aninhado ---
+    if (!window._escalaEventosRegistrados) {
+        window._escalaEventosRegistrados = true;
+
+        const atualizarListaEscalas = (detail) => {
+            const info = detail || {};
+            const { cultoId, escalasHtml, message } = info;
+
+            if (escalasHtml) {
+                document.querySelectorAll('[data-escalas-lista]').forEach((lista) => {
+                    const listaCultoId = lista.getAttribute('data-culto-id');
+                    if (cultoId && listaCultoId && Number(listaCultoId) !== Number(cultoId)) {
+                        return;
+                    }
+                    lista.innerHTML = escalasHtml;
+                    if (typeof initModalScripts === 'function') {
+                        initModalScripts(lista);
+                    }
+                });
+            }
+
+            if (typeof showSystemMessage === 'function' && message) {
+                showSystemMessage(message, 'success');
+            }
+        };
+
+        const eventosEscala = ['escalaCreated', 'escalaDeleted', 'escalaUpdated'];
+        eventosEscala.forEach(evt => {
+            window.addEventListener(evt, (e) => atualizarListaEscalas(e.detail));
+        });
+    }
+
     // --- Gestor de Imagens ---
     const gestorImagens = container.querySelector('#form-gestor-imagens');
     if (gestorImagens && !gestorImagens.dataset.gestorInitialized) {
@@ -1298,10 +1767,12 @@ function initFormCriarEvento(form) {
                 evento: evento
             };
             
+            const hasModalStack = Array.isArray(window.modalStack) && window.modalStack.length > 0;
+
             // Marca que precisa recarregar o modal anterior
             window.recarregarModalAnterior = true;
             
-            if (typeof voltarModalAnterior === 'function') {
+            if (typeof voltarModalAnterior === 'function' && hasModalStack) {
                 voltarModalAnterior();
                 
                 setTimeout(() => {
@@ -1313,6 +1784,9 @@ function initFormCriarEvento(form) {
                         }
                     }));
                 }, 300);
+            } else {
+                // Se não está em uma pilha de modais, recarrega a página para refletir a atualização
+                setTimeout(() => window.location.reload(), 400);
             }
         })
         .catch(error => {
@@ -1323,6 +1797,64 @@ function initFormCriarEvento(form) {
             }
             showSystemMessage('Erro ao criar evento.', 'error');
         });
+    });
+}
+
+function initPreletorToggle(scope) {
+    const selectEl = scope.querySelector('[data-preletor-select]');
+    const toggleBtn = scope.querySelector('[data-preletor-toggle]');
+    const externalInput = scope.querySelector('[data-preletor-external-input]');
+
+    if (!selectEl || !toggleBtn || !externalInput) {
+        return;
+    }
+
+    const toggleSelect2Visibility = (hide) => {
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            const $select = $(selectEl);
+            const $container = $select.next('.select2');
+            if ($container.length) {
+                $container.toggle(!hide);
+            }
+            // se o select2 ainda não foi inicializado, tenta novamente em seguida
+            if (!$container.length) {
+                setTimeout(() => {
+                    const $cont2 = $select.next('.select2');
+                    if ($cont2.length) {
+                        $cont2.toggle(!hide);
+                    }
+                }, 50);
+            }
+        } else {
+            selectEl.style.display = hide ? 'none' : '';
+        }
+    };
+
+    const setMode = (mode) => {
+        const isExternal = mode === 'external';
+        scope.dataset.mode = mode;
+
+        selectEl.disabled = isExternal;
+        toggleSelect2Visibility(isExternal);
+
+        selectEl.style.display = isExternal ? 'none' : '';
+        externalInput.style.display = isExternal ? '' : 'none';
+        externalInput.disabled = !isExternal;
+
+        toggleBtn.textContent = isExternal ? 'Inserir membro' : 'Inserir externo';
+    };
+
+    const initialExternal = !selectEl.value && externalInput.value;
+    setMode(initialExternal ? 'external' : 'member');
+
+    // Reaplica após a inicialização do select2
+    setTimeout(() => {
+        setMode(scope.dataset.mode || 'member');
+    }, 400);
+
+    toggleBtn.addEventListener('click', () => {
+        const isExternal = scope.dataset.mode === 'external';
+        setMode(isExternal ? 'member' : 'external');
     });
 }
 

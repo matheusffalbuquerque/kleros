@@ -29,11 +29,13 @@ class EscalaController extends Controller
         $culto = null;
         if ($cultoId !== null) {
             $culto = Culto::where('congregacao_id', $congregacao->id)
+                ->with('categoria')
                 ->findOrFail($cultoId);
         }
 
         $cultosAgendados = Culto::where('congregacao_id', $congregacao->id)
             ->whereDate('data_culto', '>=', now()->toDateString())
+            ->with('categoria')
             ->orderBy('data_culto')
             ->get();
 
@@ -56,7 +58,7 @@ class EscalaController extends Controller
                 ->findOrFail($validated['culto_id']);
         }
 
-        DB::transaction(function () use ($validated, $culto) {
+        $escala = DB::transaction(function () use ($validated, $culto) {
             $escala = Escala::create([
                 'culto_id' => $culto?->id,
                 'tipo_escala_id' => $validated['tipo_escala_id'],
@@ -66,7 +68,47 @@ class EscalaController extends Controller
             ]);
 
             $this->sincronizarItens($escala, $validated['itens'] ?? []);
+
+            return $escala;
         });
+
+        if ($request->expectsJson()) {
+            $escala->load(['tipo', 'itens.membro', 'culto.escalas.tipo', 'culto.escalas.itens.membro']);
+
+            $escalaData = [
+                'id' => $escala->id,
+                'culto_id' => $escala->culto_id,
+                'tipo_escala_id' => $escala->tipo_escala_id,
+                'tipo_nome' => optional($escala->tipo)->nome,
+                'data_hora' => optional($escala->data_hora)->format('Y-m-d H:i'),
+                'local' => $escala->local,
+                'observacoes' => $escala->observacoes,
+                'itens' => $escala->itens->map(function (ItemEscala $item) {
+                    return [
+                        'id' => $item->id,
+                        'funcao' => $item->funcao,
+                        'membro_id' => $item->membro_id,
+                        'responsavel_externo' => $item->responsavel_externo,
+                        'membro_nome' => optional($item->membro)->nome,
+                    ];
+                })->values(),
+            ];
+
+            $escalasHtml = null;
+            if ($escala->culto) {
+                $escalasHtml = view('cultos.includes.partials.escalas_lista', [
+                    'escalas' => $escala->culto->escalas,
+                ])->render();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Escala registrada com sucesso!',
+                'escala' => $escalaData,
+                'data' => $escalaData,
+                'escalasHtml' => $escalasHtml,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Escala registrada com sucesso!');
     }
@@ -91,6 +133,7 @@ class EscalaController extends Controller
 
         $cultosAgendados = Culto::where('congregacao_id', $congregacaoId)
             ->whereDate('data_culto', '>=', now()->toDateString())
+            ->with('categoria')
             ->orderBy('data_culto')
             ->get();
 
@@ -173,6 +216,44 @@ class EscalaController extends Controller
             $this->sincronizarItens($escala, $validated['itens'] ?? []);
         });
 
+        if ($request->expectsJson()) {
+            $escala->load(['tipo', 'itens.membro', 'culto.escalas.tipo', 'culto.escalas.itens.membro']);
+
+            $escalaData = [
+                'id' => $escala->id,
+                'culto_id' => $escala->culto_id,
+                'tipo_escala_id' => $escala->tipo_escala_id,
+                'tipo_nome' => optional($escala->tipo)->nome,
+                'data_hora' => optional($escala->data_hora)->format('Y-m-d H:i'),
+                'local' => $escala->local,
+                'observacoes' => $escala->observacoes,
+                'itens' => $escala->itens->map(function (ItemEscala $item) {
+                    return [
+                        'id' => $item->id,
+                        'funcao' => $item->funcao,
+                        'membro_id' => $item->membro_id,
+                        'responsavel_externo' => $item->responsavel_externo,
+                        'membro_nome' => optional($item->membro)->nome,
+                    ];
+                })->values(),
+            ];
+
+            $escalasHtml = null;
+            if ($escala->culto) {
+                $escalasHtml = view('cultos.includes.partials.escalas_lista', [
+                    'escalas' => $escala->culto->escalas,
+                ])->render();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Escala atualizada com sucesso!',
+                'escala' => $escalaData,
+                'data' => $escalaData,
+                'escalasHtml' => $escalasHtml,
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Escala atualizada com sucesso!');
     }
 
@@ -220,6 +301,7 @@ class EscalaController extends Controller
         $congregacaoId = app('congregacao')->id;
 
         $escala = Escala::where('id', $id)
+            ->with('culto')
             ->where(function ($query) use ($congregacaoId) {
                 $query->whereHas('culto', function ($subQuery) use ($congregacaoId) {
                     $subQuery->where('congregacao_id', $congregacaoId);
@@ -227,10 +309,24 @@ class EscalaController extends Controller
             })
             ->firstOrFail();
 
+        $culto = $escala->culto;
         $escala->delete();
 
         if ($request->expectsJson()) {
-            return response()->json(['success' => true]);
+            $escalasHtml = null;
+            if ($culto) {
+                $culto->load(['escalas.tipo', 'escalas.itens.membro']);
+                $escalasHtml = view('cultos.includes.partials.escalas_lista', [
+                    'escalas' => $culto->escalas,
+                ])->render();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Escala excluída com sucesso!',
+                'culto_id' => $culto?->id,
+                'escalasHtml' => $escalasHtml,
+            ]);
         }
 
         return redirect()->back()->with('msg', 'Escala excluída com sucesso!');

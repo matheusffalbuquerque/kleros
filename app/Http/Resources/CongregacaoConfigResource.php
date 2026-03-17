@@ -19,7 +19,6 @@ class CongregacaoConfigResource extends JsonResource
             'fonte' => $config?->font_family,
             'tema' => $config?->tema_id,
             'agrupamentos' => $config?->agrupamentos,
-            'celulas_ativas' => (bool) ($config?->celulas),
             'denominacao' => DenominacaoResource::make($this->whenLoaded('denominacao')),
         ];
     }

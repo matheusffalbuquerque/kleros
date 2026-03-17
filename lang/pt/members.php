@@ -45,6 +45,7 @@ return [
             'edit' => 'Editar',
             'remove' => 'Remover',
             'schedule' => 'Agendar',
+            'create_user' => 'Criar usuário',
         ],
         'statuses' => [
             'not_informed' => 'Não informado',
@@ -96,6 +97,10 @@ return [
             'other' => 'Outros dados',
             'settings' => 'Configurações',
         ],
+        'create_user' => [
+            'title' => 'Usuário',
+            'description' => 'Crie um usuário para liberar acesso ao membro.',
+        ],
     ],
     'view' => [
         'title' => 'Informações de Membro',
@@ -139,9 +144,13 @@ return [
         'name_required' => 'Nome do membro não informado.',
         'phone_required' => 'Número de telefone não informado.',
         'birth_required' => 'Data de nascimento não informada.',
+        'email_required' => 'Email não informado.',
+        'email_invalid' => 'Informe um email válido.',
+        'email_unique' => 'Este email já está em uso.',
+        'email_needed_for_user' => 'Cadastre um email único e válido para criar um usuário.',
     ],
     'flash' => [
-        'created' => ':name se tornou membro da AD Jerusalém.',
+        'created' => ':name se tornou membro da congregação.',
         'updated' => 'Membro atualizado com sucesso!',
         'deleted' => 'Membro excluído com sucesso.',
         'not_found' => 'Membro não encontrado.',
@@ -149,6 +158,8 @@ return [
         'profile_updated' => 'Perfil atualizado com sucesso!',
         'profile_error' => 'Erro ao atualizar perfil.',
         'password_mismatch' => 'A senha atual não confere.',
+        'user_created' => 'Usuário criado para :name.',
+        'user_already_exists' => 'Este membro já possui um usuário.',
     ],
     'export' => [
         'filename_prefix' => 'membros_',

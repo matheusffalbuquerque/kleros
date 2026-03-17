@@ -29,6 +29,9 @@
                         </div>
                         <div class="avatar-container">
                             <img class="avatar_perfil" id="avatarPerfil" src="{{ asset('storage/' . ($membro->foto ?? 'images/newuser.png')) }}" alt="Avatar">
+                            <div class="status-chip {{ $membro->batizado ? 'is-true' : 'is-false' }}">
+                                {{ $membro->batizado ? 'Batizado' : 'Não Batizado' }}
+                            </div>
                             @if($membro->foto)
                             <div class="avatar-dropdown" id="avatarDropdown" hidden>
                                 <button type="button" class="btn" data-action="remove-photo" data-member-id="{{ $membro->id }}">
@@ -137,7 +140,7 @@
                 </a>
                 <button class="btn imprimir" type="button"><i class="bi bi-printer"></i> {{ $view['actions']['print'] }}</button>
                 <button class="btn" type="submit"><i class="bi bi-trash"></i> {{ $view['actions']['remove'] }}</button>
-                <a href="{{ route('membros.painel') }}">
+                <a href="javascript:window.history.back()">
                     <button type="button" class="btn"><i class="bi bi-arrow-return-left"></i> {{ $view['actions']['back'] }}</button>
                 </a>
             </div>

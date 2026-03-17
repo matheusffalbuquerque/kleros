@@ -48,11 +48,14 @@
                 <div class="item item-1">
                     <div class="form-options column">
                         <button type="button" class="btn" onclick="abrirJanelaModal('{{ route('escalas.form_editar', $escala->id) }}')"><i class="bi bi-pencil-square"></i> Editar</button>
-                        <form action="{{ route('escalas.destroy', $escala->id) }}" method="post" onsubmit="return handleSubmit(event, this, 'Deseja excluir esta escala?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn danger"><i class="bi bi-trash"></i> Excluir</button>
-                        </form>
+                        <button type="button"
+                            class="btn danger"
+                            data-escala-delete
+                            data-delete-url="{{ route('escalas.destroy', $escala->id) }}"
+                            data-culto-id="{{ $escala->culto_id }}"
+                            data-confirm-message="Deseja excluir esta escala?">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
                     </div>
                 </div>
             </div>

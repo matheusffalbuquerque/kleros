@@ -79,11 +79,18 @@ class HomeController extends Controller
 
             Se não houver ele envia uma informação vazia, liberando uma mensagem e link para cadastro.
         */
-        $culto_hoje = Culto::where('data_culto', date('Y/m/d'))->get();
+        $culto_hoje = Culto::with(['evento', 'preletor'])
+            ->where('congregacao_id', $congregacao->id)
+            ->whereDate('data_culto', Carbon::today())
+            ->orderBy('data_culto')
+            ->get()
+            ->map(function (Culto $culto) {
+                $culto->preletor_label = optional($culto->preletor)->nome
+                    ?: ($culto->preletor_externo ?? $culto->preletor);
+                return $culto;
+            });
         
-        if($culto_hoje->isEmpty()) {
-            $culto_hoje = '';
-        }
+        $culto_hoje_first = $culto_hoje->first();
         
         /*Esta parte verifica se há recados do dia de hoje
 
@@ -104,7 +111,7 @@ class HomeController extends Controller
             Se não houver ele envia uma informação vazia, com mensagem sobre a ausencia de eventos.
         */
         
-        $eventos = Evento::where('recorrente', false)->whereDate('data_inicio', '>', date('Y/m/d'))->limit(4)->orderBy('data_inicio', 'asc')->get();
+        $eventos = Evento::where('congregacao_id', $congregacao->id)->where('recorrente', false)->whereDate('data_inicio', '>', date('Y/m/d'))->limit(4)->orderBy('data_inicio', 'asc')->get();
         
         if($eventos->isEmpty()) {
             $eventos = '';
@@ -192,13 +199,14 @@ class HomeController extends Controller
             'celulas_total' => $celulasCount,
             'departamentos_total' => $departamentosCount,
             'setores_total' => $setoresCount,
-            'cultos_proximos' => is_countable($culto_hoje) ? count($culto_hoje) : 0,
+            'cultos_proximos' => $culto_hoje->count(),
             'eventos_proximos' => is_countable($eventos) ? count($eventos) : 0,
         ];
 
         return view('home', [
             'visitantes' => $visitantes,
             'culto_hoje' => $culto_hoje,
+            'culto_hoje_first' => $culto_hoje->first(),
             'recados' => $recados,
             'eventos' => $eventos,
             'aniversariantes' => $aniversariantes,

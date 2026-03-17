@@ -158,3 +158,213 @@
     }
 }
 
+@media screen and (max-width: 500px) {
+    #calendar {
+        font-size: 0.7em;
+    }
+
+    #calendar .fc-daygrid-event {
+        font-size: 0.65rem;
+        padding: 0 4px;
+    }
+
+    /* Mostra apenas o ponto colorido e o horário */
+    #calendar .fc-daygrid-dot-event .fc-event-title {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-dot-event .fc-event-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+    }
+
+    /* Eventos de dia inteiro (não têm horário) mostram apenas o ícone/ponto */
+    #calendar .fc-daygrid-dot-event.fc-event-all-day .fc-event-time {
+        display: none;
+    }
+
+    /* Cultos: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-culto .event-title-text,
+    #calendar .fc-daygrid-event.event-type-culto .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-culto .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Eventos: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-evento .event-title-text,
+    #calendar .fc-daygrid-event.event-type-evento .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-evento .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Aniversariantes: exibe só o ícone */
+    #calendar .fc-daygrid-event.event-type-aniversario .event-title-text,
+    #calendar .fc-daygrid-event.event-type-aniversario .fc-event-time {
+        display: none;
+    }
+
+    #calendar .fc-daygrid-event.event-type-aniversario .event-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* --- Visão anual (FullCalendar multiMonth) --- */
+#calendar .fc-multimonth {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem 0.75rem 1rem;
+    background: transparent !important;
+}
+
+/* Força todos os elementos dentro da visualização anual a terem fundo escuro */
+#calendar .fc-multimonth * {
+    background-color: transparent;
+}
+
+#calendar .fc-multimonth table,
+#calendar .fc-multimonth tbody,
+#calendar .fc-multimonth tr {
+    background: transparent !important;
+}
+
+#calendar .fc-multimonth-month {
+    background: var(--background-color) !important;
+    border-radius: var(--border-style);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    padding: 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Header do mês com o título */
+#calendar .fc-multimonth-header,
+#calendar .fc-multimonth-header-cell,
+#calendar .fc-multimonth-header-cell-cushion {
+    background: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+#calendar .fc-multimonth-title {
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+    color: var(--text-color) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--border-style);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+#calendar .fc-multimonth-daygrid {
+    margin-top: 0.5rem;
+}
+
+/* Override completo do scrollgrid do FullCalendar */
+#calendar .fc-multimonth .fc-scrollgrid,
+#calendar .fc-multimonth .fc-scrollgrid-sync-table,
+#calendar .fc-multimonth .fc-scrollgrid-section,
+#calendar .fc-multimonth .fc-scrollgrid-section-header,
+#calendar .fc-multimonth .fc-scrollgrid-section-body {
+    background: transparent !important;
+}
+
+/* Cabeçalho dos dias da semana - aplica em TODOS os níveis */
+#calendar .fc-multimonth thead,
+#calendar .fc-multimonth thead tr,
+#calendar .fc-multimonth thead th,
+#calendar .fc-multimonth thead td,
+#calendar .fc-multimonth .fc-col-header,
+#calendar .fc-multimonth .fc-col-header-cell,
+#calendar .fc-multimonth .fc-scrollgrid-section-header th,
+#calendar .fc-multimonth .fc-scrollgrid-section-header td {
+    background: var(--secondary-color) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: var(--secondary-contrast) !important;
+}
+
+#calendar .fc-multimonth .fc-col-header-cell-cushion,
+#calendar .fc-multimonth .fc-col-header-cell a {
+    color: var(--secondary-contrast) !important;
+    font-weight: 600;
+}
+
+#calendar .fc-multimonth .fc-daygrid-day-top {
+    color: var(--text-color) !important;
+}
+
+/* Células do calendário */
+#calendar .fc-multimonth .fc-daygrid-day {
+    background: var(--background-color) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Dias do calendário */
+#calendar .fc-multimonth .fc-daygrid-day {
+    min-height: 48px;
+    background: var(--background-color) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Números dos dias */
+#calendar .fc-multimonth .fc-daygrid-day-number {
+    color: var(--text-color) !important;
+    font-weight: 600;
+    padding: 4px 6px;
+}
+
+/* Dia atual (hoje) */
+#calendar .fc-multimonth .fc-day-today {
+    background: rgba(100, 73, 162, 0.15) !important;
+    border: 1px solid rgba(100, 73, 162, 0.4) !important;
+}
+
+#calendar .fc-multimonth .fc-day-today .fc-daygrid-day-number {
+    color: var(--secondary-color) !important;
+    font-weight: 700;
+}
+
+/* Eventos no calendário */
+#calendar .fc-multimonth .fc-daygrid-event {
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    white-space: normal;
+    line-height: 1.2;
+    margin: 1px 2px;
+}
+
+#calendar .fc-multimonth .fc-daygrid-dot-event {
+    align-items: flex-start;
+    gap: 6px;
+}
+
+/* Mais eventos (+X more) */
+#calendar .fc-multimonth .fc-daygrid-more-link {
+    color: var(--secondary-color) !important;
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+@media screen and (max-width: 1024px) {
+    #calendar .fc-multimonth {
+        gap: 0.75rem;
+    }
+
+    #calendar .fc-multimonth-daygrid .fc-daygrid-day {
+        min-height: 42px;
+    }
+}

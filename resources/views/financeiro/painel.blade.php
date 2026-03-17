@@ -44,7 +44,7 @@
                 <input type="date" name="data_fim" id="data_fim" value="{{ request('data_fim') }}">
             </div>
             <div class="search-panel-item">
-                <button type="button" class="" id="btn_filtrar"><i class="bi bi-search"></i> Procurar</button>
+                <button type="button" class="" id="btn_filtrar"><i class="bi bi-search"></i> Filtrar</button>
                 <button type="button" class="" id="btn_novo_lancamento"
                     data-base-url="{{ route('financeiro.lancamentos.form_criar', ['caixa' => '__CAIXA__']) }}"
                     data-default-caixa="{{ optional($caixas->first())->id }}">

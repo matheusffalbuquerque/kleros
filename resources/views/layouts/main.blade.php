@@ -7,6 +7,8 @@
 
         <title>@yield('title')</title>
         <link rel="shortcut icon" href="/storage/{{$congregacao->config->logo_caminho}}" type="image/x-icon">
+        <link rel="manifest" href="{{ route('pwa.manifest') }}">
+        <meta name="theme-color" content="{{ $congregacao->config->conjunto_cores['primaria'] ?? '#677b96' }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,7 +190,8 @@
                                     </div>
                                 @endif
                                 <a href="/perfil"><i class="bi bi-pencil"></i> Editar perfil</a>
-                                <a href="/perfil"><i class="bi bi-bookmark"></i> Favoritos</a>
+                                <a href="{{ route('favoritos.index') }}"><i class="bi bi-bookmark"></i> Favoritos</a>
+                                <a href="#" data-pwa-install><i class="bi bi-phone"></i> Baixar App</a>
                                 <a href="/logout" title="Sair"><i class="bi bi-box-arrow-right"></i> Logout</a>
                             </div>
                         </div>
@@ -471,6 +474,77 @@
                 menuAberto = !menuAberto;
                 aplicarEstado();
             });
+        </script>
+
+        <script>
+            (function() {
+                const swUrl = '/service-worker.js';
+                if (!('serviceWorker' in navigator)) {
+                    return;
+                }
+
+                let refreshing = false;
+
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl).then((registration) => {
+                        if (registration.waiting) {
+                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            if (!newWorker) return;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        });
+
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (refreshing) return;
+                            refreshing = true;
+                            window.location.reload();
+                        });
+
+                        setInterval(() => registration.update(), 60 * 60 * 1000);
+                    }).catch((error) => console.error('SW registration failed', error));
+                });
+            })();
+
+            (function() {
+                let deferredPrompt = null;
+                const installLink = document.querySelector('[data-pwa-install]');
+                const manifestUrl = "{{ route('pwa.manifest') }}";
+
+                function isMobile() {
+                    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && window.innerWidth <= 1024;
+                }
+
+                if (!isMobile() && installLink) {
+                    installLink.style.display = 'none';
+                }
+
+                window.addEventListener('beforeinstallprompt', (event) => {
+                    event.preventDefault();
+                    deferredPrompt = event;
+                    if (isMobile()) {
+                        installLink?.classList.add('pwa-install-visible');
+                        installLink.style.display = '';
+                    }
+                });
+
+                installLink?.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                        return;
+                    }
+                    window.location.href = manifestUrl;
+                });
+            })();
         </script>
 
         <!--Função para controle da janela flutuante-->

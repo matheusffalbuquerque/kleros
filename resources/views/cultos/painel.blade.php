@@ -4,11 +4,13 @@
 
 @section('content')
 @php
-    $dataFormatada = \Carbon\Carbon::parse($selectedDate)->format('d/m/Y');
+    $selectedCarbon = \Carbon\Carbon::parse($selectedDate);
+    $dataFormatada = $selectedCarbon->format('d/m/Y');
     $horarioFormatado = $horarioInicio ? $horarioInicio : '—';
 
     $cards = $dashboardCards ?? [];
     $todayLabel = data_get($cards, 'today.label', 'Hoje');
+    $dateLabel = $selectedCarbon->isToday() ? $todayLabel : 'Data';
     $serviceCard = $cards['service'] ?? [];
     $serviceLabel = data_get($serviceCard, 'label', 'Culto');
     $serviceUnknownPreacher = data_get($serviceCard, 'unknown_preacher', 'Preletor não informado');
@@ -16,8 +18,12 @@
     $serviceNoService = data_get($serviceCard, 'no_service', 'Nenhum culto registrado');
     $serviceCta = data_get($serviceCard, 'cta', 'Agendar culto');
     $selectedDateLabel = $selectedDateFull ?? $dataFormatada;
-    $diaLegenda = $dashboardDayName ?? \Carbon\Carbon::parse($selectedDate)->translatedFormat('l');
+    $diaLegenda = $dashboardDayName ?? $selectedCarbon->translatedFormat('l');
     $diaLegenda = mb_convert_case($diaLegenda, MB_CASE_TITLE, 'UTF-8');
+    $preletorNome = $culto
+        ? optional($culto->preletor)->nome
+            ?: ($culto->preletor_externo ?? ($culto->preletor ?? null))
+        : null;
 @endphp
 
 <div class="container">
@@ -28,14 +34,14 @@
 
         <div class="painel-culto-cards">
             <div class="painel-card neutral">
-                <span class="label">{{ $todayLabel }}</span>
+                <span class="label">{{ $dateLabel }}</span>
                 <strong>{{ $selectedDateLabel }}</strong>
                 <small>{{ $diaLegenda }}</small>
             </div>
             <div class="painel-card neutral">
                 <span class="label">{{ $serviceLabel }}</span>
                 @if ($culto)
-                    <strong>{{ $culto->preletor ?? $serviceUnknownPreacher }}</strong>
+                    <strong>{{ $preletorNome ?? $serviceUnknownPreacher }}</strong>
                     <small>
                         @if ($culto->evento_id && $culto->evento)
                             {{ $culto->evento->titulo }}
@@ -52,51 +58,42 @@
                     </small>
                 @endif
             </div>
-
-            @if ($culto)
-                <div class="painel-card painel-card-detalhes">
-                    <span class="label">Detalhes</span>
-                    <div class="painel-card-detalhes-grid">
-                        <div>
-                            <strong>{{ $culto->tema_sermao ?: '—' }}</strong>
-                            <small>Tema do sermão</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->texto_base ?: '—' }}</strong>
-                            <small>Texto-base</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_adultos ?? 0 }}</strong>
-                            <small>Adultos</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_criancas ?? 0 }}</strong>
-                            <small>Crianças</small>
-                        </div>
-                        <div>
-                            <strong>{{ $culto->quant_visitantes ?? 0 }}</strong>
-                            <small>Visitantes</small>
-                        </div>
-                    </div>
-                    @if ($culto->observacoes)
-                        <div class="painel-card-detalhes-observacoes">
-                            <small>Observações</small>
-                            <p>{{ $culto->observacoes }}</p>
-                        </div>
-                    @endif
-                </div>
-            @endif
         </div>
 
         <div class="search-panel painel-culto-search painel-culto-meta-actions">
             <form action="{{ route('cultos.painel') }}" method="get" class="search-panel-item painel-culto-meta-date" id="painel-culto-data-form">
                 <label for="culto-data">Data</label>
                 <input type="date" id="culto-data" name="data" value="{{ $selectedDate }}">
+                <input type="hidden" id="culto-index" name="culto_index" value="{{ $cultoIndex ?? 0 }}">
+                
+                @if(($totalCultosDia ?? 0) > 1)
+                    <div class="culto-navegacao">
+                        <button type="button" 
+                                class="culto-nav-btn" 
+                                id="culto-prev"
+                                @if($cultoIndex <= 0) disabled @endif
+                                title="Culto anterior">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span class="culto-contador">{{ ($cultoIndex ?? 0) + 1 }}/{{ $totalCultosDia ?? 1 }}</span>
+                        <button type="button" 
+                                class="culto-nav-btn" 
+                                id="culto-next"
+                                @if($cultoIndex >= ($totalCultosDia - 1)) disabled @endif
+                                title="Próximo culto">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                @endif
             </form>
             <div class="search-panel-item">
                 <button class="btn" type="button" id="painel-btn-editar-culto"
                     @if(!$culto) data-fallback="true" @endif>
-                    <i class="bi bi-pencil-square"></i> Editar culto
+                    @if (!$culto)
+                        <i class="bi bi-plus-circle"></i> Registrar culto
+                    @else
+                        <i class="bi bi-pencil-square"></i> Editar culto
+                    @endif
                 </button>
             </div>
             <div class="search-panel-item">
@@ -110,6 +107,40 @@
                 </button>
             </div>
         </div>
+
+        @if ($culto)
+            <div class="painel-card painel-card-detalhes painel-card-detalhes-inline">
+                <span class="label">Detalhes</span>
+                <div class="painel-card-detalhes-grid">
+                    <div>
+                        <strong>{{ $culto->tema_sermao ?: '—' }}</strong>
+                        <small>Tema do sermão</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->texto_base ?: '—' }}</strong>
+                        <small>Texto-base</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_adultos ?? 0 }}</strong>
+                        <small>Adultos</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_criancas ?? 0 }}</strong>
+                        <small>Crianças</small>
+                    </div>
+                    <div>
+                        <strong>{{ $culto->quant_visitantes ?? 0 }}</strong>
+                        <small>Visitantes</small>
+                    </div>
+                </div>
+                @if ($culto->observacoes)
+                    <div class="painel-card-detalhes-observacoes">
+                        <small>Observações</small>
+                        <p>{{ $culto->observacoes }}</p>
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
 
     <div class="info">
@@ -117,7 +148,7 @@
 
         <div class="card painel-culto-resumo">
             @if ($culto)
-                <p><i class="bi bi-person-circle"></i> Preletor: <strong>{{ $culto->preletor }}</strong></p>
+                <p><i class="bi bi-person-circle"></i> Preletor: <strong>{{ $preletorNome ?? '—' }}</strong></p>
                 <p><i class="bi bi-clock"></i> Início: <strong>{{ $horarioFormatado }}</strong></p>
                 <p><i class="bi bi-book"></i> Tema: <strong>{{ $culto->tema_sermao ?: '—' }}</strong></p>
                 <p><i class="bi bi-journal-text"></i> Evento: <strong>{{ optional($culto->evento)->titulo ?? 'Nenhum' }}</strong></p>
@@ -207,7 +238,7 @@
         </div>
     </div>
 
-    @if (module_enabled('recados'))
+    @if (module_enabled('recados') && $culto)
         <a href="{{ url('/recados/adicionar') }}" class="float-btn nao-imprimir" title="Recados">
             <i class="bi bi-chat-left-dots"></i>
         </a>
@@ -262,6 +293,10 @@
         gap: 1rem;
     }
 
+    .painel-card-detalhes-inline {
+        margin-top: 1rem;
+    }
+
     .painel-card-detalhes-grid {
         display: grid;
         gap: 1rem;
@@ -293,6 +328,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         align-items: center;
+        margin-top: 1rem;
     }
 
     .painel-culto-search .search-panel-item {
@@ -318,6 +354,50 @@
         padding: 0.45rem 0.65rem;
         border-radius: 6px;
         background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .culto-navegacao {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+        border-left: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .culto-nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        color: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .culto-nav-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(0, 0, 0, 0.25);
+    }
+
+    .culto-nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .culto-nav-btn i {
+        font-size: 1rem;
+    }
+
+    .culto-contador {
+        font-size: 0.85rem;
+        font-weight: 600;
+        min-width: 40px;
+        text-align: center;
     }
 
     .painel-culto-search__input {
@@ -506,6 +586,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         const dateForm = document.getElementById('painel-culto-data-form');
         const dateInput = document.getElementById('culto-data');
+        const cultoIndexInput = document.getElementById('culto-index');
+        const prevButton = document.getElementById('culto-prev');
+        const nextButton = document.getElementById('culto-next');
         const registrarButton = document.getElementById('painel-btn-registrar-visitante');
         const novoVisitanteButton = document.getElementById('painel-btn-novo-visitante');
         const editarCultoButton = document.getElementById('painel-btn-editar-culto');
@@ -527,7 +610,33 @@
         let suppressClearFeedback = false;
 
         if (dateForm && dateInput) {
-            dateInput.addEventListener('change', () => dateForm.submit());
+            dateInput.addEventListener('change', () => {
+                if (cultoIndexInput) {
+                    cultoIndexInput.value = 0;
+                }
+                dateForm.submit();
+            });
+        }
+
+        // Navegação entre cultos
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (cultoIndexInput) {
+                    const currentIndex = parseInt(cultoIndexInput.value) || 0;
+                    cultoIndexInput.value = Math.max(0, currentIndex - 1);
+                    dateForm.submit();
+                }
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                if (cultoIndexInput) {
+                    const currentIndex = parseInt(cultoIndexInput.value) || 0;
+                    cultoIndexInput.value = currentIndex + 1;
+                    dateForm.submit();
+                }
+            });
         }
 
         function showFeedback(message, type = 'info') {

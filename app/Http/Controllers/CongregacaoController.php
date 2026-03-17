@@ -139,7 +139,6 @@ class CongregacaoController extends Controller
                     'font_family' => 'Roboto',
                     'tema_id' => Tema::query()->orderBy('id')->value('id') ?? null,
                     'agrupamentos' => 'grupo',
-                    'celulas' => false,
                 ]
             );
 
@@ -220,7 +219,6 @@ class CongregacaoController extends Controller
             'font_family' => 'Roboto',
             'tema_id' => Tema::query()->orderBy('id')->value('id'),
             'agrupamentos' => 'grupo',
-            'celulas' => false,
         ]);
 
         $temas = Tema::orderBy('nome')->get();
@@ -243,7 +241,8 @@ class CongregacaoController extends Controller
             'font_family' => ['required', 'string', 'max:100'],
             'tema_id' => ['nullable', 'exists:temas,id'],
             'agrupamentos' => ['required', 'in:grupo,departamento,setor'],
-            'celulas' => ['required', 'boolean'],
+            'links' => ['nullable', 'array'],
+            'links.*' => ['nullable', 'url'],
         ]);
 
         $logoPath = $config->logo_caminho;
@@ -278,7 +277,8 @@ class CongregacaoController extends Controller
         $config->font_family = $validated['font_family'];
         $config->tema_id = $validated['tema_id'] ?? $config->tema_id;
         $config->agrupamentos = $validated['agrupamentos'];
-        $config->celulas = (bool) ($validated['celulas'] ?? false);
+        $links = array_filter($request->input('links', []), fn ($url) => filled($url));
+        $config->links = $links ?: [];
         $config->save();
 
         $messageKey = 'congregations.config.success';
@@ -449,12 +449,18 @@ class CongregacaoController extends Controller
         
          // Atualiza as configurações gerais
 
+        $links = $request->input('links', []);
+        if (!is_array($links)) {
+            $links = [];
+        }
+        $links = array_filter(array_map('trim', $links), fn ($url) => $url !== '');
+
         $congregacao->config->update([
             'agrupamentos' => $request->agrupamentos,
-            'celulas' => $request->celulas,
             'conjunto_cores' => $request->conjunto_cores,
             'font_family' => $request->font_family,
             'tema_id' => $request->tema,
+            'links' => $links,
         ]);
 
         return redirect()->back()->with('msg', 'Configurações gerais foram alteradas com sucesso.');

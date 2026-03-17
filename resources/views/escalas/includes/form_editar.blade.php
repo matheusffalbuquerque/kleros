@@ -17,6 +17,7 @@
             ['funcao' => '', 'membro_id' => null, 'responsavel_externo' => ''],
         ];
     }
+    $temCultoVinculado = !empty($cultoSelecionado);
 @endphp
 
 <h1>Editar Escala</h1>
@@ -53,18 +54,23 @@
                                 @php
                                     $dataCulto = $cultoOp->data_culto ? \Illuminate\Support\Carbon::parse($cultoOp->data_culto)->format('d/m/Y H:i') : null;
                                 @endphp
+                                @php
+                                    $preletorNome = optional($cultoOp->preletor)->nome ?: ($cultoOp->preletor_externo ?: 'Culto');
+                                @endphp
                                 <option value="{{ $cultoOp->id }}" @selected($cultoSelecionado == $cultoOp->id)>
-                                    {{ $dataCulto ?? 'Data não informada' }} - {{ $cultoOp->preletor ?? 'Culto' }}
+                                    {{ $dataCulto ?? 'Data não informada' }} - {{ $preletorNome }}
                                 </option>
                             @endforeach
                         </select>
                     @endif
                 </div>
 
-                <div class="form-item" data-escala-datahora>
-                    <label for="data_hora">Data e hora:</label>
-                    <input type="datetime-local" name="data_hora" id="data_hora" value="{{ old('data_hora', optional($escala->data_hora)->format('Y-m-d\TH:i')) }}">
-                </div>
+                @unless($temCultoVinculado)
+                    <div class="form-item" data-escala-datahora>
+                        <label for="data_hora">Data e hora:</label>
+                        <input type="datetime-local" name="data_hora" id="data_hora" value="{{ old('data_hora', optional($escala->data_hora)->format('Y-m-d\TH:i')) }}">
+                    </div>
+                @endunless
 
                 <div class="form-item">
                     <label for="observacoes">Observações:</label>
@@ -89,11 +95,14 @@
 
         <div class="form-options center">
             <button class="btn" type="submit"><i class="bi bi-check-circle"></i> Atualizar Escala</button>
-            <form action="{{ route('escalas.destroy', $escala->id) }}" method="POST" style="display:inline;" onsubmit="return handleSubmit(event, this, 'Deseja realmente excluir esta escala?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn danger"><i class="bi bi-trash"></i> Excluir</button>
-            </form>
+            <button type="button"
+                class="btn danger"
+                data-escala-delete
+                data-delete-url="{{ route('escalas.destroy', $escala->id) }}"
+                data-culto-id="{{ optional($escala->culto)->id }}"
+                data-confirm-message="Deseja realmente excluir esta escala?">
+                <i class="bi bi-trash"></i> Excluir
+            </button>
             <button type="button" class="btn" onclick="fecharJanelaModal()"><i class="bi bi-x-circle"></i> Cancelar</button>
         </div>
     </div>

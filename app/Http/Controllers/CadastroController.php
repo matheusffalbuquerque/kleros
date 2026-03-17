@@ -17,6 +17,7 @@ use App\Models\TipoEscala;
 use App\Models\Caixa;
 use App\Models\TipoContribuicao;
 use App\Models\TipoLancamento;
+use App\Models\CultoCategoria;
 
 class CadastroController extends Controller
 {
@@ -27,11 +28,17 @@ class CadastroController extends Controller
         $now = now();
 
         //Esta parte verifica se há cultos cadastrados para os próximos dias
-        $cultos = Culto::where('congregacao_id', $congregacaoId)
+        $cultos = Culto::with(['preletor', 'evento'])
+            ->where('congregacao_id', $congregacaoId)
             ->whereDate('data_culto', '>', $now->toDateString())
             ->orderBy('data_culto', 'asc')
             ->limit(3)
-            ->get();
+            ->get()
+            ->map(function (Culto $culto) {
+                $culto->preletor_label = optional($culto->preletor)->nome
+                    ?: ($culto->preletor_externo ?? $culto->preletor);
+                return $culto;
+            });
         
         //Esta parte verifica se há eventos cadastrados para os próximos dias
         $eventos = Evento::where('congregacao_id', $congregacaoId)
@@ -73,6 +80,9 @@ class CadastroController extends Controller
         $tiposLancamento = TipoLancamento::where('congregacao_id', $congregacaoId)
             ->orderBy('nome')
             ->get();
+
+        $cultoCategorias = CultoCategoria::where('congregacao_id', $congregacaoId)
+            ->orderBy('nome')->get();
 
         /*Essa parte verifica o tal de visitantes do mês, se não houver ele receberá uma string vazia*/
         $visitantes_mes = Visitante::where('congregacao_id', $congregacaoId)
@@ -129,6 +139,7 @@ class CadastroController extends Controller
             'tiposEscala' => $tiposEscala,
             'caixas' => $caixas,
             'tiposLancamento' => $tiposLancamento,
+            'cultoCategorias' => $cultoCategorias,
         ]);
     }
 }
