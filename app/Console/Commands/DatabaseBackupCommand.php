@@ -56,7 +56,7 @@ class DatabaseBackupCommand extends Command
 
             // Comando mysqldump
             $command = sprintf(
-                'mysqldump -h %s -u %s -p%s %s > %s 2>&1',
+                'mysqldump -h %s -u %s -p%s %s 2>/dev/null > %s',
                 escapeshellarg($host),
                 escapeshellarg($username),
                 escapeshellarg($password),
