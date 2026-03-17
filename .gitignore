@@ -22,4 +22,7 @@ yarn-error.log
 /.vscode
 /.zed
 startkleros.sh
-kleros_db.sql
+
+# Backups do banco de dados
+/storage/backups/database/*.sql
+*.sql

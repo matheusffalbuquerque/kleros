@@ -1,0 +1,44 @@
+name: Deploy KlerosTest
+
+on:
+  push:
+    branches:
+      - teste
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.KLEROSTEST_SSH_HOST }}
+          username: ${{ secrets.KLEROSTEST_SSH_USER }}
+          key: ${{ secrets.KLEROSTEST_SSH_KEY }}
+          port: ${{ secrets.KLEROSTEST_SSH_PORT }}
+          script: |
+            set -e
+            if [ ! -d /var/www/klerostest/.git ]; then
+              sudo mkdir -p /var/www/klerostest
+              sudo chown -R $USER:$USER /var/www/klerostest
+              git clone --branch teste https://github.com/matheusalbuquerque27/kleros.git /var/www/klerostest
+            fi
+
+            cd /var/www/klerostest
+            git fetch origin teste
+            git reset --hard origin/teste
+
+            if [ -f /var/www/klerostest/.env ]; then
+              cp /var/www/klerostest/.env /var/www/klerostest/.env.bak
+            fi
+
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            sudo systemctl reload nginx
