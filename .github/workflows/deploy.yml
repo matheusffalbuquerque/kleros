@@ -18,6 +18,12 @@ jobs:
         php-version: '8.2'
         extensions: mbstring, dom, fileinfo, mysql, gd
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
     - name: Install Composer Dependencies
       run: composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts
 

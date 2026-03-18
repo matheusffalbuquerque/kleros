@@ -33,6 +33,12 @@ jobs:
     - name: Generate Application Key
       run: php artisan key:generate
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
     - name: Install NPM Dependencies
       run: npm ci
 
