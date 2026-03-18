@@ -84,7 +84,7 @@ return [
         'next_steps' => [
             'title' => 'Next steps',
             'description' => 'You can review the registration or access the dashboard when ready.',
-            'back' => 'Back to registration',
+            'back' => 'Finish',
             'login' => 'Get Support',
         ],
         'sections' => [
@@ -130,7 +130,7 @@ return [
             ],
         ],
         'buttons' => [
-            'back' => 'Back to registration',
+            'back' => 'Finish',
             'submit' => 'Finish setup',
         ],
         'file_placeholder' => 'Select a file',

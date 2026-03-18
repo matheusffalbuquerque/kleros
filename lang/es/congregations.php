@@ -84,7 +84,7 @@ return [
         'next_steps' => [
             'title' => 'Próximos pasos',
             'description' => 'Puedes revisar el registro o acceder al panel cuando estés listo.',
-            'back' => 'Volver al registro',
+            'back' => 'Finalizar',
             'login' => 'Obtener Atención',
         ],
         'sections' => [
@@ -130,7 +130,7 @@ return [
             ],
         ],
         'buttons' => [
-            'back' => 'Volver al registro',
+            'back' => 'Finalizar',
             'submit' => 'Finalizar configuración',
         ],
         'file_placeholder' => 'Selecciona un archivo',

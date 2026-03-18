@@ -84,7 +84,7 @@ return [
         'next_steps' => [
             'title' => 'Próximos passos',
             'description' => 'Verifique o recebimento do email em sua caixa de mensagem. Caso não receber, nem na sessão principal, nem em Spam, entre em contato conosco.',
-            'back' => 'Voltar ao cadastro',
+            'back' => 'Finalizar',
             'login' => 'Obter Atendimento',
         ],
         'sections' => [
@@ -130,7 +130,7 @@ return [
             ],
         ],
         'buttons' => [
-            'back' => 'Voltar ao cadastro',
+            'back' => 'Finalizar',
             'submit' => 'Concluir configuração',
         ],
         'file_placeholder' => 'Selecione um arquivo',
