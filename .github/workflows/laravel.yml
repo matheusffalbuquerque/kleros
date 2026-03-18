@@ -20,18 +20,31 @@ jobs:
         extensions: mbstring, dom, fileinfo, mysql, gd
 
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: |
+        if [ ! -f .env ]; then
+          cp .env.example .env
+          echo ">> .env criado a partir do .env.example"
+        else
+          echo ">> .env já existe"
+        fi
+        ls -la .env
 
     - name: Create Database
       run: |
         mkdir -p database
         touch database/database.sqlite
+        echo ">> Database SQLite criado"
+        ls -la database/database.sqlite
 
     - name: Install Composer Dependencies
       run: composer install --prefer-dist --no-progress --no-interaction
 
     - name: Generate Application Key
-      run: php artisan key:generate
+      run: |
+        echo ">> Gerando APP_KEY..."
+        php artisan key:generate --show
+        php artisan key:generate
+        echo ">> APP_KEY gerada com sucesso"
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -64,7 +77,10 @@ jobs:
         php-version: '8.2'
 
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: |
+        if [ ! -f .env ]; then
+          cp .env.example .env
+        fi
 
     - name: Create Database
       run: |
@@ -90,7 +106,10 @@ jobs:
         php-version: '8.2'
 
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: |
+        if [ ! -f .env ]; then
+          cp .env.example .env
+        fi
 
     - name: Create Database
       run: |
