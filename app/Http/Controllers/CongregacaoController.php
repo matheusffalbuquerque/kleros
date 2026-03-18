@@ -23,11 +23,38 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Dominio;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class CongregacaoController extends Controller
 {
+    private function normalizeDomainSlug(?string $value, int $congregacaoId = 0): string
+    {
+        $slug = Str::of($value ?? '')
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/\s+/', '')
+            ->value();
+
+        $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
+        $slug = trim($slug, '-');
+
+        return $slug !== '' ? $slug : 'congregacao' . $congregacaoId;
+    }
+
+    private function buildCongregationDomain(string $slug): string
+    {
+        $publicDomain = (string) config('domains.public', 'kleros.local');
+        $isProduction = app()->environment('production');
+
+        if ($isProduction) {
+            return "{$slug}.{$publicDomain}";
+        }
+
+        return "{$slug}.local";
+    }
+
     public function index()
     {   
         $congregacoes = Congregacao::all();
@@ -93,11 +120,22 @@ class CongregacaoController extends Controller
             $language = Config::get('locales.default', Config::get('app.locale', 'pt'));
         }
 
-        $congregacao = DB::transaction(function () use ($validated, $language) {
+        $nomeCurtoBase = $validated['nome_curto'] ?: $validated['nome'];
+        $slugCurto = $this->normalizeDomainSlug($nomeCurtoBase);
+
+        $fullDomain = $this->buildCongregationDomain($slugCurto);
+
+        if (Dominio::query()->where('dominio', $fullDomain)->exists()) {
+            throw ValidationException::withMessages([
+                'nome_curto' => __('congregations.validation.nome_curto_unique'),
+            ]);
+        }
+
+        $congregacao = DB::transaction(function () use ($validated, $language, $slugCurto, $fullDomain) {
             $congregacao = new Congregacao();
             $congregacao->denominacao_id = $validated['igreja'];
             $congregacao->identificacao = $validated['nome'];
-            $congregacao->nome_curto = $validated['nome_curto'] ?: $validated['nome'];
+            $congregacao->nome_curto = $validated['nome_curto'] ?? null;
             $congregacao->endereco = $validated['endereco'];
             $congregacao->numero = $validated['numero'] ?? null;
             $congregacao->complemento = $validated['complemento'] ?? null;
@@ -113,16 +151,9 @@ class CongregacaoController extends Controller
             $congregacao->language = $language;
             $congregacao->save();
 
-            $slugCurto = Str::slug($congregacao->nome_curto);
-            if (empty($slugCurto)) {
-                $slugCurto = 'congregacao-' . $congregacao->id;
-            }
-            $congregacao->nome_curto = $slugCurto;
-            $congregacao->save();
-
             $dominio = new Dominio();
             $dominio->congregacao_id = $congregacao->id;
-            $dominio->dominio = "{$slugCurto}.local";
+            $dominio->dominio = $fullDomain;
             $dominio->ativo = true;
             $dominio->save();
 
@@ -136,8 +167,8 @@ class CongregacaoController extends Controller
                         'secundaria' => '#1a1821',
                         'terciaria' => '#cbb6ff',
                     ],
-                    'font_family' => 'Roboto',
-                    'tema_id' => Tema::query()->orderBy('id')->value('id') ?? null,
+                    'font_family' => 'Oswald',
+                    'tema_id' => 1,
                     'agrupamentos' => 'grupo',
                 ]
             );
@@ -216,15 +247,12 @@ class CongregacaoController extends Controller
                 'secundaria' => '#1a1821',
                 'terciaria' => '#cbb6ff',
             ],
-            'font_family' => 'Roboto',
-            'tema_id' => Tema::query()->orderBy('id')->value('id'),
+            'font_family' => 'Oswald',
+            'tema_id' => 1,
             'agrupamentos' => 'grupo',
         ]);
 
-        $temas = Tema::orderBy('nome')->get();
-        $fontes = ['Roboto', 'Teko', 'Source Sans Pro', 'Oswald', 'Saira'];
-
-        return view('congregacoes.config', compact('congregacao', 'config', 'temas', 'fontes'));
+        return view('congregacoes.config', compact('congregacao', 'config'));
     }
 
     public function salvarConfig(Request $request, $congregacaoId)
@@ -238,8 +266,6 @@ class CongregacaoController extends Controller
             'conjunto_cores.primaria' => ['required'],
             'conjunto_cores.secundaria' => ['required'],
             'conjunto_cores.terciaria' => ['required'],
-            'font_family' => ['required', 'string', 'max:100'],
-            'tema_id' => ['nullable', 'exists:temas,id'],
             'agrupamentos' => ['required', 'in:grupo,departamento,setor'],
             'links' => ['nullable', 'array'],
             'links.*' => ['nullable', 'url'],
@@ -274,8 +300,6 @@ class CongregacaoController extends Controller
         $config->logo_caminho = $logoPath;
         $config->banner_caminho = $bannerPath;
         $config->conjunto_cores = $validated['conjunto_cores'];
-        $config->font_family = $validated['font_family'];
-        $config->tema_id = $validated['tema_id'] ?? $config->tema_id;
         $config->agrupamentos = $validated['agrupamentos'];
         $links = array_filter($request->input('links', []), fn ($url) => filled($url));
         $config->links = $links ?: [];

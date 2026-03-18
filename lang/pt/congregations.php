@@ -39,15 +39,6 @@ return [
                 'site' => ['label' => 'Site institucional (opcional)', 'placeholder' => 'https://www.suaigreja.com'],
             ],
         ],
-        'visual' => [
-            'title' => 'Identidade visual',
-            'subtitle' => 'Selecione logo e banner para conferir a pré-visualização antes de concluir o cadastro.',
-            'logo_label' => 'Logo da congregação',
-            'logo_placeholder' => 'Selecione um arquivo PNG ou SVG',
-            'banner_label' => 'Banner para tela de login',
-            'banner_placeholder' => 'Imagem horizontal (JPG ou PNG)',
-            'upload' => 'Selecionar arquivo',
-        ],
         'manager' => [
             'title' => 'Gestor responsável',
             'subtitle' => 'Esta pessoa terá acesso completo ao painel e será o ponto focal para comunicações oficiais.',
@@ -92,9 +83,9 @@ return [
         'success_no_email' => 'Configurações personalizadas com sucesso, mas não foi possível enviar o e-mail ao gestor. Entre em contato com o suporte para concluir o acesso.',
         'next_steps' => [
             'title' => 'Próximos passos',
-            'description' => 'Você pode revisar o cadastro ou entrar no painel quando estiver pronto.',
-            'back' => 'Voltar ao cadastro',
-            'login' => 'Ir para o login',
+            'description' => 'Verifique o recebimento do email em sua caixa de mensagem. Caso não receber, nem na sessão principal, nem em Spam, entre em contato conosco.',
+            'back' => 'Finalizar',
+            'login' => 'Obter Atendimento',
         ],
         'sections' => [
             'identity' => [
@@ -121,9 +112,9 @@ return [
                 ],
             ],
             'modules' => [
-                'badge' => 'Temas e módulos',
-                'title' => 'Organize a estrutura operacional',
-                'description' => 'Ative módulos e escolha o tema visual padrão que será apresentado aos membros.',
+                'badge' => 'Módulos',
+                'title' => 'Configure a estrutura operacional',
+                'description' => '',
                 'grouping' => 'Organização de agrupamentos',
                 'grouping_options' => [
                     'grupo' => 'Apenas grupos',
@@ -139,7 +130,7 @@ return [
             ],
         ],
         'buttons' => [
-            'back' => 'Voltar ao cadastro',
+            'back' => 'Finalizar',
             'submit' => 'Concluir configuração',
         ],
         'file_placeholder' => 'Selecione um arquivo',
@@ -150,6 +141,7 @@ return [
         'telefone_required' => 'Informe um telefone de contato.',
         'email_required' => 'Informe um e-mail válido para acesso.',
         'email_unique' => 'Este e-mail já está cadastrado.',
+        'nome_curto_unique' => 'Este nome reduzido já está em uso. Escolha outro para gerar um domínio exclusivo.',
         'gestor_nome_required' => 'Informe o nome completo do gestor responsável.',
         'gestor_telefone_required' => 'Informe o telefone do gestor responsável.',
         'gestor_data_nascimento_required' => 'Informe a data de nascimento do gestor.',
@@ -167,6 +159,7 @@ return [
                 'identificacao' => 'Identificação: :valor',
                 'telefone' => 'Telefone: :valor',
                 'email' => 'E-mail: :valor',
+                'dominio' => 'Domínio: :valor',
                 'endereco' => 'Endereço: :valor',
                 'cidade' => 'Cidade/UF: :valor',
                 'denominacao' => 'Denominação: :valor',
