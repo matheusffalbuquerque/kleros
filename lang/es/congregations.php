@@ -85,7 +85,7 @@ return [
             'title' => 'Próximos pasos',
             'description' => 'Puedes revisar el registro o acceder al panel cuando estés listo.',
             'back' => 'Volver al registro',
-            'login' => 'Ir al inicio de sesión',
+            'login' => 'Obtener Atención',
         ],
         'sections' => [
             'identity' => [
@@ -112,9 +112,9 @@ return [
                 ],
             ],
             'modules' => [
-                'badge' => 'Temas y módulos',
-                'title' => 'Organiza la estructura operativa',
-                'description' => 'Activa módulos y elige el tema visual que verán los miembros.',
+                'badge' => 'Módulos',
+                'title' => 'Configura la estructura operativa',
+                'description' => '',
                 'grouping' => 'Organización de agrupamientos',
                 'grouping_options' => [
                     'grupo' => 'Solo grupos',
@@ -141,6 +141,7 @@ return [
         'telefone_required' => 'Informa un teléfono de contacto.',
         'email_required' => 'Informa un correo electrónico válido.',
         'email_unique' => 'Este correo electrónico ya está registrado.',
+        'nome_curto_unique' => 'Este nombre abreviado ya está en uso. Elige otro para generar un dominio único.',
         'gestor_nome_required' => 'Informa el nombre completo del gestor responsable.',
         'gestor_telefone_required' => 'Informa el teléfono del gestor responsable.',
         'gestor_data_nascimento_required' => 'Informa la fecha de nacimiento del gestor.',

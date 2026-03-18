@@ -44,7 +44,7 @@
 
             <div class="flex items-center gap-3">
                 @include('site.partials.language-switcher', ['formClass' => 'hidden sm:block', 'selectId' => 'locale-home'])
-                <a href="{{ $demoContactLink }}" target="_blank" class="hidden sm:inline-flex px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 text-sm">
+                <a href="{{ $demoContactLink }}" target="_blank" rel="noopener" class="hidden sm:inline-flex px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 text-sm">
                     {{ __('site.header.demo') }}
                 </a>
                 <a href="{{ route('congregacoes.cadastro') }}" class="px-4 py-2 rounded-lg bg-[#6449a2] hover:bg-[#584091] text-sm font-medium shadow-md">
@@ -187,7 +187,7 @@
                 <div class="bg-white/5 p-8 rounded-xl border border-white/10">
                     <h3 class="text-lg font-semibold">{{ __('site.pricing.plans.custom.name') }}</h3>
                     <p class="text-white/80 mt-2">{{ __('site.pricing.plans.custom.description') }}</p>
-                    <a href="{{ $demoContactLink }}" class="inline-block mt-5 px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
+                    <a href="{{ $demoContactLink }}" target="_blank" rel="noopener" class="inline-block mt-5 px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">
                         {{ __('site.pricing.plans.custom.cta') }}
                     </a>
                 </div>
@@ -200,7 +200,7 @@
         <h2 class="text-2xl font-semibold">{{ __('site.cta.title') }}</h2>
         <p class="text-white/80 mt-3">{{ __('site.cta.description') }}</p>
         <div class="mt-6 flex justify-center gap-4 flex-wrap">
-            <a href="{{ $demoContactLink }}" target="_blank" class="px-5 py-3 rounded-lg bg-[#6449a2] hover:bg-[#584091] font-medium">
+            <a href="{{ $demoContactLink }}" target="_blank" rel="noopener" class="px-5 py-3 rounded-lg bg-[#6449a2] hover:bg-[#584091] font-medium">
                 {{ __('site.cta.primary') }}
             </a>
             <a href="#conhecer" class="px-5 py-3 rounded-lg border border-white/15 hover:border-white/30">

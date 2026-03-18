@@ -7,7 +7,6 @@
 @php
     $texts = trans('congregations.cadastro');
     $basicFields = $texts['basic']['fields'];
-    $visualSection = $texts['visual'] ?? null;
     $managerSection = $texts['manager'] ?? null;
     $managerFields = $managerSection['fields'] ?? [];
     $locationFields = $texts['location']['fields'];
@@ -77,11 +76,10 @@
                     </p>
                 </div>
                 <div class="space-y-3">
-                    <label class="block">
-                        <span class="text-sm font-medium text-white/80">{{ $texts['denomination']['search_label'] }}</span>
-                        <input type="search" id="denominacao_search" placeholder="{{ $texts['denomination']['search_placeholder'] }}" class="mt-2 w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-white placeholder-white/40 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40" autocomplete="off">
-                    </label>
                     <input type="hidden" name="igreja" id="igreja" value="{{ old('igreja') }}" required>
+                    <button type="button" id="denominacao_open_modal" class="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left text-sm font-medium text-white/80 transition hover:border-white/40 hover:bg-white/15 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40">
+                        Selecionar denominação
+                    </button>
                     <div id="denominacao_selected" class="rounded-xl border border-[#6449a2]/60 bg-[#6449a2]/20 px-4 py-3 text-sm text-white/90 flex items-center justify-between {{ $preselectedDenominacao ? '' : 'hidden' }}">
                         <div class="flex flex-col">
                             <span class="text-xs uppercase tracking-[0.2em] text-white/50">{{ $texts['denomination']['selected_label'] }}</span>
@@ -90,21 +88,6 @@
                         <button type="button" id="denominacao_clear" class="rounded-lg border border-white/20 px-3 py-1 text-xs font-medium text-white/80 hover:border-white/40">
                             {{ $texts['denomination']['toggle'] }}
                         </button>
-                    </div>
-                    <div id="denominacao_results" class="hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
-                        <ul class="max-h-64 overflow-y-auto divide-y divide-white/5" role="listbox">
-                            @foreach ($denominacoes as $denominacao)
-                                <li data-denominacao-item
-                                    data-id="{{ $denominacao->id }}"
-                                    data-label="{{ $denominacao->nome }}"
-                                    class="cursor-pointer px-4 py-3 text-sm text-white/80 hover:bg-white/10 hover:text-white transition {{ old('igreja') == $denominacao->id ? 'bg-[#6449a2]/30 text-white' : '' }}"
-                                    role="option"
-                                    aria-selected="{{ old('igreja') == $denominacao->id ? 'true' : 'false' }}">
-                                    {{ $denominacao->nome }}
-                                </li>
-                            @endforeach
-                        </ul>
-                        <p id="denominacao_empty_state" class="hidden px-4 py-3 text-xs text-rose-200">{{ $texts['denomination']['empty'] }}</p>
                     </div>
                 </div>
             </div>
@@ -130,51 +113,6 @@
                     @endforeach
                 </div>
             </div>
-            @if($visualSection)
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-xl font-semibold">{{ $visualSection['title'] }}</h2>
-                    <p class="text-white/60 text-sm mt-2">{{ $visualSection['subtitle'] }}</p>
-                </div>
-                <div class="grid gap-6 md:grid-cols-2">
-                    <label class="block">
-                        <span class="text-sm font-medium text-white/80">{{ $visualSection['logo_label'] }}</span>
-                        <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div class="relative h-16 w-16 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden" data-preview-container="logo">
-                                <img src="{{ asset('storage/images/loading.gif') }}" alt="Carregando logo" class="absolute inset-0 h-full w-full object-contain hidden" data-preview-loader>
-                                <img src="" alt="Pré-visualização do logo" class="hidden h-full w-full object-cover" data-preview-image>
-                                <i class="bi bi-image text-2xl text-white/40" data-preview-placeholder></i>
-                            </div>
-                            <div class="min-w-0 flex-1 space-y-2">
-                                <span data-preview-filename="logo" data-placeholder="{{ $visualSection['logo_placeholder'] }}" class="block truncate text-sm text-white/60" title="{{ $visualSection['logo_placeholder'] }}">{{ $visualSection['logo_placeholder'] }}</span>
-                                <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
-                                    <i class="bi bi-upload"></i> {{ $visualSection['upload'] }}
-                                    <input type="file" name="logo" id="logo" class="hidden" accept="image/*" data-preview-input="logo">
-                                </label>
-                            </div>
-                        </div>
-                    </label>
-
-                    <label class="block">
-                        <span class="text-sm font-medium text-white/80">{{ $visualSection['banner_label'] }}</span>
-                        <div class="mt-3 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div class="relative h-16 w-24 shrink-0 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden" data-preview-container="banner">
-                                <img src="{{ asset('storage/images/loading.gif') }}" alt="Carregando banner" class="absolute inset-0 h-full w-full object-contain hidden" data-preview-loader>
-                                <img src="" alt="Pré-visualização do banner" class="hidden h-full w-full object-cover" data-preview-image>
-                                <i class="bi bi-images text-2xl text-white/40" data-preview-placeholder></i>
-                            </div>
-                            <div class="min-w-0 flex-1 space-y-2">
-                                <span data-preview-filename="banner" data-placeholder="{{ $visualSection['banner_placeholder'] }}" class="block truncate text-sm text-white/60" title="{{ $visualSection['banner_placeholder'] }}">{{ $visualSection['banner_placeholder'] }}</span>
-                                <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
-                                    <i class="bi bi-upload"></i> {{ $visualSection['upload'] }}
-                                    <input type="file" name="banner" id="banner" class="hidden" accept="image/*" data-preview-input="banner">
-                                </label>
-                            </div>
-                        </div>
-                    </label>
-                </div>
-            </div>
-            @endif
             @if($managerSection)
             <div class="space-y-6">
                 <div>
@@ -284,6 +222,49 @@
     </main>
 </div>
 
+<dialog id="denominacao_modal" class="w-[min(92vw,42rem)] rounded-3xl border border-white/10 bg-[#24212b] p-0 text-[#f4f3f6] shadow-2xl shadow-black/50 backdrop:bg-black/70 backdrop:backdrop-blur-sm" style="margin:auto;">
+    <div class="border-b border-white/10 px-6 py-5">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h3 class="text-xl font-semibold">{{ $texts['denomination']['title'] }}</h3>
+                <p class="mt-2 text-sm text-white/60">{{ $texts['denomination']['search_placeholder'] }}</p>
+            </div>
+            <button type="button" id="denominacao_close_modal" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-xl leading-none text-white/70 transition hover:border-white/40 hover:text-white" aria-label="Fechar modal">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="px-6 py-5">
+        <label class="block">
+            <span class="text-sm font-medium text-white/80">{{ $texts['denomination']['search_label'] }}</span>
+            <input type="search" id="denominacao_search" placeholder="{{ $texts['denomination']['search_placeholder'] }}" class="mt-2 w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-white placeholder-white/40 focus:border-[#6449a2] focus:outline-none focus:ring-2 focus:ring-[#6449a2]/40" autocomplete="off">
+        </label>
+        <div id="denominacao_results" class="mt-4 rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
+            <ul class="max-h-72 overflow-y-auto divide-y divide-white/5" role="listbox">
+                @foreach ($denominacoes as $denominacao)
+                    <li data-denominacao-item
+                        data-id="{{ $denominacao->id }}"
+                        data-label="{{ $denominacao->nome }}"
+                        class="cursor-pointer px-4 py-3 text-sm text-white/80 hover:bg-white/10 hover:text-white transition {{ old('igreja') == $denominacao->id ? 'bg-[#6449a2]/30 text-white' : '' }}"
+                        role="option"
+                        aria-selected="{{ old('igreja') == $denominacao->id ? 'true' : 'false' }}">
+                        {{ $denominacao->nome }}
+                    </li>
+                @endforeach
+            </ul>
+            <p id="denominacao_empty_state" class="hidden px-4 py-3 text-xs text-rose-200">{{ $texts['denomination']['empty'] }}</p>
+        </div>
+    </div>
+    <div class="flex flex-col-reverse gap-3 border-t border-white/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <button type="button" id="denominacao_cancel_modal" class="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-medium text-white/80 transition hover:border-white/40">
+            {{ $texts['buttons']['back'] }}
+        </button>
+        <button type="button" id="denominacao_confirm_modal" class="inline-flex items-center justify-center rounded-xl bg-[#6449a2] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#6449a2]/30 transition hover:bg-[#584091] disabled:cursor-not-allowed disabled:opacity-50">
+            {{ $texts['denomination']['selected_label'] }}
+        </button>
+    </div>
+</dialog>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
@@ -302,105 +283,23 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const previewInputs = document.querySelectorAll('[data-preview-input]');
-
-        previewInputs.forEach((input) => {
-            const key = input.dataset.previewInput;
-            const container = document.querySelector(`[data-preview-container="${key}"]`);
-            if (!container) {
-                return;
-            }
-
-            const loader = container.querySelector('[data-preview-loader]');
-            const previewImage = container.querySelector('[data-preview-image]');
-            const placeholder = container.querySelector('[data-preview-placeholder]');
-            const filenameLabel = document.querySelector(`[data-preview-filename="${key}"]`);
-            const placeholderText = filenameLabel ? filenameLabel.dataset.placeholder || filenameLabel.textContent : '';
-
-            if (previewImage && !previewImage.dataset.previewOriginal) {
-                previewImage.dataset.previewOriginal = previewImage.getAttribute('src') || '';
-            }
-
-            input.addEventListener('change', () => {
-                const file = input.files && input.files[0] ? input.files[0] : null;
-
-                if (filenameLabel) {
-                    const labelText = file ? file.name : placeholderText;
-                    filenameLabel.textContent = labelText;
-                    filenameLabel.title = labelText;
-                }
-
-                if (file) {
-                    placeholder?.classList.add('hidden');
-                    if (previewImage) {
-                        previewImage.classList.add('hidden');
-                    }
-                    if (loader) {
-                        loader.classList.remove('hidden');
-                    }
-
-                    const reader = new FileReader();
-                    reader.addEventListener('load', (event) => {
-                        if (loader) {
-                            loader.classList.add('hidden');
-                        }
-                        if (previewImage) {
-                            previewImage.src = event.target?.result || '';
-                            previewImage.classList.remove('hidden');
-                        }
-                    });
-                    reader.addEventListener('error', () => {
-                        if (loader) {
-                            loader.classList.add('hidden');
-                        }
-                        if (previewImage) {
-                            const original = previewImage.dataset.previewOriginal || '';
-                            if (original) {
-                                previewImage.src = original;
-                                previewImage.classList.remove('hidden');
-                            } else {
-                                previewImage.src = '';
-                                previewImage.classList.add('hidden');
-                            }
-                        }
-                        placeholder?.classList.remove('hidden');
-                    });
-                    reader.readAsDataURL(file);
-                } else {
-                    if (loader) {
-                        loader.classList.add('hidden');
-                    }
-
-                    if (previewImage) {
-                        const original = previewImage.dataset.previewOriginal || '';
-                        if (original) {
-                            previewImage.src = original;
-                            previewImage.classList.remove('hidden');
-                        } else {
-                            previewImage.src = '';
-                            previewImage.classList.add('hidden');
-                        }
-                    }
-
-                    placeholder?.classList.remove('hidden');
-                }
-            });
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('denominacao_modal');
+        const openModalButton = document.getElementById('denominacao_open_modal');
+        const closeModalButton = document.getElementById('denominacao_close_modal');
+        const cancelModalButton = document.getElementById('denominacao_cancel_modal');
+        const confirmModalButton = document.getElementById('denominacao_confirm_modal');
         const searchInput = document.getElementById('denominacao_search');
         const resultsContainer = document.getElementById('denominacao_results');
         const hiddenInput = document.getElementById('igreja');
         const selectedCard = document.getElementById('denominacao_selected');
         const selectedName = document.getElementById('denominacao_selected_name');
+        const triggerText = document.getElementById('denominacao_trigger_text');
         const emptyState = document.getElementById('denominacao_empty_state');
         const clearButton = document.getElementById('denominacao_clear');
 
-        if (searchInput && resultsContainer && hiddenInput) {
+        if (modal && searchInput && resultsContainer && hiddenInput) {
             const options = Array.from(resultsContainer.querySelectorAll('[data-denominacao-item]'));
+            let pendingSelectionId = hiddenInput.value || '';
 
             const highlightSelection = (id) => {
                 options.forEach((option) => {
@@ -411,14 +310,6 @@
                 });
             };
 
-            const showResults = () => {
-                resultsContainer.classList.remove('hidden');
-            };
-
-            const hideResults = () => {
-                resultsContainer.classList.add('hidden');
-            };
-
             const updateSelectedCard = (label) => {
                 if (!selectedCard || !selectedName) {
                     return;
@@ -426,9 +317,19 @@
 
                 if (label) {
                     selectedName.textContent = label;
+                    if (triggerText) {
+                        triggerText.textContent = label;
+                        triggerText.classList.remove('text-white/60');
+                        triggerText.classList.add('text-white');
+                    }
                     selectedCard.classList.remove('hidden');
                 } else {
                     selectedName.textContent = '';
+                    if (triggerText) {
+                        triggerText.textContent = '{{ $texts['denomination']['search_placeholder'] }}';
+                        triggerText.classList.add('text-white/60');
+                        triggerText.classList.remove('text-white');
+                    }
                     selectedCard.classList.add('hidden');
                 }
             };
@@ -452,69 +353,99 @@
                     emptyState.classList.toggle('hidden', !showEmpty);
                 }
 
-                if (visibleCount > 0) {
-                    showResults();
+                return visibleCount;
+            };
+
+            const updateConfirmState = () => {
+                if (confirmModalButton) {
+                    confirmModalButton.disabled = pendingSelectionId === '';
                 }
             };
 
-            const selectOption = (option) => {
-                const id = option.dataset.id || '';
-                const label = option.dataset.label || '';
+            const setPendingSelection = (option) => {
+                pendingSelectionId = option.dataset.id || '';
+                highlightSelection(pendingSelectionId);
+                updateConfirmState();
+            };
 
-                hiddenInput.value = id;
-                updateSelectedCard(label);
-                highlightSelection(id);
-                searchInput.value = label;
-                hideResults();
+            const openModal = () => {
+                pendingSelectionId = hiddenInput.value || '';
+                highlightSelection(pendingSelectionId);
+                searchInput.value = '';
+                filterOptions('');
+                updateConfirmState();
+                modal.showModal();
+                setTimeout(() => searchInput.focus(), 0);
+            };
+
+            const closeModal = () => {
+                modal.close();
             };
 
             options.forEach((option) => {
-                option.addEventListener('mousedown', (event) => {
-                    event.preventDefault();
-                    selectOption(option);
+                option.addEventListener('click', () => {
+                    setPendingSelection(option);
                 });
             });
+
+            if (openModalButton) {
+                openModalButton.addEventListener('click', openModal);
+            }
+
+            if (closeModalButton) {
+                closeModalButton.addEventListener('click', closeModal);
+            }
+
+            if (cancelModalButton) {
+                cancelModalButton.addEventListener('click', closeModal);
+            }
+
+            if (confirmModalButton) {
+                confirmModalButton.addEventListener('click', () => {
+                    const selectedOption = options.find((option) => option.dataset.id === pendingSelectionId);
+                    hiddenInput.value = pendingSelectionId;
+                    updateSelectedCard(selectedOption ? (selectedOption.dataset.label || '') : '');
+                    highlightSelection(hiddenInput.value);
+                    closeModal();
+                });
+            }
 
             if (clearButton) {
                 clearButton.addEventListener('click', () => {
                     hiddenInput.value = '';
-                    searchInput.value = '';
+                    pendingSelectionId = '';
                     highlightSelection('');
                     updateSelectedCard('');
-                    filterOptions('');
-                    showResults();
-                    searchInput.focus();
+                    updateConfirmState();
+                    openModal();
                 });
             }
 
-            searchInput.addEventListener('focus', () => {
-                filterOptions(searchInput.value);
-                showResults();
-            });
-
             searchInput.addEventListener('input', () => {
                 filterOptions(searchInput.value);
-                showResults();
             });
 
             searchInput.addEventListener('search', () => {
                 filterOptions(searchInput.value);
-                showResults();
             });
 
             searchInput.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') {
-                    hideResults();
-                    searchInput.blur();
+                    event.preventDefault();
+                    closeModal();
                 }
             });
 
-            document.addEventListener('click', (event) => {
-                const target = event.target;
-                if (target === searchInput || resultsContainer.contains(target) || (selectedCard && selectedCard.contains(target))) {
-                    return;
+            modal.addEventListener('click', (event) => {
+                const rect = modal.getBoundingClientRect();
+                const clickedOutside = event.clientY < rect.top
+                    || event.clientY > rect.bottom
+                    || event.clientX < rect.left
+                    || event.clientX > rect.right;
+
+                if (clickedOutside) {
+                    closeModal();
                 }
-                hideResults();
             });
 
             if (hiddenInput.value) {
@@ -522,7 +453,10 @@
                 if (selectedOption) {
                     updateSelectedCard(selectedOption.dataset.label || '');
                     highlightSelection(hiddenInput.value);
+                    pendingSelectionId = hiddenInput.value;
                 }
+            } else {
+                updateSelectedCard('');
             }
         }
 
