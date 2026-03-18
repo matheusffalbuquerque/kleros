@@ -19,6 +19,8 @@ jobs:
           username: ${{ secrets.KLEROSTEST_SSH_USER }}
           key: ${{ secrets.KLEROSTEST_SSH_KEY }}
           port: ${{ secrets.KLEROSTEST_SSH_PORT }}
+          timeout: 120s
+          command_timeout: 30m
           script: |
             set -e
             if [ ! -d /var/www/klerostest/.git ]; then

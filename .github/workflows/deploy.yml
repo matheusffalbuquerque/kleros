@@ -34,6 +34,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT || 22 }}
+        timeout: 120s
+        command_timeout: 30m
         script: |
           cd ${{ secrets.APP_PATH || '/var/www/kleros' }}
           
