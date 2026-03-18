@@ -60,7 +60,7 @@
                     <p class="mt-2 text-sm text-white/75">{{ $configTexts['next_steps']['description'] }}</p>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('congregacoes.cadastro') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-white/80 hover:border-white/40">
+                    <a href="{{ route('site.home') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-white/80 hover:border-white/40">
                         <i class="bi bi-arrow-left"></i> {{ $configTexts['next_steps']['back'] }}
                     </a>
                     <a href="{{ $supportLink }}" @if($supportLink !== '#') target="_blank" rel="noopener" @endif class="inline-flex items-center gap-2 rounded-xl bg-[#6449a2] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#6449a2]/40 hover:bg-[#8261c2]">
@@ -102,8 +102,8 @@
                                 <img src="{{ $logoUrl ?? '' }}" alt="Logo" class="{{ $logoUrl ? '' : 'hidden ' }}h-full w-full object-cover" data-preview-image>
                                 <i class="bi bi-image text-2xl text-white/40 {{ $logoUrl ? 'hidden' : '' }}" data-preview-placeholder></i>
                             </div>
-                            <div class="flex-1 space-y-2">
-                                <span id="logo-filename" class="block text-sm text-white/60">{{ $logoPath !== '' ? basename($logoPath) : $identitySection['logo_placeholder'] }}</span>
+                            <div class="min-w-0 flex-1 space-y-2">
+                                <span id="logo-filename" class="block truncate text-sm text-white/60" title="{{ $logoPath !== '' ? basename($logoPath) : $identitySection['logo_placeholder'] }}">{{ $logoPath !== '' ? basename($logoPath) : $identitySection['logo_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $identitySection['upload'] }}
                                     <input type="file" name="logo" id="logo" class="hidden" accept="image/*" data-preview-input="logo">
@@ -119,8 +119,8 @@
                                 <img src="{{ $bannerUrl ?? '' }}" alt="Banner" class="{{ $bannerUrl ? '' : 'hidden ' }}h-full w-full object-cover" data-preview-image>
                                 <i class="bi bi-images text-2xl text-white/40 {{ $bannerUrl ? 'hidden' : '' }}" data-preview-placeholder></i>
                             </div>
-                            <div class="flex-1 space-y-2">
-                                <span id="banner-filename" class="block text-sm text-white/60">{{ $bannerPath !== '' ? basename($bannerPath) : $identitySection['banner_placeholder'] }}</span>
+                            <div class="min-w-0 flex-1 space-y-2">
+                                <span id="banner-filename" class="block truncate text-sm text-white/60" title="{{ $bannerPath !== '' ? basename($bannerPath) : $identitySection['banner_placeholder'] }}">{{ $bannerPath !== '' ? basename($bannerPath) : $identitySection['banner_placeholder'] }}</span>
                                 <label class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/50 cursor-pointer">
                                     <i class="bi bi-upload"></i> {{ $identitySection['upload'] }}
                                     <input type="file" name="banner" id="banner" class="hidden" accept="image/*" data-preview-input="banner">
@@ -172,7 +172,7 @@
             </section>
 
             <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <a href="{{ route('congregacoes.cadastro') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80 hover:border-white/40">
+                <a href="{{ route('site.home') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80 hover:border-white/40">
                     <i class="bi bi-arrow-left"></i> {{ $configTexts['buttons']['back'] }}
                 </a>
                 <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6449a2] px-5 py-3 text-sm font-medium text-white shadow-lg shadow-[#6449a2]/40 hover:bg-[#8261c2]">
@@ -198,7 +198,9 @@
         if (inputEl && labelEl) {
             inputEl.addEventListener('change', (event) => {
                 const [file] = event.target.files;
-                labelEl.textContent = file ? file.name : '{{ $configTexts['file_placeholder'] }}';
+                const labelText = file ? file.name : '{{ $configTexts['file_placeholder'] }}';
+                labelEl.textContent = labelText;
+                labelEl.title = labelText;
             });
         }
     });
