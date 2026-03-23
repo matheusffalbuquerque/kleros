@@ -10,7 +10,6 @@ use App\Models\Denominacao;
 use App\Models\Cidade;
 use App\Models\Estado;
 use App\Models\Pais;
-use App\Models\Tema;
 use App\Models\Membro;
 use App\Models\User;
 use App\Mail\CongregacaoGestorBoasVindas;

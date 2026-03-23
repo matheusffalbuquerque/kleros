@@ -211,8 +211,6 @@ return [
     | when flagged "secure" and the Same-Site attribute is set to "none".
     |
     */
-
-    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
-    'secure' => env('SESSION_SECURE_COOKIE', true)
+    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false)
 
 ];
