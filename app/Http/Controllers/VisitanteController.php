@@ -10,7 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class VisitanteController extends Controller
 {
@@ -77,8 +79,7 @@ class VisitanteController extends Controller
 
     public function historico()
     {
-        $visitantes = Visitante::where('congregacao_id', app('congregacao')->id)
-            ->orderByDesc('data_visita')
+        $visitantes = $this->buildHistoricoVisitantesQuery()
             ->paginate(10);
 
         return view('visitantes/historico', [
@@ -89,28 +90,11 @@ class VisitanteController extends Controller
 
     public function search(Request $request)
     {
-        $query = Visitante::where('congregacao_id', app('congregacao')->id);
-
-        $dataInicial = $request->input('data_inicial');
-        $dataFinal = $request->input('data_final');
-
-        if ($dataInicial && $dataFinal && $dataInicial > $dataFinal) {
-            [$dataInicial, $dataFinal] = [$dataFinal, $dataInicial];
-        }
-
-        if ($request->filled('nome')) {
-            $query->where('nome', 'LIKE', '%' . $request->nome . '%');
-        }
-
-        if ($dataInicial) {
-            $query->whereDate('data_visita', '>=', $dataInicial);
-        }
-
-        if ($dataFinal) {
-            $query->whereDate('data_visita', '<=', $dataFinal);
-        }
-
-        $visitantes = $query->orderByDesc('data_visita')->get();
+        $visitantes = $this->buildHistoricoVisitantesQuery(
+            $request->input('nome'),
+            $request->input('data_inicial'),
+            $request->input('data_final')
+        )->get();
 
         $view = view('visitantes/includes/visitantes_search', ['visitantes' => $visitantes])->render();
 
@@ -181,6 +165,57 @@ class VisitanteController extends Controller
         return response()->streamDownload($callback, $filename, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+
+    public function imprimirHistorico(Request $request)
+    {
+        $congregacao = app('congregacao')->loadMissing('config');
+        $nome = $request->input('nome');
+        $dataInicial = $request->input('data_inicial');
+        $dataFinal = $request->input('data_final');
+
+        $visitantes = $this->buildHistoricoVisitantesQuery($nome, $dataInicial, $dataFinal)
+            ->get()
+            ->map(function (Visitante $visitante) {
+                $visitante->status_label = $visitante->jaEhMembro()
+                    ? 'Tornou-se membro'
+                    : (optional($visitante->sit_visitante)->titulo ?? __('visitors.common.statuses.not_informed'));
+                $visitante->total_visitas_label = $visitante->totalVisitas();
+
+                return $visitante;
+            });
+
+        $periodo = match (true) {
+            $dataInicial && $dataFinal => 'De ' . Carbon::parse($dataInicial)->format('d/m/Y') . ' ate ' . Carbon::parse($dataFinal)->format('d/m/Y'),
+            $dataInicial => 'A partir de ' . Carbon::parse($dataInicial)->format('d/m/Y'),
+            $dataFinal => 'Ate ' . Carbon::parse($dataFinal)->format('d/m/Y'),
+            default => 'Todo o historico de visitantes',
+        };
+
+        $totalRegistros = $visitantes->count();
+        $visitantesUnicos = $visitantes->map(fn (Visitante $visitante) => mb_strtolower(trim(($visitante->nome ?? '') . '|' . ($visitante->telefone ?? ''))))->unique()->count();
+        $tornaramMembros = $visitantes->filter(fn (Visitante $visitante) => $visitante->jaEhMembro())->count();
+        $mediaVisitas = $totalRegistros ? round($visitantes->avg(fn (Visitante $visitante) => (int) $visitante->total_visitas_label), 1) : 0;
+
+        $resumo = [
+            'total_registros' => $totalRegistros,
+            'visitantes_unicos' => $visitantesUnicos,
+            'tornaram_membros' => $tornaramMembros,
+            'media_visitas' => $mediaVisitas,
+        ];
+
+        return Pdf::view('visitantes.relatorios.historico_pdf', [
+            'congregacao' => $congregacao,
+            'visitantes' => $visitantes,
+            'periodo' => $periodo,
+            'nomeFiltro' => $nome,
+            'resumo' => $resumo,
+            'logoDataUri' => $this->resolveCongregacaoLogoDataUri($congregacao),
+            'geradoEm' => now(),
+        ])
+            ->format('A4')
+            ->name('relatorio-visitantes.pdf');
     }
 
     public function exibir($id)
@@ -332,6 +367,82 @@ class VisitanteController extends Controller
         return redirect()
             ->route('membros.editar', $membro->id)
             ->with('msg', __('visitors.flash.converted', ['name' => $membro->nome]));
+    }
+
+
+    private function buildHistoricoVisitantesQuery(?string $nome = null, ?string $dataInicial = null, ?string $dataFinal = null)
+    {
+        $query = Visitante::with('sit_visitante')
+            ->where('congregacao_id', app('congregacao')->id);
+
+        if ($dataInicial && $dataFinal && $dataInicial > $dataFinal) {
+            [$dataInicial, $dataFinal] = [$dataFinal, $dataInicial];
+        }
+
+        if ($nome) {
+            $query->where('nome', 'LIKE', '%' . $nome . '%');
+        }
+
+        if ($dataInicial) {
+            $query->whereDate('data_visita', '>=', $dataInicial);
+        }
+
+        if ($dataFinal) {
+            $query->whereDate('data_visita', '<=', $dataFinal);
+        }
+
+        return $query->orderByDesc('data_visita');
+    }
+
+    private function resolveCongregacaoLogoDataUri($congregacao): ?string
+    {
+        $logoPath = (string) data_get($congregacao, 'config.logo_caminho', '');
+
+        if ($logoPath === '') {
+            return null;
+        }
+
+        $normalizedPath = ltrim($logoPath, '/');
+        $normalizedPath = str_starts_with($normalizedPath, 'storage/') ? substr($normalizedPath, 8) : $normalizedPath;
+        $normalizedPath = str_starts_with($normalizedPath, 'public/') ? substr($normalizedPath, 7) : $normalizedPath;
+
+        $candidates = array_values(array_unique(array_filter([
+            $normalizedPath,
+            'congregacoes/' . $congregacao->id . '/imagens/' . basename($normalizedPath),
+        ])));
+
+        $directoryPath = Storage::disk('public')->path('congregacoes/' . $congregacao->id . '/imagens');
+
+        if (is_dir($directoryPath)) {
+            $fallbackFiles = glob($directoryPath . '/*.{png,jpg,jpeg,webp,svg}', GLOB_BRACE) ?: [];
+
+            usort($fallbackFiles, fn (string $a, string $b) => filemtime($b) <=> filemtime($a));
+
+            foreach ($fallbackFiles as $fallbackFile) {
+                $relativeFallback = 'congregacoes/' . $congregacao->id . '/imagens/' . basename($fallbackFile);
+                $candidates[] = $relativeFallback;
+            }
+
+            $candidates = array_values(array_unique($candidates));
+        }
+
+        foreach ($candidates as $candidate) {
+            if (! Storage::disk('public')->exists($candidate)) {
+                continue;
+            }
+
+            $absolutePath = Storage::disk('public')->path($candidate);
+
+            if (! is_file($absolutePath)) {
+                continue;
+            }
+
+            $mimeType = mime_content_type($absolutePath) ?: 'image/png';
+
+            return 'data:' . $mimeType . ';base64,' . base64_encode(file_get_contents($absolutePath));
+        }
+
+        return null;
     }
 
     public function quickSearch(Request $request): JsonResponse

@@ -12,16 +12,14 @@ use App\Models\Visitante;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class CultoController extends Controller
 {
     public function index() {
 
-        $congregacaoId = app('congregacao')->id;
-
-        $cultos = Culto::with(['preletor', 'evento'])
-            ->where('congregacao_id', $congregacaoId)
-            ->whereDate('data_culto', '<', date('Y-m-d'))
+        $cultos = $this->buildHistoricoCultosQuery()
             ->paginate(10);
 
         $cultos->getCollection()->transform(function (Culto $culto) {
@@ -34,6 +32,56 @@ class CultoController extends Controller
         }
 
         return view('cultos/historico', ['cultos' => $cultos]);
+    }
+
+    public function imprimirHistorico(Request $request)
+    {
+        $congregacao = app('congregacao')->loadMissing('config');
+        $dataInicial = $request->input('data_inicial');
+        $dataFinal = $request->input('data_final');
+
+        $cultos = $this->buildHistoricoCultosQuery($dataInicial, $dataFinal)
+            ->get()
+            ->map(function (Culto $culto) {
+                $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo ?: 'Nao informado';
+                $culto->categoria_label = optional($culto->categoria)->nome ?: 'Regular';
+                $culto->evento_label = optional($culto->evento)->titulo ?: 'Nenhum';
+                $culto->publico_total = (int) ($culto->quant_adultos ?? 0) + (int) ($culto->quant_criancas ?? 0) + (int) ($culto->quant_visitantes ?? 0);
+
+                return $culto;
+            });
+
+        $periodo = match (true) {
+            $dataInicial && $dataFinal => 'De ' . Carbon::parse($dataInicial)->format('d/m/Y') . ' ate ' . Carbon::parse($dataFinal)->format('d/m/Y'),
+            $dataInicial => 'A partir de ' . Carbon::parse($dataInicial)->format('d/m/Y'),
+            $dataFinal => 'Ate ' . Carbon::parse($dataFinal)->format('d/m/Y'),
+            default => 'Todo o historico de cultos',
+        };
+
+        $logoDataUri = $this->resolveCongregacaoLogoDataUri($congregacao);
+
+        $totalCultos = $cultos->count();
+
+        $resumo = [
+            'total_cultos' => $totalCultos,
+            'adultos_media' => $totalCultos ? round($cultos->avg(fn (Culto $culto) => (int) ($culto->quant_adultos ?? 0)), 1) : 0,
+            'criancas_media' => $totalCultos ? round($cultos->avg(fn (Culto $culto) => (int) ($culto->quant_criancas ?? 0)), 1) : 0,
+            'visitantes_media' => $totalCultos ? round($cultos->avg(fn (Culto $culto) => (int) ($culto->quant_visitantes ?? 0)), 1) : 0,
+            'publico_total_media' => $totalCultos ? round($cultos->avg(fn (Culto $culto) => (int) $culto->publico_total), 1) : 0,
+        ];
+
+        return Pdf::view('cultos.relatorios.historico_pdf', [
+            'congregacao' => $congregacao,
+            'cultos' => $cultos,
+            'periodo' => $periodo,
+            'dataInicial' => $dataInicial,
+            'dataFinal' => $dataFinal,
+            'resumo' => $resumo,
+            'logoDataUri' => $logoDataUri,
+            'geradoEm' => now(),
+        ])
+            ->format('A4')
+            ->name('relatorio-cultos.pdf');
     }
 
     public function create() {
@@ -162,22 +210,18 @@ class CultoController extends Controller
     public function search(Request $request) {
 
         $origin = $request->origin;
-        $congregacaoId = app('congregacao')->id;
-
-        $query = Culto::with(['evento', 'preletor'])
-            ->where('congregacao_id', $congregacaoId);
 
         if ($origin === 'historico') {
-            $query->whereDate('data_culto', '<=', date('Y-m-d'));
-
-            if ($request->filled('data_inicial')) {
-                $query->whereDate('data_culto', '>=', $request->input('data_inicial'));
-            }
-
-            if ($request->filled('data_final')) {
-                $query->whereDate('data_culto', '<=', $request->input('data_final'));
-            }
+            $query = $this->buildHistoricoCultosQuery(
+                $request->input('data_inicial'),
+                $request->input('data_final')
+            );
         } else {
+            $congregacaoId = app('congregacao')->id;
+
+            $query = Culto::with(['evento', 'preletor'])
+                ->where('congregacao_id', $congregacaoId);
+
             $query->whereDate('data_culto', '>=', date('Y-m-d'));
 
             if ($request->filled('preletor')) {
@@ -194,7 +238,7 @@ class CultoController extends Controller
             }
         }
 
-        $cultosCollection = $query->orderBy('data_culto')->get()
+        $cultosCollection = $query->get()
             ->map(function (Culto $culto) {
                 $culto->preletor_label = optional($culto->preletor)->nome ?: $culto->preletor_externo;
                 return $culto;
@@ -369,5 +413,72 @@ class CultoController extends Controller
             'totalCultosDia' => $totalCultosDia,
             'cultoIndex' => $cultoIndex,
         ]);
+    }
+
+    private function buildHistoricoCultosQuery(?string $dataInicial = null, ?string $dataFinal = null)
+    {
+        $query = Culto::with(['preletor', 'evento', 'categoria'])
+            ->where('congregacao_id', app('congregacao')->id)
+            ->whereDate('data_culto', '<=', date('Y-m-d'));
+
+        if ($dataInicial) {
+            $query->whereDate('data_culto', '>=', $dataInicial);
+        }
+
+        if ($dataFinal) {
+            $query->whereDate('data_culto', '<=', $dataFinal);
+        }
+
+        return $query->orderByDesc('data_culto');
+    }
+
+    private function resolveCongregacaoLogoDataUri($congregacao): ?string
+    {
+        $logoPath = (string) data_get($congregacao, 'config.logo_caminho', '');
+
+        if ($logoPath === '') {
+            return null;
+        }
+
+        $normalizedPath = ltrim($logoPath, '/');
+        $normalizedPath = str_starts_with($normalizedPath, 'storage/') ? substr($normalizedPath, 8) : $normalizedPath;
+        $normalizedPath = str_starts_with($normalizedPath, 'public/') ? substr($normalizedPath, 7) : $normalizedPath;
+
+        $candidates = array_values(array_unique(array_filter([
+            $normalizedPath,
+            'congregacoes/' . $congregacao->id . '/imagens/' . basename($normalizedPath),
+        ])));
+
+        $directoryPath = Storage::disk('public')->path('congregacoes/' . $congregacao->id . '/imagens');
+
+        if (is_dir($directoryPath)) {
+            $fallbackFiles = glob($directoryPath . '/*.{png,jpg,jpeg,webp,svg}', GLOB_BRACE) ?: [];
+
+            usort($fallbackFiles, fn (string $a, string $b) => filemtime($b) <=> filemtime($a));
+
+            foreach ($fallbackFiles as $fallbackFile) {
+                $relativeFallback = 'congregacoes/' . $congregacao->id . '/imagens/' . basename($fallbackFile);
+                $candidates[] = $relativeFallback;
+            }
+
+            $candidates = array_values(array_unique($candidates));
+        }
+
+        foreach ($candidates as $candidate) {
+            if (! Storage::disk('public')->exists($candidate)) {
+                continue;
+            }
+
+            $absolutePath = Storage::disk('public')->path($candidate);
+
+            if (! is_file($absolutePath)) {
+                continue;
+            }
+
+            $mimeType = mime_content_type($absolutePath) ?: 'image/png';
+            return 'data:' . $mimeType . ';base64,' . base64_encode(file_get_contents($absolutePath));
+        }
+
+        return null;
     }
 }

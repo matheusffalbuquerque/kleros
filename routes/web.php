@@ -216,6 +216,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/visitantes/adicionar', [VisitanteController::class, 'create'])->name('visitantes.adicionar');
         Route::get('/visitantes/novo/modal', [VisitanteController::class, 'form_criar'])->name('visitantes.form_criar');
         Route::get('/visitantes/historico', [VisitanteController::class, 'historico'])->name('visitantes.historico');
+        Route::get('/visitantes/historico/imprimir', [VisitanteController::class, 'imprimirHistorico'])->name('visitantes.historico.imprimir');
         Route::get('/visitantes/export', [VisitanteController::class, 'export'])->name('visitantes.export');
         Route::post('/visitantes/search', [VisitanteController::class, 'search'])->name('visitantes.search');
         Route::get('/visitantes/quick-search', [VisitanteController::class, 'quickSearch'])->name('visitantes.quick_search');
@@ -252,6 +253,7 @@ Route::middleware(['web', 'dominio', 'setlocale'])->group(function () {
         Route::get('/cultos/agenda', [CultoController::class, 'agenda'])->name('cultos.agenda');
         Route::get('/cultos/painel', [CultoController::class, 'painel'])->name('cultos.painel');
         Route::get('/cultos/historico', [CultoController::class, 'index'])->name('cultos.historico');
+        Route::get('/cultos/historico/imprimir', [CultoController::class, 'imprimirHistorico'])->name('cultos.historico.imprimir');
         Route::post('cultos/search', [CultoController::class, 'search'])->name('cultos.search');
         Route::get('/cultos/agendamento', [CultoController::class, 'create'])->name('cultos.create');
         Route::get('/cultos/novo', [CultoController::class, 'form_criar'])->name('cultos.form_criar');

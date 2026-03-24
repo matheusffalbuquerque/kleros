@@ -103,7 +103,20 @@
 
         $('.imprimir').click(function(event) {
             event.preventDefault();
-            window.print();
+            const params = new URLSearchParams();
+            const dataInicial = $('#data_inicial').val();
+            const dataFinal = $('#data_final').val();
+
+            if (dataInicial) {
+                params.set('data_inicial', dataInicial);
+            }
+
+            if (dataFinal) {
+                params.set('data_final', dataFinal);
+            }
+
+            const url = `{{ route('cultos.historico.imprimir') }}${params.toString() ? '?' + params.toString() : ''}`;
+            window.open(url, '_blank');
         });
     })
 </script>

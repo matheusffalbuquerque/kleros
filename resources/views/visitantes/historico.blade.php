@@ -36,12 +36,12 @@
                 </div>
                 <div class="search-panel-item">
                     <button id="btn_filtrar" type="button"><i class="bi bi-search"></i> {{ $common['buttons']['search'] }}</button>
-                    <button id="btn_exportar_visitantes" type="button" data-export-url="{{ route('visitantes.export') }}"><i class="bi bi-file-arrow-up"></i> {{ $common['buttons']['export'] }}</button>
+                    <button type="button" data-action="print"><i class="bi bi-printer"></i> {{ $common['buttons']['print'] }}</button>
                     <button class="options-menu__trigger" type="button" data-options-target="visitantesHistoricoOptions"><i class="bi bi-three-dots-vertical"></i> {{ $common['buttons']['options'] }}</button>
                 </div>
             </div>
             <div class="options-menu" id="visitantesHistoricoOptions" hidden>
-                <button type="button" class="btn" data-action="print"><i class="bi bi-printer"></i> {{ $common['buttons']['print'] }}</button>
+                <button id="btn_exportar_visitantes" type="button" class="btn" data-export-url="{{ route('visitantes.export') }}"><i class="bi bi-file-arrow-up"></i> {{ $common['buttons']['export'] }}</button>
                 <button type="button" class="btn" data-action="back"><i class="bi bi-arrow-return-left"></i> {{ $common['buttons']['back'] }}</button>
             </div>
         </div>
@@ -184,6 +184,7 @@
         const dataInicialInput = document.getElementById('data_inicial');
         const dataFinalInput = document.getElementById('data_final');
         const contentTarget = document.getElementById('content');
+        const printButtons = document.querySelectorAll('[data-action="print"]');
 
         function renderEmpty(message) {
             if (!contentTarget) return;
@@ -260,14 +261,28 @@
             pesquisarVisitantes();
         });
 
-        document.getElementById('btn_exportar_visitantes')?.addEventListener('click', function (event) {
-            event.preventDefault();
-            const url = this.dataset.exportUrl;
+        function buildHistoryParams() {
             const params = new URLSearchParams();
             if (nomeInput?.value) params.append('nome', nomeInput.value);
             if (dataInicialInput?.value) params.append('data_inicial', dataInicialInput.value);
             if (dataFinalInput?.value) params.append('data_final', dataFinalInput.value);
+            return params;
+        }
+
+        document.getElementById('btn_exportar_visitantes')?.addEventListener('click', function (event) {
+            event.preventDefault();
+            const url = this.dataset.exportUrl;
+            const params = buildHistoryParams();
             window.location.href = params.toString() ? `${url}?${params.toString()}` : url;
+        });
+
+        printButtons.forEach((button) => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const params = buildHistoryParams();
+                const url = `{{ route('visitantes.historico.imprimir') }}${params.toString() ? '?' + params.toString() : ''}`;
+                window.open(url, '_blank');
+            });
         });
 
         if (nomeInput) {

@@ -431,6 +431,17 @@
         margin-top: 1rem;
         padding: 0.9rem 1rem;
         border-left: 4px solid transparent;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--background-color, #ffffff) 78%, var(--text-color, #111827) 22%);
+        color: var(--text-color, #f9fafb);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .painel-culto-feedback p,
+    .painel-culto-feedback span,
+    .painel-culto-feedback strong,
+    .painel-culto-feedback i {
+        color: inherit;
     }
 
     .painel-culto-feedback[hidden] {
@@ -438,23 +449,27 @@
     }
 
     .painel-culto-feedback.info {
-        background: #eef5ff;
+        background: color-mix(in srgb, var(--background-color, #ffffff) 84%, #3d8bfd 16%);
         border-left-color: #3d8bfd;
+        color: color-mix(in srgb, var(--text-color, #111827) 84%, #3d8bfd 16%);
     }
 
     .painel-culto-feedback.success {
-        background: #e9f8ec;
-        border-left-color: #23914a;
+        background: color-mix(in srgb, var(--background-color, #ffffff) 84%, var(--success-color, #22c55e) 16%);
+        border-left-color: var(--success-color, #22c55e);
+        color: color-mix(in srgb, var(--text-color, #111827) 82%, var(--success-color, #22c55e) 18%);
     }
 
     .painel-culto-feedback.warning {
-        background: #fff6e6;
-        border-left-color: #f0ad4e;
+        background: color-mix(in srgb, var(--background-color, #ffffff) 84%, #f59e0b 16%);
+        border-left-color: #f59e0b;
+        color: color-mix(in srgb, var(--text-color, #111827) 84%, #b45309 16%);
     }
 
     .painel-culto-feedback.error {
-        background: #fde8e8;
-        border-left-color: #dc3545;
+        background: color-mix(in srgb, var(--background-color, #ffffff) 84%, var(--danger-color, #ef4444) 16%);
+        border-left-color: var(--danger-color, #ef4444);
+        color: color-mix(in srgb, var(--text-color, #111827) 82%, var(--danger-color, #ef4444) 18%);
     }
 
     .painel-select-option .option-title {

@@ -16,6 +16,7 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
-        "fullcalendar": "^6.1.18"
+        "fullcalendar": "^6.1.18",
+        "puppeteer": "^24.40.0"
     }
 }
